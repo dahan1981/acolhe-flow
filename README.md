@@ -90,10 +90,14 @@ Isso evita os limites de hospedagem estatica e e compativel com autenticacao, AP
    - `npm install && npm run build`
 6. Start command:
    - `npm run start:railway`
+7. Depois do primeiro deploy, rode uma vez no shell do servico:
+   - `npm run db:push`
+8. Se quiser popular dados de exemplo no ambiente remoto:
+   - `npm run db:seed`
 
 ## Seed em ambiente remoto
 
-Para bootstrap inicial no Railway, rode uma vez:
+Para bootstrap inicial no Railway, rode quando quiser dados de demonstracao:
 
 ```bash
 npm run db:seed
