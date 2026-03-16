@@ -36,8 +36,8 @@ export default function CaseList() {
 
   return (
     <AppLayout title={title} subtitle="Casos novos e atualizados aparecem aqui conforme a demonstracao e os filtros ativos.">
-      <div className="space-y-4">
-        <div className="sticky top-[92px] z-20 rounded-[26px] border border-primary/15 bg-card/95 p-4 shadow-elevated backdrop-blur-xl">
+      <div className="space-y-4 pb-36">
+        <div className="rounded-[26px] border border-primary/15 bg-card/95 p-4 shadow-card">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>
               <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">{actionsLabel}</p>
@@ -103,6 +103,42 @@ export default function CaseList() {
           {data?.casos.map((caso) => (
             <CaseCard key={caso.id} caso={caso} basePath={basePath} />
           ))}
+        </div>
+
+        <div className="pointer-events-none fixed inset-x-0 bottom-20 z-40 mx-auto max-w-lg px-4">
+          <div className="pointer-events-auto rounded-[26px] border border-primary/15 bg-card/95 p-3 shadow-elevated backdrop-blur-xl">
+            <div className="mb-2 flex items-center justify-between gap-3 px-1">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">{actionsLabel}</p>
+                <p className="text-sm font-semibold text-foreground">Acesso rapido</p>
+              </div>
+              <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary">
+                Fluxo principal
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => navigate(`${actionsBasePath}/novo-protocolo`)}
+                className="flex items-center gap-3 rounded-[22px] bg-primary px-4 py-4 text-left text-primary-foreground shadow-card transition-all hover:shadow-card-hover"
+              >
+                <FilePlus2 className="h-5 w-5 shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold">Novo protocolo</p>
+                  <p className="text-xs text-primary-foreground/80">Cadastrar nova vitima</p>
+                </div>
+              </button>
+              <button
+                onClick={() => navigate(`${actionsBasePath}/novo-atendimento`)}
+                className="flex items-center gap-3 rounded-[22px] border border-border/70 bg-background px-4 py-4 text-left shadow-card transition-all hover:shadow-card-hover"
+              >
+                <Stethoscope className="h-5 w-5 shrink-0 text-accent" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Novo atendimento</p>
+                  <p className="text-xs text-muted-foreground">Escolher caso e registrar acao</p>
+                </div>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </AppLayout>
