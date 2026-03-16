@@ -14,6 +14,19 @@ import type {
   SessionUser,
   WomanDashboardResponse,
 } from "@/types/domain";
+import {
+  createDemoAttendance,
+  createDemoReferral,
+  createDemoSupportCase,
+  filterCases,
+  findDemoCase,
+  getOwnDemoCaseRecords,
+  getOwnLatestDemoCase,
+  mergeCaseCollections,
+  mergeManagerStats,
+  mergeProfessionalDashboard,
+  updateDemoCaseStatus,
+} from "@/lib/demo-case-store";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 
@@ -82,18 +95,47 @@ export const api = {
   },
 
   async getWomanDashboard() {
-    return request<WomanDashboardResponse>("/api/woman/dashboard");
+    const remote = await request<WomanDashboardResponse>("/api/woman/dashboard");
+    const latestDemoCase = getOwnLatestDemoCase();
+    const ownDemoRecords = getOwnDemoCaseRecords();
+
+    if (!latestDemoCase) {
+      return remote;
+    }
+
+    const demoAttendances = ownDemoRecords.flatMap((item) => item.caseData.atendimentos);
+    const demoReferrals = ownDemoRecords.flatMap((item) => item.caseData.encaminhamentos);
+    const demoRequests = ownDemoRecords.flatMap((item) => item.caseData.solicitacoesApoio);
+
+    return {
+      caso: latestDemoCase,
+      atendimentosRecentes: [...demoAttendances, ...remote.atendimentosRecentes]
+        .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime())
+        .slice(0, 4),
+      encaminhamentosRecentes: [...demoReferrals, ...remote.encaminhamentosRecentes]
+        .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime())
+        .slice(0, 4),
+      solicitacoesApoio: [...demoRequests, ...remote.solicitacoesApoio]
+        .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime())
+        .slice(0, 6),
+    };
   },
 
   async getWomanCase() {
-    return request<{ caso: CaseDetail | null }>("/api/woman/case");
+    const remote = await request<{ caso: CaseDetail | null }>("/api/woman/case");
+    const latestDemoCase = getOwnLatestDemoCase();
+    return { caso: latestDemoCase ?? remote.caso };
   },
 
   async createSupportRequest(payload: CreateSupportRequestPayload) {
-    return request<{ caseId: string }>("/api/woman/help-requests", {
+    const demoCase = createDemoSupportCase(payload);
+
+    request<{ caseId: string }>("/api/woman/help-requests", {
       method: "POST",
       body: payload,
-    });
+    }).catch(() => undefined);
+
+    return { caseId: demoCase.id };
   },
 
   async createInternalUser(payload: CreateInternalUserPayload) {
@@ -104,11 +146,13 @@ export const api = {
   },
 
   async getProfessionalDashboard() {
-    return request<ProfessionalDashboardResponse>("/api/professional/dashboard");
+    const remote = await request<ProfessionalDashboardResponse>("/api/professional/dashboard");
+    return mergeProfessionalDashboard(remote);
   },
 
   async getManagerDashboard() {
-    return request<{ stats: ManagerStats }>("/api/manager/dashboard");
+    const remote = await request<{ stats: ManagerStats }>("/api/manager/dashboard");
+    return { stats: mergeManagerStats(remote.stats) };
   },
 
   async getManagerReportSummary() {
@@ -119,14 +163,27 @@ export const api = {
     const params = new URLSearchParams();
     if (search) params.set("search", search);
     if (status) params.set("status", status);
-    return request<{ casos: CaseSummary[] }>(`/api/cases?${params.toString()}`);
+    const remote = await request<{ casos: CaseSummary[] }>(`/api/cases?${params.toString()}`);
+    return {
+      casos: filterCases(mergeCaseCollections(remote.casos), search, status),
+    };
   },
 
   async getCase(id: string) {
+    const demoCase = findDemoCase(id);
+    if (demoCase) {
+      return { caso: demoCase };
+    }
+
     return request<{ caso: CaseDetail }>(`/api/cases/${id}`);
   },
 
   async updateCaseStatus(id: string, status: CaseStatus) {
+    const demoCase = updateDemoCaseStatus(id, status);
+    if (demoCase) {
+      return { caso: demoCase };
+    }
+
     return request<{ caso: CaseSummary }>(`/api/cases/${id}/status`, {
       method: "PATCH",
       body: { status },
@@ -134,6 +191,11 @@ export const api = {
   },
 
   async createAttendance(payload: CreateAttendancePayload) {
+    const demoAttendance = createDemoAttendance(payload);
+    if (demoAttendance) {
+      return { atendimento: demoAttendance };
+    }
+
     return request("/api/attendances", {
       method: "POST",
       body: payload,
@@ -141,6 +203,15 @@ export const api = {
   },
 
   async createReferral(payload: CreateReferralPayload) {
+    const organizations = await this.getOrganizations().catch(() => ({ organizations: [] as Array<{ id: string; nome: string }> }));
+    const orgName =
+      organizations.organizations.find((item) => item.id === payload.orgaoDestinoId)?.nome ?? "Orgao de destino";
+    const demoReferral = createDemoReferral(payload, orgName);
+
+    if (demoReferral) {
+      return { encaminhamento: demoReferral };
+    }
+
     return request("/api/referrals", {
       method: "POST",
       body: payload,

@@ -41,6 +41,9 @@ export default function NovoAtendimento() {
         queryClient.invalidateQueries({ queryKey: ["case-detail", caseId] }),
         queryClient.invalidateQueries({ queryKey: ["cases"] }),
         queryClient.invalidateQueries({ queryKey: ["professional-dashboard"] }),
+        queryClient.invalidateQueries({ queryKey: ["manager-dashboard"] }),
+        queryClient.invalidateQueries({ queryKey: ["woman-dashboard"] }),
+        queryClient.invalidateQueries({ queryKey: ["woman-case"] }),
       ]);
       toast.success("Atendimento registrado com sucesso.");
       navigate(-1);
@@ -62,7 +65,7 @@ export default function NovoAtendimento() {
   ];
 
   return (
-    <AppLayout title="Novo Atendimento" showBack>
+    <AppLayout title="Novo Atendimento" subtitle="O registro atualiza o historico do caso e o andamento visivel para os demais perfis." showBack>
       <form
         onSubmit={(event) => {
           event.preventDefault();

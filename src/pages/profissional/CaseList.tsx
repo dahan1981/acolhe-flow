@@ -17,6 +17,7 @@ export default function CaseList() {
   });
 
   const basePath = currentUser?.perfil === "gestora" ? "/gestora" : "/profissional";
+  const title = currentUser?.perfil === "gestora" ? "Visao geral de casos" : "Casos em atendimento";
 
   const filters = [
     { value: "todos", label: "Todos" },
@@ -27,7 +28,7 @@ export default function CaseList() {
   ];
 
   return (
-    <AppLayout title="Casos">
+    <AppLayout title={title} subtitle="Casos novos e atualizados aparecem aqui conforme a demonstracao e os filtros ativos.">
       <div className="space-y-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />

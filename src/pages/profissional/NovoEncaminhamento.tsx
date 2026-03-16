@@ -43,6 +43,8 @@ export default function NovoEncaminhamento() {
         queryClient.invalidateQueries({ queryKey: ["cases"] }),
         queryClient.invalidateQueries({ queryKey: ["professional-dashboard"] }),
         queryClient.invalidateQueries({ queryKey: ["manager-dashboard"] }),
+        queryClient.invalidateQueries({ queryKey: ["woman-dashboard"] }),
+        queryClient.invalidateQueries({ queryKey: ["woman-case"] }),
       ]);
       toast.success("Encaminhamento registrado com sucesso.");
       navigate(-1);
@@ -53,7 +55,7 @@ export default function NovoEncaminhamento() {
   });
 
   return (
-    <AppLayout title="Novo Encaminhamento" showBack>
+    <AppLayout title="Novo Encaminhamento" subtitle="O encaminhamento altera o status do caso e deixa o novo orgao visivel na demo." showBack>
       <form
         onSubmit={(event) => {
           event.preventDefault();

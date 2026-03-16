@@ -29,6 +29,8 @@ export default function CaseDetail() {
         queryClient.invalidateQueries({ queryKey: ["cases"] }),
         queryClient.invalidateQueries({ queryKey: ["manager-dashboard"] }),
         queryClient.invalidateQueries({ queryKey: ["professional-dashboard"] }),
+        queryClient.invalidateQueries({ queryKey: ["woman-dashboard"] }),
+        queryClient.invalidateQueries({ queryKey: ["woman-case"] }),
       ]);
       toast.success("Status do caso atualizado.");
     },
@@ -99,20 +101,29 @@ export default function CaseDetail() {
           <p className="text-sm text-muted-foreground">{caso.observacoesIniciais}</p>
         </div>
 
-        <div className="bg-card p-4 rounded-2xl shadow-card">
+        <div className="bg-card/90 p-4 rounded-2xl shadow-card border border-border/70">
           <h3 className="text-sm font-semibold text-foreground mb-3">Gestao do caso</h3>
           <div className="flex gap-2 flex-wrap">
-            {(["em_andamento", "resolvido", "arquivado"] as const).map((status) => (
+            {([
+              { value: "em_andamento", label: "Mover para andamento" },
+              { value: "resolvido", label: "Concluir caso" },
+              { value: "arquivado", label: "Arquivar demonstracao" },
+            ] as const).map((status) => (
               <button
-                key={status}
-                onClick={() => statusMutation.mutate(status)}
+                key={status.value}
+                onClick={() => statusMutation.mutate(status.value)}
                 disabled={statusMutation.isPending || !canEdit}
                 className="px-4 py-2 rounded-xl text-sm font-medium bg-background border border-border text-foreground disabled:opacity-60"
               >
-                {status}
+                {status.label}
               </button>
             ))}
           </div>
+          {canEdit ? (
+            <p className="mt-3 text-xs text-muted-foreground">
+              Esta atualizacao de status reflete automaticamente na visao da Mulher e no painel da Gestora.
+            </p>
+          ) : null}
         </div>
 
         {canEdit ? (

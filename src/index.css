@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -89,7 +89,7 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-family: 'Instrument Sans', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-image:
@@ -104,9 +104,13 @@
   }
 
   h1,
-  h2 {
-    font-family: 'Fraunces', Georgia, serif;
-    letter-spacing: -0.04em;
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Instrument Sans', system-ui, sans-serif;
+    letter-spacing: -0.03em;
   }
 
   p {

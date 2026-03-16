@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { api } from "@/lib/api";
+import { syncDemoSessionUser } from "@/lib/demo-case-store";
 import type { LoginPayload, RegisterWomanPayload, SessionUser } from "@/types/domain";
 
 interface AuthState {
@@ -20,12 +21,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   hydrate: async () => {
     try {
       const response = await api.me();
+      syncDemoSessionUser(response.user);
       set({
         currentUser: response.user,
         isAuthenticated: true,
         isBootstrapping: false,
       });
     } catch {
+      syncDemoSessionUser(null);
       set({
         currentUser: null,
         isAuthenticated: false,
@@ -36,6 +39,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   login: async (payload) => {
     const response = await api.login(payload);
+    syncDemoSessionUser(response.user);
     set({
       currentUser: response.user,
       isAuthenticated: true,
@@ -45,6 +49,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   registerWoman: async (payload) => {
     const response = await api.registerWoman(payload);
+    syncDemoSessionUser(response.user);
     set({
       currentUser: response.user,
       isAuthenticated: true,
@@ -54,6 +59,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: async () => {
     await api.logout().catch(() => undefined);
+    syncDemoSessionUser(null);
     set({
       currentUser: null,
       isAuthenticated: false,
