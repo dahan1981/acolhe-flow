@@ -1,8 +1,10 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   BarChart3,
   Bell,
+  Eye,
+  EyeOff,
   FileText,
   Heart,
   Home,
@@ -36,6 +38,8 @@ interface AppLayoutProps {
   subtitle?: string;
   showBack?: boolean;
 }
+
+const PRIVACY_MODE_STORAGE_KEY = "acolhe-flow-privacy-mode";
 
 type NavItem = {
   label: string;
@@ -82,6 +86,7 @@ export function AppLayout({ children, title, subtitle, showBack }: AppLayoutProp
   const { currentUser, logout } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const [privacyMode, setPrivacyMode] = useState(false);
   const items = useMemo(() => (currentUser ? navItems[currentUser.perfil] : []), [currentUser]);
   const primaryItems = items.slice(0, 4);
   const secondaryItems = items.slice(4);
@@ -91,7 +96,22 @@ export function AppLayout({ children, title, subtitle, showBack }: AppLayoutProp
   );
   const accentClass = currentUser ? roleAccent(currentUser.perfil) : "";
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setPrivacyMode(window.localStorage.getItem(PRIVACY_MODE_STORAGE_KEY) === "true");
+  }, []);
+
   if (!currentUser) return null;
+
+  function togglePrivacyMode() {
+    setPrivacyMode((current) => {
+      const next = !current;
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(PRIVACY_MODE_STORAGE_KEY, String(next));
+      }
+      return next;
+    });
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col max-w-lg mx-auto relative overflow-hidden">
@@ -124,6 +144,24 @@ export function AppLayout({ children, title, subtitle, showBack }: AppLayoutProp
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <motion.button
+              type="button"
+              onClick={togglePrivacyMode}
+              whileTap={{ scale: 0.96 }}
+              animate={privacyMode ? { scale: [1, 1.04, 1], rotate: [0, -3, 0] } : { scale: 1, rotate: 0 }}
+              transition={{ duration: 0.24, ease: [0.4, 0, 0.2, 1] }}
+              className={`relative rounded-2xl border p-2.5 shadow-card transition-all ${
+                privacyMode
+                  ? "border-primary/20 bg-primary text-primary-foreground"
+                  : "border-border/60 bg-card/80 text-muted-foreground hover:text-foreground"
+              }`}
+              title={privacyMode ? "Desativar modo de privacidade" : "Ativar modo de privacidade"}
+            >
+              {privacyMode ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+              <span className="sr-only">
+                {privacyMode ? "Desativar modo de privacidade" : "Ativar modo de privacidade"}
+              </span>
+            </motion.button>
             <Sheet>
               <SheetTrigger asChild>
                 <button className="rounded-2xl border border-border/60 bg-card/80 p-2.5 text-muted-foreground shadow-card transition-all hover:text-foreground">
@@ -190,7 +228,25 @@ export function AppLayout({ children, title, subtitle, showBack }: AppLayoutProp
         </div>
       </header>
 
-      <main className="flex-1 px-4 py-4 pb-24 overflow-y-auto">
+      {privacyMode ? (
+        <div className="px-4 pt-3">
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            className="rounded-[22px] border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-primary shadow-card"
+          >
+            Modo de privacidade ativo. O conteudo foi desfocado para proteger a leitura ao redor.
+          </motion.div>
+        </div>
+      ) : null}
+
+      <div className="relative flex-1">
+      <main
+        className={`flex-1 px-4 py-4 pb-24 overflow-y-auto transition-all duration-300 ${
+          privacyMode ? "blur-[14px] saturate-50 brightness-[0.88]" : "blur-0"
+        }`}
+      >
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
@@ -203,8 +259,36 @@ export function AppLayout({ children, title, subtitle, showBack }: AppLayoutProp
           </motion.div>
         </AnimatePresence>
       </main>
+        <AnimatePresence>
+          {privacyMode ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+              className="pointer-events-none absolute inset-x-4 top-4 bottom-24 z-20 rounded-[32px] border border-white/40 bg-background/18 shadow-elevated backdrop-blur-sm"
+            >
+              <div className="flex h-full items-center justify-center px-8 text-center">
+                <div className="max-w-xs rounded-[28px] border border-white/50 bg-card/80 px-5 py-5 shadow-card">
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/12 text-primary">
+                    <EyeOff className="h-6 w-6" />
+                  </div>
+                  <p className="text-sm font-semibold text-foreground">Privacidade rapida ativada</p>
+                  <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                    Toque novamente no icone ao lado do menu para revelar a interface com seguranca.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </div>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border/50 safe-bottom max-w-lg mx-auto">
+      <nav
+        className={`fixed bottom-0 left-0 right-0 z-50 max-w-lg mx-auto border-t border-border/50 bg-card/95 safe-bottom backdrop-blur-xl transition-all duration-300 ${
+          privacyMode ? "blur-[14px] saturate-50 brightness-[0.9]" : "blur-0"
+        }`}
+      >
         <div className="flex items-center justify-around px-2 py-2">
           {primaryItems.map((item) => {
             const isActive = isItemActive(location.pathname, item);
