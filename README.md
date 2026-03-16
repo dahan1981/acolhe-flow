@@ -1,73 +1,91 @@
-# Welcome to your Lovable project
+# AcolheSistemas
 
-## Project info
+Aplicacao full-stack para acolhimento unificado a mulher, com frontend React/Vite e backend Express + Prisma.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Stack
 
-## How can I edit this code?
+- Frontend: React, TypeScript, Vite, Tailwind
+- Backend: Node.js, Express, Prisma
+- Banco local: SQLite (`prisma/dev.db`)
+- Autenticacao: JWT em cookie HttpOnly
 
-There are several ways of editing your application.
+## Perfis
 
-**Use Lovable**
+- `mulher`: cadastro publico permitido, acesso apenas aos proprios dados
+- `profissional`: criado internamente, acessa casos compativeis com sua organizacao/permissao
+- `gestora`: criada internamente, acessa painel gerencial e criacao protegida de contas internas
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Requisitos
 
-Changes made via Lovable will be committed automatically to this repo.
+- Node.js 20+
+- npm
 
-**Use your preferred IDE**
+## Variaveis de ambiente
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Crie um arquivo `.env` com base em `.env.example`.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Como rodar localmente
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```bash
+npm install
+npm run db:push
+npm run db:seed
+npm run dev:full
 ```
 
-**Edit a file directly in GitHub**
+Aplicacoes:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- Frontend: `http://localhost:8080`
+- API: `http://localhost:4000`
 
-**Use GitHub Codespaces**
+## Contas seed
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- Mulher: `ana@exemplo.com` / `Acolhe@123`
+- Profissional: `carla@exemplo.com` / `Acolhe@123`
+- Gestora: `fernanda@exemplo.com` / `Acolhe@123`
 
-## What technologies are used for this project?
+## Scripts
 
-This project is built with:
+- `npm run dev:client`: sobe o frontend
+- `npm run dev:server`: sobe a API
+- `npm run dev:full`: sobe frontend + backend
+- `npm run db:push`: sincroniza schema do Prisma no banco local
+- `npm run db:seed`: popula dados iniciais
+- `npm run build`: gera build de frontend e backend
+- `npm start`: inicia o servidor de producao
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Build e producao
 
-## How can I deploy this project?
+```bash
+npm install
+npm run db:push
+npm run db:seed
+npm run build
+npm start
+```
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+Em producao, o backend serve os arquivos estaticos do frontend a partir de `dist/client`.
 
-## Can I connect a custom domain to my Lovable project?
+## Deploy e dominio GoDaddy
 
-Yes, you can!
+O dominio da GoDaddy cobre DNS, nao hospedagem. Para publicar:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+1. Hospede a aplicacao Node em um VPS, cPanel com Node, ou plataforma compativel.
+2. Configure variaveis de ambiente de producao.
+3. Rode `npm run db:push` no ambiente com volume persistente.
+4. Aponte o DNS da GoDaddy para o host da aplicacao.
+5. Configure HTTPS no host e use `APP_WEB_ORIGIN=https://seu-dominio.com`.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Se for usar subdominios, inclua todos em `APP_WEB_ORIGIN` separados por virgula.
+
+## Abordagem adotada para contas internas
+
+Foi implementada uma rota protegida `POST /api/internal/users`, acessivel apenas por `gestora`, para criar contas `profissional` e `gestora`.
+
+Motivo:
+
+- evita cadastro publico indevido
+- nao depende de seeds fixas para operar em ambiente real
+- encaixa na base atual sem exigir painel administrativo novo neste primeiro ciclo
+
+As contas seed continuam existindo apenas para desenvolvimento inicial e bootstrap local.

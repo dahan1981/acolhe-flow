@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuthStore } from "@/stores/auth-store";
+import type { UserProfile } from "@/types/domain";
 
 import Login from "./pages/Login";
 import MulherDashboard from "./pages/mulher/MulherDashboard";
@@ -21,9 +23,47 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuthStore();
-  if (!isAuthenticated) return <Navigate to="/" replace />;
+function AppBootstrap({ children }: { children: React.ReactNode }) {
+  const { hydrate, isBootstrapping } = useAuthStore();
+
+  useEffect(() => {
+    hydrate();
+  }, [hydrate]);
+
+  if (isBootstrapping) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center text-sm text-muted-foreground">
+        Carregando sessao...
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
+
+function homePath(profile: UserProfile) {
+  if (profile === "mulher") return "/mulher";
+  if (profile === "profissional") return "/profissional";
+  return "/gestora";
+}
+
+function ProtectedRoute({
+  children,
+  allowedRoles,
+}: {
+  children: React.ReactNode;
+  allowedRoles?: UserProfile[];
+}) {
+  const { isAuthenticated, currentUser } = useAuthStore();
+
+  if (!isAuthenticated || !currentUser) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(currentUser.perfil)) {
+    return <Navigate to={homePath(currentUser.perfil)} replace />;
+  }
+
   return <>{children}</>;
 }
 
@@ -32,32 +72,136 @@ const App = () => (
     <TooltipProvider>
       <Sonner position="top-center" />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Login />} />
+        <AppBootstrap>
+          <Routes>
+            <Route path="/" element={<Login />} />
 
-          {/* Mulher */}
-          <Route path="/mulher" element={<ProtectedRoute><MulherDashboard /></ProtectedRoute>} />
-          <Route path="/mulher/caso" element={<ProtectedRoute><MulherCaseDetail /></ProtectedRoute>} />
-          <Route path="/mulher/ajuda" element={<ProtectedRoute><MulherAjuda /></ProtectedRoute>} />
-          <Route path="/mulher/perfil" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route
+              path="/mulher"
+              element={
+                <ProtectedRoute allowedRoles={["mulher"]}>
+                  <MulherDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mulher/caso"
+              element={
+                <ProtectedRoute allowedRoles={["mulher"]}>
+                  <MulherCaseDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mulher/ajuda"
+              element={
+                <ProtectedRoute allowedRoles={["mulher"]}>
+                  <MulherAjuda />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mulher/perfil"
+              element={
+                <ProtectedRoute allowedRoles={["mulher"]}>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Profissional */}
-          <Route path="/profissional" element={<ProtectedRoute><ProfissionalDashboard /></ProtectedRoute>} />
-          <Route path="/profissional/casos" element={<ProtectedRoute><CaseList /></ProtectedRoute>} />
-          <Route path="/profissional/caso/:id" element={<ProtectedRoute><CaseDetail /></ProtectedRoute>} />
-          <Route path="/profissional/novo-atendimento" element={<ProtectedRoute><NovoAtendimento /></ProtectedRoute>} />
-          <Route path="/profissional/novo-encaminhamento" element={<ProtectedRoute><NovoEncaminhamento /></ProtectedRoute>} />
-          <Route path="/profissional/perfil" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route
+              path="/profissional"
+              element={
+                <ProtectedRoute allowedRoles={["profissional"]}>
+                  <ProfissionalDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profissional/casos"
+              element={
+                <ProtectedRoute allowedRoles={["profissional"]}>
+                  <CaseList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profissional/caso/:id"
+              element={
+                <ProtectedRoute allowedRoles={["profissional", "gestora"]}>
+                  <CaseDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profissional/novo-atendimento"
+              element={
+                <ProtectedRoute allowedRoles={["profissional"]}>
+                  <NovoAtendimento />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profissional/novo-encaminhamento"
+              element={
+                <ProtectedRoute allowedRoles={["profissional"]}>
+                  <NovoEncaminhamento />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profissional/perfil"
+              element={
+                <ProtectedRoute allowedRoles={["profissional"]}>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Gestora */}
-          <Route path="/gestora" element={<ProtectedRoute><GestoraDashboard /></ProtectedRoute>} />
-          <Route path="/gestora/casos" element={<ProtectedRoute><CaseList /></ProtectedRoute>} />
-          <Route path="/gestora/caso/:id" element={<ProtectedRoute><CaseDetail /></ProtectedRoute>} />
-          <Route path="/gestora/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
-          <Route path="/gestora/config" element={<ProtectedRoute><ConfigPage /></ProtectedRoute>} />
+            <Route
+              path="/gestora"
+              element={
+                <ProtectedRoute allowedRoles={["gestora"]}>
+                  <GestoraDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/gestora/casos"
+              element={
+                <ProtectedRoute allowedRoles={["gestora"]}>
+                  <CaseList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/gestora/caso/:id"
+              element={
+                <ProtectedRoute allowedRoles={["gestora"]}>
+                  <CaseDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/gestora/relatorios"
+              element={
+                <ProtectedRoute allowedRoles={["gestora"]}>
+                  <Relatorios />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/gestora/config"
+              element={
+                <ProtectedRoute allowedRoles={["gestora"]}>
+                  <ConfigPage />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AppBootstrap>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

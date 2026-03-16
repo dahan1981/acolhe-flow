@@ -1,13 +1,11 @@
-import { AppLayout } from '@/components/layout/AppLayout';
-import { useAuthStore } from '@/stores/auth-store';
-import { User, Mail, Building2, Shield } from 'lucide-react';
-import { getOrgaoNome } from '@/data/mock-data';
+import { Building2, Mail, Shield, User } from "lucide-react";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { getOrganizationName, profileLabel } from "@/lib/domain";
+import { useAuthStore } from "@/stores/auth-store";
 
 export default function ProfilePage() {
   const { currentUser } = useAuthStore();
   if (!currentUser) return null;
-
-  const profileLabel = currentUser.perfil === 'mulher' ? 'Acolhida' : currentUser.perfil === 'profissional' ? 'Profissional' : 'Gestora';
 
   return (
     <AppLayout title="Perfil">
@@ -17,7 +15,7 @@ export default function ProfilePage() {
             <User className="w-10 h-10 text-primary" />
           </div>
           <h2 className="text-lg font-semibold text-foreground">{currentUser.nome}</h2>
-          <p className="text-sm text-muted-foreground">{profileLabel}</p>
+          <p className="text-sm text-muted-foreground">{profileLabel(currentUser.perfil)}</p>
         </div>
 
         <div className="bg-card p-4 rounded-2xl shadow-card space-y-4">
@@ -31,22 +29,18 @@ export default function ProfilePage() {
           <div className="flex items-center gap-3">
             <Building2 className="w-5 h-5 text-muted-foreground" />
             <div>
-              <p className="text-xs text-muted-foreground">Órgão</p>
-              <p className="text-sm text-foreground">{getOrgaoNome(currentUser.orgao)}</p>
+              <p className="text-xs text-muted-foreground">Orgao</p>
+              <p className="text-sm text-foreground">{getOrganizationName(currentUser.orgao)}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Shield className="w-5 h-5 text-muted-foreground" />
             <div>
               <p className="text-xs text-muted-foreground">Perfil de Acesso</p>
-              <p className="text-sm text-foreground">{profileLabel}</p>
+              <p className="text-sm text-foreground">{profileLabel(currentUser.perfil)}</p>
             </div>
           </div>
         </div>
-
-        <p className="text-xs text-center text-muted-foreground mt-8">
-          AcolheSistemas v1.0 — Demonstração Funcional
-        </p>
       </div>
     </AppLayout>
   );

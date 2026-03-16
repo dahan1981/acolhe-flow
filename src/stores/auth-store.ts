@@ -1,41 +1,62 @@
-import { create } from 'zustand';
-import { type UserProfile, type UserAccount, users } from '@/data/mock-data';
+import { create } from "zustand";
+import { api } from "@/lib/api";
+import type { LoginPayload, RegisterWomanPayload, SessionUser } from "@/types/domain";
 
 interface AuthState {
-  currentUser: UserAccount | null;
+  currentUser: SessionUser | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => boolean;
-  selectProfile: (profile: UserProfile) => void;
-  logout: () => void;
+  isBootstrapping: boolean;
+  hydrate: () => Promise<void>;
+  login: (payload: LoginPayload) => Promise<SessionUser>;
+  registerWoman: (payload: RegisterWomanPayload) => Promise<SessionUser>;
+  logout: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   currentUser: null,
   isAuthenticated: false,
-  login: (email: string, _password: string) => {
-    const user = users.find(u => u.email === email);
-    if (user) {
-      set({ currentUser: user, isAuthenticated: true });
-      return true;
+  isBootstrapping: true,
+
+  hydrate: async () => {
+    try {
+      const response = await api.me();
+      set({
+        currentUser: response.user,
+        isAuthenticated: true,
+        isBootstrapping: false,
+      });
+    } catch {
+      set({
+        currentUser: null,
+        isAuthenticated: false,
+        isBootstrapping: false,
+      });
     }
-    // For demo: any email works, default to profissional
+  },
+
+  login: async (payload) => {
+    const response = await api.login(payload);
     set({
-      currentUser: {
-        id: 'demo',
-        nome: 'Usuário Demo',
-        email,
-        perfil: 'profissional',
-        orgao: 'sec-mulher',
-      },
+      currentUser: response.user,
       isAuthenticated: true,
     });
-    return true;
+    return response.user;
   },
-  selectProfile: (profile) => {
-    const user = users.find(u => u.perfil === profile);
-    if (user) {
-      set({ currentUser: user, isAuthenticated: true });
-    }
+
+  registerWoman: async (payload) => {
+    const response = await api.registerWoman(payload);
+    set({
+      currentUser: response.user,
+      isAuthenticated: true,
+    });
+    return response.user;
   },
-  logout: () => set({ currentUser: null, isAuthenticated: false }),
+
+  logout: async () => {
+    await api.logout().catch(() => undefined);
+    set({
+      currentUser: null,
+      isAuthenticated: false,
+    });
+  },
 }));
