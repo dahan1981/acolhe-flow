@@ -162,3 +162,13 @@ export interface CreateSupportRequestPayload {
   mensagem?: string;
   situacaoRisco: RiskLevel;
 }
+
+export interface CreateInternalUserPayload {
+  nomeCompleto: string;
+  email: string;
+  password: string;
+  perfil: Extract<UserProfile, "profissional" | "gestora">;
+  organizationId: string;
+  cargo?: string;
+  especialidades?: string;
+}

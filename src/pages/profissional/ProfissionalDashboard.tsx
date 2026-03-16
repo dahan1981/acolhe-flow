@@ -1,12 +1,15 @@
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { ArrowRightLeft, Clock, FileText, ShieldCheck, Users } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { CaseCard } from "@/components/shared/CaseCard";
 import { StatusBadge } from "@/components/shared/StatusBadge";
-import { FileText, Users, Clock } from "lucide-react";
 import { api } from "@/lib/api";
+import { roleDescriptions } from "@/lib/demo-content";
 import { formatDate, getOrganizationName } from "@/lib/domain";
 
 export default function ProfissionalDashboard() {
+  const navigate = useNavigate();
   const { data, isLoading } = useQuery({
     queryKey: ["professional-dashboard"],
     queryFn: api.getProfessionalDashboard,
@@ -23,15 +26,32 @@ export default function ProfissionalDashboard() {
   return (
     <AppLayout>
       <div className="space-y-6">
+        <div className="rounded-[28px] border border-white/60 bg-card/90 p-5 shadow-card">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            Operacao organizada
+          </div>
+          <h2 className="text-xl font-semibold text-foreground">Painel profissional</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{roleDescriptions.profissional}</p>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <button onClick={() => navigate("/profissional/historico")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
+              Fila operacional
+            </button>
+            <button onClick={() => navigate("/profissional/permissoes")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
+              Ver permissoes
+            </button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-card p-4 rounded-2xl shadow-card">
+          <div className="bg-card/90 p-4 rounded-2xl shadow-card border border-border/70">
             <div className="flex items-center gap-2 mb-2">
               <Users className="w-4 h-4 text-primary" />
               <span className="text-xs text-muted-foreground">Casos ativos</span>
             </div>
             <p className="text-2xl font-bold text-foreground tabular-nums">{data?.casosAtivos ?? 0}</p>
           </div>
-          <div className="bg-card p-4 rounded-2xl shadow-card">
+          <div className="bg-card/90 p-4 rounded-2xl shadow-card border border-border/70">
             <div className="flex items-center gap-2 mb-2">
               <FileText className="w-4 h-4 text-accent" />
               <span className="text-xs text-muted-foreground">Atendimentos hoje</span>
@@ -41,7 +61,12 @@ export default function ProfissionalDashboard() {
         </div>
 
         <div>
-          <h2 className="text-sm font-semibold text-foreground mb-3">Casos prioritarios</h2>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-foreground">Casos prioritarios</h2>
+            <button onClick={() => navigate("/profissional/casos")} className="text-xs font-medium text-primary">
+              Ver todos
+            </button>
+          </div>
           <div className="space-y-3">
             {data?.casosPrioritarios.map((caso) => (
               <CaseCard key={caso.id} caso={caso} />
@@ -53,7 +78,7 @@ export default function ProfissionalDashboard() {
           <h2 className="text-sm font-semibold text-foreground mb-3">Ultimos atendimentos</h2>
           <div className="space-y-3">
             {data?.ultimosAtendimentos.map((item) => (
-              <div key={item.id} className="bg-card p-4 rounded-2xl shadow-card">
+              <div key={item.id} className="bg-card/90 p-4 rounded-2xl shadow-card border border-border/70">
                 <div className="flex items-center gap-2 mb-1">
                   <Clock className="w-3.5 h-3.5 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground">{formatDate(item.data)}</span>
@@ -66,6 +91,17 @@ export default function ProfissionalDashboard() {
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="rounded-[24px] border border-border/70 bg-card/90 p-5 shadow-card">
+          <div className="mb-2 flex items-center gap-2">
+            <ArrowRightLeft className="h-4 w-4 text-accent" />
+            <h3 className="text-sm font-semibold text-foreground">Fluxo operacional</h3>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            O profissional consegue alternar entre fila, detalhe do caso, registro de atendimento, encaminhamento, ajuda e
+            permissao sem sair do contexto da operacao.
+          </p>
         </div>
       </div>
     </AppLayout>

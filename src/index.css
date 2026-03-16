@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,42 +6,42 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
+    --background: 28 33% 97%;
+    --foreground: 222 34% 16%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 222 34% 16%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 224 71% 45%;
+    --primary: 205 67% 39%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 33 33% 94%;
+    --secondary-foreground: 222 34% 16%;
 
-    --muted: 210 30% 95%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 30 31% 94%;
+    --muted-foreground: 214 14% 43%;
 
-    --accent: 162 37% 54%;
+    --accent: 160 33% 42%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --warning: 30 90% 56%;
+    --warning: 29 88% 55%;
     --warning-foreground: 0 0% 100%;
 
-    --urgent: 15 72% 50%;
+    --urgent: 11 69% 52%;
     --urgent-foreground: 0 0% 100%;
 
-    --success: 162 37% 45%;
+    --success: 160 33% 42%;
     --success-foreground: 0 0% 100%;
 
-    --border: 214 20% 92%;
-    --input: 214 20% 92%;
-    --ring: 224 71% 45%;
+    --border: 28 18% 88%;
+    --input: 28 18% 88%;
+    --ring: 205 67% 39%;
 
     --radius: 1rem;
 
@@ -54,9 +54,9 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.03);
-    --shadow-md: 0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
-    --shadow-lg: 0 4px 16px rgba(0,0,0,0.1), 0 16px 48px rgba(0,0,0,0.08);
+    --shadow-sm: 0 2px 8px rgba(64, 53, 41, 0.08), 0 12px 32px rgba(64, 53, 41, 0.04);
+    --shadow-md: 0 8px 20px rgba(64, 53, 41, 0.1), 0 18px 40px rgba(64, 53, 41, 0.08);
+    --shadow-lg: 0 12px 36px rgba(64, 53, 41, 0.12), 0 24px 56px rgba(64, 53, 41, 0.1);
   }
 
   .dark {
@@ -89,14 +89,24 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-image:
+      radial-gradient(circle at top left, rgba(43, 124, 167, 0.14), transparent 28%),
+      radial-gradient(circle at top right, rgba(64, 168, 140, 0.08), transparent 24%),
+      linear-gradient(180deg, rgba(255,255,255,0.88), rgba(250,246,242,0.96));
   }
 
   h1, h2, h3, h4, h5, h6 {
     letter-spacing: -0.02em;
     text-wrap: balance;
+  }
+
+  h1,
+  h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    letter-spacing: -0.04em;
   }
 
   p {

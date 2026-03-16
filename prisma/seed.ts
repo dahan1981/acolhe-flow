@@ -1,5 +1,4 @@
 import "dotenv/config";
-import path from "node:path";
 import bcrypt from "bcryptjs";
 import {
   CaseStatus,
@@ -10,14 +9,7 @@ import {
   Role,
 } from "@prisma/client";
 
-const runtimeDatabaseUrl = `file:${path.resolve(process.cwd(), "prisma", "dev.db").replace(/\\/g, "/")}`;
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: runtimeDatabaseUrl,
-    },
-  },
-});
+const prisma = new PrismaClient();
 
 function toDate(value: string) {
   return new Date(`${value}T12:00:00.000Z`);
