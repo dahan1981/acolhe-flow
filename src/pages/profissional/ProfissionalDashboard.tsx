@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRightLeft, Clock, FileText, ShieldCheck, Users } from "lucide-react";
+import { ArrowRightLeft, Clock, FilePlus2, FileText, ShieldCheck, Stethoscope, Users } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { CaseCard } from "@/components/shared/CaseCard";
 import { StatusBadge } from "@/components/shared/StatusBadge";
@@ -34,6 +34,20 @@ export default function ProfissionalDashboard() {
           <h2 className="text-xl font-semibold text-foreground">Painel profissional</h2>
           <p className="mt-1 text-sm text-muted-foreground">{roleDescriptions.profissional}</p>
           <div className="mt-4 grid grid-cols-2 gap-3">
+            <button onClick={() => navigate("/profissional/novo-protocolo")} className="rounded-2xl bg-primary px-4 py-3 text-left text-sm font-medium text-primary-foreground shadow-card">
+              <div className="mb-1 flex items-center gap-2">
+                <FilePlus2 className="h-4 w-4" />
+                Novo protocolo
+              </div>
+              <p className="text-xs text-primary-foreground/80">Cadastrar nova vitima</p>
+            </button>
+            <button onClick={() => navigate("/profissional/novo-atendimento")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
+              <div className="mb-1 flex items-center gap-2">
+                <Stethoscope className="h-4 w-4 text-accent" />
+                Novo atendimento
+              </div>
+              <p className="text-xs text-muted-foreground">Escolher caso e registrar acao</p>
+            </button>
             <button onClick={() => navigate("/profissional/historico")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
               Fila operacional
             </button>

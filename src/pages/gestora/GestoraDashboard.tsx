@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Activity, AlertTriangle, Clock, ShieldCheck, Users } from "lucide-react";
+import { Activity, AlertTriangle, Clock, FilePlus2, ShieldCheck, Stethoscope, Users } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { api } from "@/lib/api";
 import { roleDescriptions } from "@/lib/demo-content";
@@ -33,11 +33,19 @@ export default function GestoraDashboard() {
           <h2 className="text-xl font-semibold text-foreground">Painel gerencial</h2>
           <p className="mt-1 text-sm text-muted-foreground">{roleDescriptions.gestora}</p>
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <button onClick={() => navigate("/gestora/novo-protocolo")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
-              Novo protocolo
+            <button onClick={() => navigate("/gestora/novo-protocolo")} className="rounded-2xl bg-primary px-4 py-3 text-left text-sm font-medium text-primary-foreground shadow-card">
+              <div className="mb-1 flex items-center gap-2">
+                <FilePlus2 className="h-4 w-4" />
+                Novo protocolo
+              </div>
+              <p className="text-xs text-primary-foreground/80">Abrir caso novo pela gestao</p>
             </button>
             <button onClick={() => navigate("/gestora/novo-atendimento")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
-              Novo atendimento
+              <div className="mb-1 flex items-center gap-2">
+                <Stethoscope className="h-4 w-4 text-accent" />
+                Novo atendimento
+              </div>
+              <p className="text-xs text-muted-foreground">Escolher caso e registrar acao</p>
             </button>
             <button onClick={() => navigate("/gestora/administracao")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
               Criar contas internas
