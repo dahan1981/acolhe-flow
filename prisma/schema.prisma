@@ -1,0 +1,212 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MULHER
+  PROFISSIONAL
+  GESTORA
+}
+
+enum RiskLevel {
+  BAIXO
+  MEDIO
+  ALTO
+  CRITICO
+}
+
+enum CaseStatus {
+  ATIVO
+  EM_ANDAMENTO
+  ENCAMINHADO
+  RESOLVIDO
+  ARQUIVADO
+}
+
+enum Priority {
+  BAIXA
+  MEDIA
+  ALTA
+  URGENTE
+}
+
+enum ReferralStatus {
+  PENDENTE
+  ACEITO
+  EM_ATENDIMENTO
+  CONCLUIDO
+}
+
+model Organization {
+  id                  String                @id @default(cuid())
+  name                String
+  code                String                @unique
+  color               String
+  isActive            Boolean               @default(true)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  users               User[]
+  professionalProfiles ProfessionalProfile[]
+  managerProfiles     ManagerProfile[]
+  entryCases          CaseRecord[]          @relation("CaseEntryOrganization")
+  currentCases        CaseRecord[]          @relation("CaseCurrentOrganization")
+  attendances         Attendance[]
+  outgoingReferrals   Referral[]            @relation("ReferralSourceOrganization")
+  incomingReferrals   Referral[]            @relation("ReferralTargetOrganization")
+}
+
+model User {
+  id                   String                @id @default(cuid())
+  email                String                @unique
+  passwordHash         String
+  fullName             String
+  role                 Role
+  organizationId       String?
+  isActive             Boolean               @default(true)
+  lastLoginAt          DateTime?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  organization         Organization?         @relation(fields: [organizationId], references: [id])
+  womanProfile         WomanProfile?
+  professionalProfile  ProfessionalProfile?
+  managerProfile       ManagerProfile?
+  createdCases         CaseRecord[]          @relation("CaseCreatedBy")
+  assignedCases        CaseRecord[]          @relation("CaseAssignedProfessional")
+  attendances          Attendance[]
+  createdReferrals     Referral[]            @relation("ReferralCreatedBy")
+  supportRequests      SupportRequest[]
+  auditLogs            AuditLog[]
+}
+
+model WomanProfile {
+  id                    String          @id @default(cuid())
+  userId                String          @unique
+  socialName            String?
+  cpf                   String          @unique
+  birthDate             DateTime
+  phone                 String
+  addressLine           String
+  city                  String
+  state                 String
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  user                  User            @relation(fields: [userId], references: [id])
+  cases                 CaseRecord[]
+}
+
+model ProfessionalProfile {
+  id             String       @id @default(cuid())
+  userId         String       @unique
+  organizationId String
+  title          String?
+  specialties    String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  user           User         @relation(fields: [userId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+}
+
+model ManagerProfile {
+  id             String        @id @default(cuid())
+  userId         String        @unique
+  organizationId String?
+  scope          String        @default("municipal")
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  user           User          @relation(fields: [userId], references: [id])
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+}
+
+model CaseRecord {
+  id                    String          @id @default(cuid())
+  protocol              String          @unique
+  womanProfileId        String
+  createdByUserId       String
+  assignedProfessionalId String?
+  entryOrganizationId   String
+  currentOrganizationId String
+  intakeSummary         String
+  riskLevel             RiskLevel
+  status                CaseStatus
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  closedAt              DateTime?
+  womanProfile          WomanProfile    @relation(fields: [womanProfileId], references: [id])
+  createdBy             User            @relation("CaseCreatedBy", fields: [createdByUserId], references: [id])
+  assignedProfessional  User?           @relation("CaseAssignedProfessional", fields: [assignedProfessionalId], references: [id])
+  entryOrganization     Organization    @relation("CaseEntryOrganization", fields: [entryOrganizationId], references: [id])
+  currentOrganization   Organization    @relation("CaseCurrentOrganization", fields: [currentOrganizationId], references: [id])
+  attendances           Attendance[]
+  referrals             Referral[]
+  supportRequests       SupportRequest[]
+}
+
+model Attendance {
+  id                   String       @id @default(cuid())
+  caseId               String
+  professionalUserId   String
+  organizationId       String
+  attendanceType       String
+  summary              String
+  riskLevel            RiskLevel
+  needsReferral        Boolean      @default(false)
+  nextSteps            String?
+  occurredAt           DateTime
+  createdAt            DateTime     @default(now())
+  caseRecord           CaseRecord   @relation(fields: [caseId], references: [id])
+  professionalUser     User         @relation(fields: [professionalUserId], references: [id])
+  organization         Organization @relation(fields: [organizationId], references: [id])
+  referrals            Referral[]
+}
+
+model Referral {
+  id                   String         @id @default(cuid())
+  caseId               String
+  attendanceId         String?
+  createdByUserId      String
+  sourceOrganizationId String?
+  targetOrganizationId String
+  reason               String
+  priority             Priority
+  status               ReferralStatus @default(PENDENTE)
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  caseRecord           CaseRecord     @relation(fields: [caseId], references: [id])
+  attendance           Attendance?    @relation(fields: [attendanceId], references: [id])
+  createdByUser        User           @relation("ReferralCreatedBy", fields: [createdByUserId], references: [id])
+  sourceOrganization   Organization?  @relation("ReferralSourceOrganization", fields: [sourceOrganizationId], references: [id])
+  targetOrganization   Organization   @relation("ReferralTargetOrganization", fields: [targetOrganizationId], references: [id])
+}
+
+model SupportRequest {
+  id          String     @id @default(cuid())
+  caseId       String?
+  womanUserId String
+  kind        String
+  message     String?
+  status      String     @default("aberto")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  caseRecord  CaseRecord? @relation(fields: [caseId], references: [id])
+  womanUser   User       @relation(fields: [womanUserId], references: [id])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorUserId String?
+  action     String
+  entityType String
+  entityId   String?
+  details    String?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  actorUser  User?    @relation(fields: [actorUserId], references: [id])
+}

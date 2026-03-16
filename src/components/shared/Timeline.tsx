@@ -1,45 +1,40 @@
-import { type Atendimento, type Encaminhamento, getOrgaoNome, formatDate } from '@/data/mock-data';
-import { StatusBadge } from './StatusBadge';
-import { FileText, ArrowRight } from 'lucide-react';
+import { ArrowRight, FileText } from "lucide-react";
+import { StatusBadge } from "./StatusBadge";
+import { formatDate, getOrganizationName } from "@/lib/domain";
+import type { Attendance, Referral } from "@/types/domain";
 
 interface TimelineProps {
-  atendimentos: Atendimento[];
-  encaminhamentos: Encaminhamento[];
+  atendimentos: Attendance[];
+  encaminhamentos: Referral[];
 }
 
 type TimelineItem = {
   id: string;
-  type: 'atendimento' | 'encaminhamento';
+  type: "atendimento" | "encaminhamento";
   data: string;
-  item: Atendimento | Encaminhamento;
+  item: Attendance | Referral;
 };
 
 export function Timeline({ atendimentos, encaminhamentos }: TimelineProps) {
   const items: TimelineItem[] = [
-    ...atendimentos.map(a => ({ id: a.id, type: 'atendimento' as const, data: a.data, item: a })),
-    ...encaminhamentos.map(e => ({ id: e.id, type: 'encaminhamento' as const, data: e.data, item: e })),
+    ...atendimentos.map((item) => ({ id: item.id, type: "atendimento" as const, data: item.data, item })),
+    ...encaminhamentos.map((item) => ({ id: item.id, type: "encaminhamento" as const, data: item.data, item })),
   ].sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
 
   if (items.length === 0) {
-    return (
-      <div className="text-center py-8 text-muted-foreground">
-        Nenhum registro encontrado.
-      </div>
-    );
+    return <div className="text-center py-8 text-muted-foreground">Nenhum registro encontrado.</div>;
   }
 
   return (
     <div className="space-y-3">
-      {items.map((entry, i) => (
+      {items.map((entry, index) => (
         <div key={entry.id} className="relative pl-6">
           <div className="absolute left-0 top-2 w-3 h-3 rounded-full bg-primary/20 border-2 border-primary" />
-          {i < items.length - 1 && (
-            <div className="absolute left-[5px] top-5 w-0.5 h-full bg-border" />
-          )}
-          {entry.type === 'atendimento' ? (
-            <AtendimentoCard atendimento={entry.item as Atendimento} />
+          {index < items.length - 1 && <div className="absolute left-[5px] top-5 w-0.5 h-full bg-border" />}
+          {entry.type === "atendimento" ? (
+            <AtendimentoCard atendimento={entry.item as Attendance} />
           ) : (
-            <EncaminhamentoCard encaminhamento={entry.item as Encaminhamento} />
+            <EncaminhamentoCard encaminhamento={entry.item as Referral} />
           )}
         </div>
       ))}
@@ -47,7 +42,7 @@ export function Timeline({ atendimentos, encaminhamentos }: TimelineProps) {
   );
 }
 
-function AtendimentoCard({ atendimento }: { atendimento: Atendimento }) {
+function AtendimentoCard({ atendimento }: { atendimento: Attendance }) {
   return (
     <div className="bg-card p-4 rounded-xl shadow-card">
       <div className="flex items-center gap-2 mb-2">
@@ -59,16 +54,16 @@ function AtendimentoCard({ atendimento }: { atendimento: Atendimento }) {
       <p className="text-sm text-muted-foreground mb-2">{atendimento.resumo}</p>
       <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
         <span>{atendimento.profissionalResponsavel}</span>
-        <span>•</span>
-        <span>{getOrgaoNome(atendimento.orgao)}</span>
-        <span>•</span>
+        <span>&bull;</span>
+        <span>{getOrganizationName(atendimento.orgao)}</span>
+        <span>&bull;</span>
         <StatusBadge type="risk" value={atendimento.riscoIdentificado} />
       </div>
     </div>
   );
 }
 
-function EncaminhamentoCard({ encaminhamento }: { encaminhamento: Encaminhamento }) {
+function EncaminhamentoCard({ encaminhamento }: { encaminhamento: Referral }) {
   return (
     <div className="bg-card p-4 rounded-xl shadow-card border-l-4 border-l-accent">
       <div className="flex items-center gap-2 mb-2">
@@ -76,9 +71,7 @@ function EncaminhamentoCard({ encaminhamento }: { encaminhamento: Encaminhamento
         <span className="text-xs font-medium text-accent uppercase tracking-wider">Encaminhamento</span>
         <span className="text-xs text-muted-foreground ml-auto">{formatDate(encaminhamento.data)}</span>
       </div>
-      <p className="text-sm font-medium text-foreground mb-1">
-        → {getOrgaoNome(encaminhamento.orgaoDestino)}
-      </p>
+      <p className="text-sm font-medium text-foreground mb-1">&rarr; {getOrganizationName(encaminhamento.orgaoDestino)}</p>
       <p className="text-sm text-muted-foreground mb-2">{encaminhamento.motivo}</p>
       <div className="flex items-center gap-2">
         <StatusBadge type="priority" value={encaminhamento.prioridade} />
