@@ -1,9 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { Activity, AlertTriangle, Clock, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Activity, AlertTriangle, Clock, ShieldCheck, Users } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { api } from "@/lib/api";
+import { roleDescriptions } from "@/lib/demo-content";
 
 export default function GestoraDashboard() {
+  const navigate = useNavigate();
   const { data, isLoading } = useQuery({
     queryKey: ["manager-dashboard"],
     queryFn: api.getManagerDashboard,
@@ -22,29 +25,46 @@ export default function GestoraDashboard() {
   return (
     <AppLayout>
       <div className="space-y-6">
+        <div className="rounded-[28px] border border-white/60 bg-card/90 p-5 shadow-card">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            Camada estrategica
+          </div>
+          <h2 className="text-xl font-semibold text-foreground">Painel gerencial</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{roleDescriptions.gestora}</p>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <button onClick={() => navigate("/gestora/administracao")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
+              Criar contas internas
+            </button>
+            <button onClick={() => navigate("/gestora/profissionais")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
+              Ver equipe
+            </button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-card p-4 rounded-2xl shadow-card">
+          <div className="bg-card/90 p-4 rounded-2xl shadow-card border border-border/70">
             <div className="flex items-center gap-2 mb-2">
               <Users className="w-4 h-4 text-primary" />
               <span className="text-xs text-muted-foreground">Total de casos</span>
             </div>
             <p className="text-3xl font-bold text-foreground tabular-nums">{stats.total}</p>
           </div>
-          <div className="bg-card p-4 rounded-2xl shadow-card">
+          <div className="bg-card/90 p-4 rounded-2xl shadow-card border border-border/70">
             <div className="flex items-center gap-2 mb-2">
               <Activity className="w-4 h-4 text-accent" />
               <span className="text-xs text-muted-foreground">Atendimentos</span>
             </div>
             <p className="text-3xl font-bold text-foreground tabular-nums">{stats.totalAtendimentos}</p>
           </div>
-          <div className="bg-card p-4 rounded-2xl shadow-card">
+          <div className="bg-card/90 p-4 rounded-2xl shadow-card border border-border/70">
             <div className="flex items-center gap-2 mb-2">
               <AlertTriangle className="w-4 h-4 text-warning" />
               <span className="text-xs text-muted-foreground">Casos ativos</span>
             </div>
             <p className="text-3xl font-bold text-foreground tabular-nums">{stats.ativos}</p>
           </div>
-          <div className="bg-card p-4 rounded-2xl shadow-card">
+          <div className="bg-card/90 p-4 rounded-2xl shadow-card border border-border/70">
             <div className="flex items-center gap-2 mb-2">
               <Clock className="w-4 h-4 text-urgent" />
               <span className="text-xs text-muted-foreground">Enc. pendentes</span>
@@ -53,7 +73,7 @@ export default function GestoraDashboard() {
           </div>
         </div>
 
-        <div className="bg-card p-5 rounded-2xl shadow-card">
+        <div className="bg-card/90 p-5 rounded-2xl shadow-card border border-border/70">
           <h3 className="text-sm font-semibold text-foreground mb-4">Casos por status</h3>
           <div className="space-y-3">
             {[
@@ -78,7 +98,7 @@ export default function GestoraDashboard() {
           </div>
         </div>
 
-        <div className="bg-card p-5 rounded-2xl shadow-card">
+        <div className="bg-card/90 p-5 rounded-2xl shadow-card border border-border/70">
           <h3 className="text-sm font-semibold text-foreground mb-4">Distribuicao de risco</h3>
           <div className="grid grid-cols-2 gap-3">
             {stats.porRisco.map((item) => (
@@ -93,7 +113,7 @@ export default function GestoraDashboard() {
           </div>
         </div>
 
-        <div className="bg-card p-5 rounded-2xl shadow-card">
+        <div className="bg-card/90 p-5 rounded-2xl shadow-card border border-border/70">
           <h3 className="text-sm font-semibold text-foreground mb-4">Entrada por orgao</h3>
           <div className="space-y-3">
             {stats.porOrgao.map((item) => (

@@ -3,6 +3,7 @@ import type {
   CaseStatus,
   CaseSummary,
   CreateAttendancePayload,
+  CreateInternalUserPayload,
   CreateReferralPayload,
   CreateSupportRequestPayload,
   LoginPayload,
@@ -90,6 +91,13 @@ export const api = {
 
   async createSupportRequest(payload: CreateSupportRequestPayload) {
     return request<{ caseId: string }>("/api/woman/help-requests", {
+      method: "POST",
+      body: payload,
+    });
+  },
+
+  async createInternalUser(payload: CreateInternalUserPayload) {
+    return request<{ user: SessionUser }>("/api/internal/users", {
       method: "POST",
       body: payload,
     });

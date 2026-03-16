@@ -1,76 +1,192 @@
+import { useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Search, FileText, BarChart3, Settings, User, Heart, PlusCircle, LogOut } from "lucide-react";
+import {
+  BarChart3,
+  Bell,
+  FileText,
+  Heart,
+  Home,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  PlusCircle,
+  Search,
+  Settings,
+  Shield,
+  User,
+  Users,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/stores/auth-store";
+import { roleAccent } from "@/lib/demo-content";
+import { profileLabel } from "@/lib/domain";
 import type { UserProfile } from "@/types/domain";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 interface AppLayoutProps {
   children: React.ReactNode;
   title?: string;
+  subtitle?: string;
   showBack?: boolean;
 }
 
-const navItems: Record<UserProfile, Array<{ label: string; icon: React.ElementType; path: string }>> = {
+type NavItem = {
+  label: string;
+  icon: React.ElementType;
+  path: string;
+  match?: string[];
+  description?: string;
+};
+
+const navItems: Record<UserProfile, NavItem[]> = {
   mulher: [
-    { label: "Inicio", icon: Home, path: "/mulher" },
-    { label: "Meu Caso", icon: FileText, path: "/mulher/caso" },
-    { label: "Ajuda", icon: Heart, path: "/mulher/ajuda" },
-    { label: "Perfil", icon: User, path: "/mulher/perfil" },
+    { label: "Inicio", icon: Home, path: "/mulher", description: "Visao geral e atalhos principais" },
+    { label: "Solicitacao", icon: Heart, path: "/mulher/ajuda", match: ["/mulher/ajuda", "/mulher/solicitacao"], description: "Pedir ajuda e registrar necessidades" },
+    { label: "Meu caso", icon: FileText, path: "/mulher/caso", match: ["/mulher/caso", "/mulher/historico"], description: "Status, historico e acompanhamento" },
+    { label: "Alertas", icon: Bell, path: "/mulher/notificacoes", description: "Comunicacoes e atualizacoes recentes" },
+    { label: "Central de ajuda", icon: Shield, path: "/mulher/central-ajuda", description: "Orientacoes e perguntas frequentes" },
+    { label: "Perfil", icon: User, path: "/mulher/perfil", match: ["/mulher/perfil", "/mulher/configuracoes"], description: "Dados e preferencias da conta" },
   ],
   profissional: [
-    { label: "Inicio", icon: Home, path: "/profissional" },
-    { label: "Casos", icon: Search, path: "/profissional/casos" },
-    { label: "Novo", icon: PlusCircle, path: "/profissional/novo-atendimento" },
-    { label: "Perfil", icon: User, path: "/profissional/perfil" },
+    { label: "Painel", icon: LayoutDashboard, path: "/profissional", description: "Prioridades do dia e fila operacional" },
+    { label: "Casos", icon: Search, path: "/profissional/casos", match: ["/profissional/casos", "/profissional/caso", "/profissional/historico"], description: "Busca, detalhe e historico do caso" },
+    { label: "Atendimento", icon: PlusCircle, path: "/profissional/novo-atendimento", match: ["/profissional/novo-atendimento", "/profissional/novo-encaminhamento"], description: "Registrar atendimento e encaminhamento" },
+    { label: "Alertas", icon: Bell, path: "/profissional/notificacoes", description: "Atualizacoes da operacao" },
+    { label: "Permissoes", icon: Shield, path: "/profissional/permissoes", description: "Escopo de acesso do perfil" },
+    { label: "Perfil", icon: User, path: "/profissional/perfil", match: ["/profissional/perfil", "/profissional/configuracoes", "/profissional/ajuda"], description: "Conta, ajuda e configuracoes" },
   ],
   gestora: [
-    { label: "Painel", icon: Home, path: "/gestora" },
-    { label: "Casos", icon: Search, path: "/gestora/casos" },
-    { label: "Relatorios", icon: BarChart3, path: "/gestora/relatorios" },
-    { label: "Config", icon: Settings, path: "/gestora/config" },
+    { label: "Painel", icon: LayoutDashboard, path: "/gestora", description: "Indicadores e visao executiva" },
+    { label: "Casos", icon: Search, path: "/gestora/casos", match: ["/gestora/casos", "/gestora/caso"], description: "Acompanhamento por status e volume" },
+    { label: "Equipe", icon: Users, path: "/gestora/profissionais", match: ["/gestora/profissionais", "/gestora/administracao"], description: "Contas internas e organizacao da equipe" },
+    { label: "Relatorios", icon: BarChart3, path: "/gestora/relatorios", description: "Exportacoes e resumos gerenciais" },
+    { label: "Alertas", icon: Bell, path: "/gestora/notificacoes", description: "Eventos administrativos e operacionais" },
+    { label: "Governanca", icon: Shield, path: "/gestora/permissoes", match: ["/gestora/permissoes", "/gestora/seguranca", "/gestora/ajuda", "/gestora/sobre"], description: "Permissoes, seguranca e orientacoes" },
+    { label: "Perfil", icon: Settings, path: "/gestora/config", match: ["/gestora/config", "/gestora/configuracoes", "/gestora/perfil"], description: "Configuracoes e preferencias" },
   ],
 };
 
-export function AppLayout({ children, title, showBack }: AppLayoutProps) {
+function isItemActive(pathname: string, item: NavItem) {
+  const paths = item.match ?? [item.path];
+  return paths.some((path) => pathname === path || pathname.startsWith(`${path}/`) || pathname.startsWith(`${path}?`));
+}
+
+export function AppLayout({ children, title, subtitle, showBack }: AppLayoutProps) {
   const { currentUser, logout } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const items = useMemo(() => (currentUser ? navItems[currentUser.perfil] : []), [currentUser]);
+  const primaryItems = items.slice(0, 4);
+  const secondaryItems = items.slice(4);
+  const activeItem = useMemo(
+    () => items.find((item) => isItemActive(location.pathname, item)),
+    [items, location.pathname],
+  );
+  const accentClass = currentUser ? roleAccent(currentUser.perfil) : "";
 
   if (!currentUser) return null;
 
-  const items = navItems[currentUser.perfil];
-
   return (
-    <div className="min-h-screen bg-background flex flex-col max-w-lg mx-auto relative">
-      <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border/50 px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-background flex flex-col max-w-lg mx-auto relative overflow-hidden">
+      <div className={`pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-br ${accentClass}`} />
+      <header className="sticky top-0 z-50 border-b border-white/50 bg-background/80 px-4 py-3 backdrop-blur-xl">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3 min-w-0">
             {showBack && (
               <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
               </button>
             )}
-            <div>
+            <div className="min-w-0">
+              <div className="mb-1 inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/80 px-2.5 py-1 text-[11px] font-medium text-muted-foreground shadow-card">
+                <span className="h-2 w-2 rounded-full bg-primary" />
+                {profileLabel(currentUser.perfil)}
+              </div>
               {title ? (
-                <h1 className="text-lg font-semibold text-foreground">{title}</h1>
+                <>
+                  <h1 className="text-lg font-semibold text-foreground">{title}</h1>
+                  <p className="text-xs text-muted-foreground">{subtitle ?? activeItem?.description ?? "Fluxo demonstrativo com navegacao guiada."}</p>
+                </>
               ) : (
                 <>
-                  <p className="text-xs text-muted-foreground">AcolheSistemas</p>
+                  <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground/90">Acolhe Flow</p>
                   <h1 className="text-base font-semibold text-foreground">Ola, {currentUser.nome.split(" ")[0]}</h1>
+                  <p className="text-xs text-muted-foreground">{activeItem?.description ?? "Ambiente demonstrativo organizado para apresentacao."}</p>
                 </>
               )}
             </div>
           </div>
-          <button
-            onClick={async () => {
-              await logout();
-              navigate("/");
-            }}
-            className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
-            title="Sair"
-          >
-            <LogOut className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <Sheet>
+              <SheetTrigger asChild>
+                <button className="rounded-2xl border border-border/60 bg-card/80 p-2.5 text-muted-foreground shadow-card transition-all hover:text-foreground">
+                  <Menu className="h-5 w-5" />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="left" className="border-r border-border/60 bg-background/95">
+                <SheetHeader className="text-left">
+                  <SheetTitle>Acolhe Flow</SheetTitle>
+                  <SheetDescription>{profileLabel(currentUser.perfil)} com navegacao expandida para demonstracao.</SheetDescription>
+                </SheetHeader>
+                <div className="mt-6 space-y-2">
+                  {items.map((item) => {
+                    const isActive = isItemActive(location.pathname, item);
+                    return (
+                      <button
+                        key={item.path}
+                        onClick={() => navigate(item.path)}
+                        className={`flex w-full items-start gap-3 rounded-2xl border px-3 py-3 text-left transition-all ${
+                          isActive
+                            ? "border-primary/20 bg-primary/10 text-foreground"
+                            : "border-border/60 bg-card/80 text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <item.icon className={`mt-0.5 h-4 w-4 shrink-0 ${isActive ? "text-primary" : ""}`} />
+                        <div>
+                          <p className="text-sm font-medium">{item.label}</p>
+                          <p className="text-xs leading-5">{item.description}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </SheetContent>
+            </Sheet>
+            <button
+              onClick={async () => {
+                await logout();
+                navigate("/");
+              }}
+              className="rounded-2xl border border-border/60 bg-card/80 p-2.5 text-muted-foreground shadow-card transition-all hover:text-foreground"
+              title="Sair"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+          {secondaryItems.length ? secondaryItems.map((item) => {
+            const isActive = isItemActive(location.pathname, item);
+            return (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                  isActive ? "bg-primary text-primary-foreground shadow-card" : "bg-card/80 text-muted-foreground shadow-card"
+                }`}
+              >
+                {item.label}
+              </button>
+            );
+          }) : null}
         </div>
       </header>
 
@@ -90,12 +206,8 @@ export function AppLayout({ children, title, showBack }: AppLayoutProps) {
 
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border/50 safe-bottom max-w-lg mx-auto">
         <div className="flex items-center justify-around px-2 py-2">
-          {items.map((item) => {
-            const isActive =
-              location.pathname === item.path ||
-              (item.path !== "/" &&
-                location.pathname.startsWith(item.path) &&
-                item.path.split("/").length <= location.pathname.split("/").length);
+          {primaryItems.map((item) => {
+            const isActive = isItemActive(location.pathname, item);
             return (
               <button
                 key={item.path}

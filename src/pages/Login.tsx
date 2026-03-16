@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Shield, Heart, Users, BarChart3 } from "lucide-react";
+import { Shield, Heart, Users, BarChart3, CheckCircle2, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/auth-store";
@@ -73,7 +73,35 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-10">
+    <div className="relative min-h-screen overflow-hidden bg-background px-6 py-10">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_top_left,rgba(38,110,150,0.18),transparent_38%),radial-gradient(circle_at_top_right,rgba(63,157,136,0.14),transparent_30%)]" />
+      <div className="mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-6xl items-center justify-center gap-8">
+        <div className="hidden max-w-md flex-1 lg:block">
+          <div className="rounded-[32px] border border-white/60 bg-card/80 p-8 shadow-elevated backdrop-blur-sm">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+              <Sparkles className="h-3.5 w-3.5" />
+              Demo institucional
+            </div>
+            <h1 className="text-4xl font-semibold text-foreground">Acolhe Flow</h1>
+            <p className="mt-3 text-base text-muted-foreground">
+              Plataforma demonstrativa para acolhimento, operacao e gestao integrada da rede de atendimento a mulher.
+            </p>
+            <div className="mt-8 space-y-3">
+              {[
+                "Ambientes proprios para Mulher, Profissional e Gestora",
+                "Navegacao completa com dashboards, historicos e areas institucionais",
+                "Fluxos demonstrativos prontos para apresentacao comercial",
+              ].map((item) => (
+                <div key={item} className="flex items-start gap-3 rounded-2xl bg-background/80 px-4 py-3 shadow-card">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 text-accent" />
+                  <p className="text-sm text-muted-foreground">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex w-full max-w-md flex-col items-center justify-center">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -81,11 +109,11 @@ export default function Login() {
         className="w-full max-w-md"
       >
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 rounded-3xl bg-primary/10 flex items-center justify-center mx-auto mb-4 shadow-card">
             <Shield className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">AcolheSistemas</h1>
-          <p className="text-sm text-muted-foreground mt-1">Plataforma Unificada de Protecao a Mulher</p>
+          <h1 className="text-3xl font-semibold text-foreground">Acolhe Flow</h1>
+          <p className="text-sm text-muted-foreground mt-2">Plataforma unificada de acolhimento, atendimento e gestao</p>
         </div>
 
         <div className="grid grid-cols-3 gap-2 mb-4">
@@ -97,8 +125,8 @@ export default function Login() {
                 setSelectedProfile(profile.id);
                 if (profile.id !== "mulher") setMode("login");
               }}
-              className={`rounded-2xl p-3 text-left transition-all ${
-                selectedProfile === profile.id ? "bg-primary text-primary-foreground" : "bg-card shadow-card"
+              className={`rounded-[24px] border p-3 text-left transition-all ${
+                selectedProfile === profile.id ? "border-primary/20 bg-primary text-primary-foreground shadow-card" : "border-border/70 bg-card/90 shadow-card"
               }`}
             >
               <profile.icon className="w-5 h-5 mb-2" />
@@ -115,14 +143,14 @@ export default function Login() {
             <button
               type="button"
               onClick={() => setMode("login")}
-              className={`flex-1 rounded-xl py-2 text-sm font-medium ${mode === "login" ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground"}`}
+              className={`flex-1 rounded-2xl py-2.5 text-sm font-medium ${mode === "login" ? "bg-primary text-primary-foreground shadow-card" : "bg-card/90 text-muted-foreground shadow-card"}`}
             >
               Entrar
             </button>
             <button
               type="button"
               onClick={() => setMode("register")}
-              className={`flex-1 rounded-xl py-2 text-sm font-medium ${mode === "register" ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground"}`}
+              className={`flex-1 rounded-2xl py-2.5 text-sm font-medium ${mode === "register" ? "bg-primary text-primary-foreground shadow-card" : "bg-card/90 text-muted-foreground shadow-card"}`}
             >
               Criar conta
             </button>
@@ -130,7 +158,7 @@ export default function Login() {
         )}
 
         {mode === "login" || selectedProfile !== "mulher" ? (
-          <form onSubmit={handleLoginSubmit} className="space-y-4 bg-card rounded-3xl p-6 shadow-card">
+          <form onSubmit={handleLoginSubmit} className="space-y-4 bg-card/90 rounded-[32px] p-6 shadow-elevated border border-white/60">
             <div>
               <label className="text-sm font-medium text-foreground">E-mail</label>
               <input
@@ -163,7 +191,7 @@ export default function Login() {
             </p>
           </form>
         ) : (
-          <form onSubmit={handleRegisterSubmit} className="space-y-4 bg-card rounded-3xl p-6 shadow-card">
+          <form onSubmit={handleRegisterSubmit} className="space-y-4 bg-card/90 rounded-[32px] p-6 shadow-elevated border border-white/60">
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
                 <label className="text-sm font-medium text-foreground">Nome completo</label>
@@ -278,9 +306,11 @@ export default function Login() {
         )}
       </motion.div>
 
-      <p className="text-xs text-muted-foreground mt-8 text-center">
-        Secretaria da Mulher - Municipio de Mangaratiba
-      </p>
+          <p className="mt-8 text-center text-xs text-muted-foreground">
+            Ambiente demonstrativo para apresentacao institucional e comercial
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
