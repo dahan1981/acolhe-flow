@@ -33,6 +33,12 @@ export default function GestoraDashboard() {
           <h2 className="text-xl font-semibold text-foreground">Painel gerencial</h2>
           <p className="mt-1 text-sm text-muted-foreground">{roleDescriptions.gestora}</p>
           <div className="mt-4 grid grid-cols-2 gap-3">
+            <button onClick={() => navigate("/gestora/novo-protocolo")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
+              Novo protocolo
+            </button>
+            <button onClick={() => navigate("/gestora/novo-atendimento")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
+              Novo atendimento
+            </button>
             <button onClick={() => navigate("/gestora/administracao")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
               Criar contas internas
             </button>

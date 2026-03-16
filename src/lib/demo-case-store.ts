@@ -29,6 +29,18 @@ type CaseActivitySummary = {
   summary: string;
 };
 
+type InternalProtocolPayload = {
+  nomeCompleto: string;
+  nomeSocial?: string;
+  cpf?: string;
+  telefone?: string;
+  endereco?: string;
+  municipio?: string;
+  uf?: string;
+  situacaoRisco: CaseDetail["situacaoRisco"];
+  observacoesIniciais: string;
+};
+
 function isBrowser() {
   return typeof window !== "undefined";
 }
@@ -241,6 +253,68 @@ export function createDemoSupportCase(payload: CreateSupportRequestPayload) {
     ownerName: user.nome,
     lastUpdatedAt: initialSupportRequest.data,
     lastUpdateSummary: initialSupportRequest.mensagem || initialAttendance.resumo,
+    caseData,
+  });
+
+  return caseData;
+}
+
+export function createDemoInternalProtocol(payload: InternalProtocolPayload) {
+  const user = readSessionUser();
+  if (!user) {
+    throw new Error("Sessao da demo indisponivel para criar protocolo.");
+  }
+
+  const records = loadRecords();
+  const createdAt = nowIso();
+  const attendance: Attendance = {
+    id: `demo-att-int-${Date.now()}`,
+    data: today(),
+    profissionalResponsavel: user.nome,
+    orgao: user.orgao || "sec-mulher",
+    tipoAtendimento: "Registro institucional",
+    resumo: payload.observacoesIniciais,
+    riscoIdentificado: payload.situacaoRisco,
+    necessidadeEncaminhamento: false,
+    proximosPassos: "Aguardando triagem e distribuicao para acompanhamento.",
+  };
+
+  const caseData: CaseDetail = {
+    id: `demo-case-${Date.now()}`,
+    protocolo: nextProtocol(records),
+    nomeCompleto: payload.nomeCompleto.trim(),
+    nomeSocial: payload.nomeSocial?.trim() || null,
+    cpf: payload.cpf?.trim() || "Nao informado",
+    telefone: payload.telefone?.trim() || "(21) 90000-0000",
+    endereco: payload.endereco?.trim() || "Endereco em validacao",
+    municipio: payload.municipio?.trim() || "Mangaratiba",
+    situacaoRisco: payload.situacaoRisco,
+    orgaoEntrada: user.orgao || "sec-mulher",
+    dataPrimeiroAtendimento: today(),
+    observacoesIniciais: payload.observacoesIniciais.trim(),
+    status: "ativo",
+    perfilMulher: {
+      id: `demo-profile-${Date.now()}`,
+      nomeSocial: payload.nomeSocial?.trim() || null,
+      cpf: payload.cpf?.trim() || "Nao informado",
+      dataNascimento: today(),
+      telefone: payload.telefone?.trim() || "(21) 90000-0000",
+      endereco: payload.endereco?.trim() || "Endereco em validacao",
+      municipio: payload.municipio?.trim() || "Mangaratiba",
+      uf: payload.uf?.trim() || "RJ",
+    },
+    atribuidaPara: user.nome,
+    orgaoAtual: user.orgao || "sec-mulher",
+    atendimentos: [attendance],
+    encaminhamentos: [],
+    solicitacoesApoio: [],
+  };
+
+  upsertRecord({
+    ownerEmail: `${caseData.protocolo.toLowerCase()}@demo.local`,
+    ownerName: caseData.nomeCompleto,
+    lastUpdatedAt: createdAt,
+    lastUpdateSummary: payload.observacoesIniciais.trim(),
     caseData,
   });
 

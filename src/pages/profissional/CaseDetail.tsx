@@ -55,7 +55,8 @@ export default function CaseDetail() {
     );
   }
 
-  const canEdit = currentUser?.perfil === "profissional";
+  const canEdit = currentUser?.perfil === "profissional" || currentUser?.perfil === "gestora";
+  const basePath = currentUser?.perfil === "gestora" ? "/gestora" : "/profissional";
 
   return (
     <AppLayout title={`#${caso.protocolo}`} showBack>
@@ -129,14 +130,14 @@ export default function CaseDetail() {
         {canEdit ? (
           <div className="grid grid-cols-2 gap-3">
             <button
-              onClick={() => navigate(`/profissional/novo-atendimento?caseId=${caso.id}`)}
+              onClick={() => navigate(`${basePath}/novo-atendimento?caseId=${caso.id}`)}
               className="flex items-center gap-2 bg-primary text-primary-foreground p-3 rounded-2xl font-medium text-sm shadow-card active:scale-[0.98] transition-all justify-center"
             >
               <PlusCircle className="w-4 h-4" />
               Atendimento
             </button>
             <button
-              onClick={() => navigate(`/profissional/novo-encaminhamento?caseId=${caso.id}`)}
+              onClick={() => navigate(`${basePath}/novo-encaminhamento?caseId=${caso.id}`)}
               className="flex items-center gap-2 bg-accent text-accent-foreground p-3 rounded-2xl font-medium text-sm shadow-card active:scale-[0.98] transition-all justify-center"
             >
               <ArrowRight className="w-4 h-4" />

@@ -26,6 +26,7 @@ import ConfigPage from "./pages/shared/ConfigPage";
 import NotificationsPage from "./pages/shared/NotificationsPage";
 import InstitutionalPage from "./pages/shared/InstitutionalPage";
 import AccessOverviewPage from "./pages/shared/AccessOverviewPage";
+import NovoProtocolo from "./pages/shared/NovoProtocolo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -205,9 +206,17 @@ const App = () => (
               }
             />
             <Route
-              path="/profissional/novo-atendimento"
+              path="/profissional/novo-protocolo"
               element={
                 <ProtectedRoute allowedRoles={["profissional"]}>
+                  <NovoProtocolo />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profissional/novo-atendimento"
+              element={
+                <ProtectedRoute allowedRoles={["profissional", "gestora"]}>
                   <NovoAtendimento />
                 </ProtectedRoute>
               }
@@ -215,7 +224,7 @@ const App = () => (
             <Route
               path="/profissional/novo-encaminhamento"
               element={
-                <ProtectedRoute allowedRoles={["profissional"]}>
+                <ProtectedRoute allowedRoles={["profissional", "gestora"]}>
                   <NovoEncaminhamento />
                 </ProtectedRoute>
               }
@@ -298,6 +307,30 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={["gestora"]}>
                   <CaseDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/gestora/novo-protocolo"
+              element={
+                <ProtectedRoute allowedRoles={["gestora"]}>
+                  <NovoProtocolo />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/gestora/novo-atendimento"
+              element={
+                <ProtectedRoute allowedRoles={["gestora"]}>
+                  <NovoAtendimento />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/gestora/novo-encaminhamento"
+              element={
+                <ProtectedRoute allowedRoles={["gestora"]}>
+                  <NovoEncaminhamento />
                 </ProtectedRoute>
               }
             />

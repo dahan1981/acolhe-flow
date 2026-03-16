@@ -61,14 +61,14 @@ const navItems: Record<UserProfile, NavItem[]> = {
   profissional: [
     { label: "Painel", icon: LayoutDashboard, path: "/profissional", description: "Prioridades do dia e fila operacional" },
     { label: "Casos", icon: Search, path: "/profissional/casos", match: ["/profissional/casos", "/profissional/caso", "/profissional/historico"], description: "Busca, detalhe e historico do caso" },
-    { label: "Atendimento", icon: PlusCircle, path: "/profissional/novo-atendimento", match: ["/profissional/novo-atendimento", "/profissional/novo-encaminhamento"], description: "Registrar atendimento e encaminhamento" },
+    { label: "Atendimento", icon: PlusCircle, path: "/profissional/novo-atendimento", match: ["/profissional/novo-atendimento", "/profissional/novo-encaminhamento", "/profissional/novo-protocolo"], description: "Registrar atendimento, encaminhamento e novo protocolo" },
     { label: "Alertas", icon: Bell, path: "/profissional/notificacoes", description: "Atualizacoes da operacao" },
     { label: "Permissoes", icon: Shield, path: "/profissional/permissoes", description: "Escopo de acesso do perfil" },
     { label: "Perfil", icon: User, path: "/profissional/perfil", match: ["/profissional/perfil", "/profissional/configuracoes", "/profissional/ajuda"], description: "Conta, ajuda e configuracoes" },
   ],
   gestora: [
     { label: "Painel", icon: LayoutDashboard, path: "/gestora", description: "Indicadores e visao executiva" },
-    { label: "Casos", icon: Search, path: "/gestora/casos", match: ["/gestora/casos", "/gestora/caso"], description: "Acompanhamento por status e volume" },
+    { label: "Casos", icon: Search, path: "/gestora/casos", match: ["/gestora/casos", "/gestora/caso", "/gestora/novo-atendimento", "/gestora/novo-encaminhamento", "/gestora/novo-protocolo"], description: "Acompanhamento, novos atendimentos e protocolos" },
     { label: "Equipe", icon: Users, path: "/gestora/profissionais", match: ["/gestora/profissionais", "/gestora/administracao"], description: "Contas internas e organizacao da equipe" },
     { label: "Relatorios", icon: BarChart3, path: "/gestora/relatorios", description: "Exportacoes e resumos gerenciais" },
     { label: "Alertas", icon: Bell, path: "/gestora/notificacoes", description: "Eventos administrativos e operacionais" },
