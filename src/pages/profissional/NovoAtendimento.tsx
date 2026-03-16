@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Search } from "lucide-react";
 import { toast } from "sonner";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { api } from "@/lib/api";
@@ -10,12 +11,19 @@ export default function NovoAtendimento() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
-  const caseId = searchParams.get("caseId") || "";
+  const initialCaseId = searchParams.get("caseId") || "";
+  const [selectedCaseId, setSelectedCaseId] = useState(initialCaseId);
+  const [caseSearch, setCaseSearch] = useState("");
+
+  const { data: casesData } = useQuery({
+    queryKey: ["cases", "", "todos", "attendance-form"],
+    queryFn: () => api.getCases("", "todos"),
+  });
 
   const { data } = useQuery({
-    queryKey: ["case-detail", caseId],
-    queryFn: () => api.getCase(caseId),
-    enabled: Boolean(caseId),
+    queryKey: ["case-detail", selectedCaseId],
+    queryFn: () => api.getCase(selectedCaseId),
+    enabled: Boolean(selectedCaseId),
   });
 
   const [form, setForm] = useState({
@@ -29,7 +37,7 @@ export default function NovoAtendimento() {
   const mutation = useMutation({
     mutationFn: () =>
       api.createAttendance({
-        caseId,
+        caseId: selectedCaseId,
         tipoAtendimento: form.tipoAtendimento,
         resumo: form.resumo,
         riscoIdentificado: form.riscoIdentificado,
@@ -38,7 +46,7 @@ export default function NovoAtendimento() {
       }),
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["case-detail", caseId] }),
+        queryClient.invalidateQueries({ queryKey: ["case-detail", selectedCaseId] }),
         queryClient.invalidateQueries({ queryKey: ["cases"] }),
         queryClient.invalidateQueries({ queryKey: ["professional-dashboard"] }),
         queryClient.invalidateQueries({ queryKey: ["manager-dashboard"] }),
@@ -64,22 +72,71 @@ export default function NovoAtendimento() {
     "Reavaliacao de Risco",
   ];
 
+  const availableCases = (casesData?.casos ?? []).filter((item) => {
+    const term = caseSearch.trim().toLowerCase();
+    if (!term) return true;
+
+    return (
+      item.nomeCompleto.toLowerCase().includes(term) ||
+      (item.nomeSocial || "").toLowerCase().includes(term) ||
+      item.protocolo.toLowerCase().includes(term)
+    );
+  });
+
+  const selectedCase =
+    data?.caso ?? (casesData?.casos ?? []).find((item) => item.id === selectedCaseId);
+
   return (
     <AppLayout title="Novo Atendimento" subtitle="O registro atualiza o historico do caso e o andamento visivel para os demais perfis." showBack>
       <form
         onSubmit={(event) => {
           event.preventDefault();
+          if (!selectedCaseId) {
+            toast.error("Selecione uma vitima antes de registrar o atendimento.");
+            return;
+          }
           mutation.mutate();
         }}
         className="space-y-4"
       >
         <div>
+          <label className="text-sm font-medium text-foreground">Vitima / caso</label>
+          <div className="mt-1 rounded-[24px] border border-border/70 bg-card/90 p-4 shadow-card space-y-3">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="text"
+                value={caseSearch}
+                onChange={(event) => setCaseSearch(event.target.value)}
+                placeholder="Buscar por nome ou protocolo"
+                className="w-full rounded-2xl border border-border/70 bg-background pl-10 pr-4 py-3 text-sm text-foreground outline-none transition-all focus:border-primary"
+              />
+            </div>
+            <select
+              value={selectedCaseId}
+              onChange={(event) => setSelectedCaseId(event.target.value)}
+              className="w-full rounded-2xl border border-border/70 bg-background px-4 py-3 text-sm text-foreground outline-none transition-all focus:border-primary"
+              required
+            >
+              <option value="">Selecione a vitima</option>
+              {availableCases.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {(item.nomeSocial || item.nomeCompleto) + " • #" + item.protocolo}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div>
           <label className="text-sm font-medium text-foreground">Caso selecionado</label>
-          <div className="mt-1 bg-card p-3 rounded-xl shadow-card">
+          <div className="mt-1 min-h-[78px] rounded-xl border border-border/70 bg-card/90 p-3 shadow-card">
             <p className="text-sm font-medium text-foreground">
-              {data?.caso.nomeSocial || data?.caso.nomeCompleto || "Carregando..."}
+              {selectedCase ? selectedCase.nomeSocial || selectedCase.nomeCompleto : "Nenhuma vitima selecionada"}
             </p>
-            <p className="text-xs text-muted-foreground">Protocolo #{data?.caso.protocolo || "-"}</p>
+            <p className="text-xs text-muted-foreground">
+              Protocolo #{selectedCase ? selectedCase.protocolo : "aguardando selecao"}
+            </p>
           </div>
         </div>
 
@@ -154,7 +211,7 @@ export default function NovoAtendimento() {
 
         <button
           type="submit"
-          disabled={mutation.isPending}
+          disabled={mutation.isPending || !selectedCaseId}
           className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-semibold text-base shadow-card hover:shadow-card-hover active:scale-[0.98] transition-all disabled:opacity-70"
         >
           {mutation.isPending ? "Registrando..." : "Registrar Atendimento"}
