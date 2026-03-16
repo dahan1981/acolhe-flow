@@ -17,6 +17,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "start": "node dist/server/index.js",
+    "start:railway": "prisma db push && node dist/server/index.js",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "prisma:generate": "prisma generate",
