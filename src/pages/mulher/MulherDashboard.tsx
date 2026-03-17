@@ -78,6 +78,12 @@ export default function MulherDashboard() {
             >
               Abrir alertas
             </button>
+            <button
+              onClick={() => navigate("/mulher/chat")}
+              className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card col-span-2"
+            >
+              Falar com assistencia social
+            </button>
           </div>
         </div>
 

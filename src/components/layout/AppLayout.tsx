@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import {
   BarChart3,
   Bell,
+  MessageCircleHeart,
   Eye,
   EyeOff,
   FileText,
@@ -54,6 +55,7 @@ const navItems: Record<UserProfile, NavItem[]> = {
     { label: "Inicio", icon: Home, path: "/mulher", description: "Visao geral do acompanhamento e atalhos principais" },
     { label: "Solicitacao", icon: Heart, path: "/mulher/ajuda", match: ["/mulher/ajuda", "/mulher/solicitacao"], description: "Registrar pedido de ajuda ou nova ocorrencia" },
     { label: "Meu caso", icon: FileText, path: "/mulher/caso", match: ["/mulher/caso", "/mulher/historico"], description: "Status do caso, protocolo e historico de movimentacoes" },
+    { label: "Chat", icon: MessageCircleHeart, path: "/mulher/chat", description: "Atendimento especializado com chat protegido" },
     { label: "Alertas", icon: Bell, path: "/mulher/notificacoes", description: "Comunicacoes e atualizacoes recentes" },
     { label: "Central de ajuda", icon: Shield, path: "/mulher/central-ajuda", description: "Orientacoes de uso e suporte em fase piloto" },
     { label: "Perfil", icon: User, path: "/mulher/perfil", match: ["/mulher/perfil", "/mulher/configuracoes"], description: "Dados e preferencias da conta" },
@@ -62,6 +64,7 @@ const navItems: Record<UserProfile, NavItem[]> = {
     { label: "Painel", icon: LayoutDashboard, path: "/profissional", description: "Prioridades do turno, fila operacional e acessos rapidos" },
     { label: "Casos", icon: Search, path: "/profissional/casos", match: ["/profissional/casos", "/profissional/caso", "/profissional/historico"], description: "Busca, status do caso, protocolo e historico operacional" },
     { label: "Atendimento", icon: PlusCircle, path: "/profissional/novo-atendimento", match: ["/profissional/novo-atendimento", "/profissional/novo-encaminhamento", "/profissional/novo-protocolo"], description: "Gerar protocolo, registrar atendimento e criar encaminhamento" },
+    { label: "Chats", icon: MessageCircleHeart, path: "/profissional/chats", description: "Fila de chats aguardando assuncao da equipe" },
     { label: "Alertas", icon: Bell, path: "/profissional/notificacoes", description: "Atualizacoes da operacao" },
     { label: "Permissoes", icon: Shield, path: "/profissional/permissoes", description: "Escopo de acesso do perfil" },
     { label: "Perfil", icon: User, path: "/profissional/perfil", match: ["/profissional/perfil", "/profissional/configuracoes", "/profissional/ajuda"], description: "Conta, ajuda e configuracoes" },
@@ -69,6 +72,7 @@ const navItems: Record<UserProfile, NavItem[]> = {
   gestora: [
     { label: "Painel", icon: LayoutDashboard, path: "/gestora", description: "Indicadores, distribuicao operacional e acompanhamento executivo" },
     { label: "Casos", icon: Search, path: "/gestora/casos", match: ["/gestora/casos", "/gestora/caso", "/gestora/novo-atendimento", "/gestora/novo-encaminhamento", "/gestora/novo-protocolo"], description: "Monitorar casos, protocolos e movimentacoes da rede" },
+    { label: "Chats", icon: MessageCircleHeart, path: "/gestora/chats", description: "Monitorar fila de chats e tempos de resposta" },
     { label: "Equipe", icon: Users, path: "/gestora/profissionais", match: ["/gestora/profissionais", "/gestora/administracao"], description: "Contas internas e organizacao da equipe" },
     { label: "Relatorios", icon: BarChart3, path: "/gestora/relatorios", description: "Indicadores de volume, risco, violencia e distribuicao" },
     { label: "Alertas", icon: Bell, path: "/gestora/notificacoes", description: "Eventos administrativos e operacionais" },

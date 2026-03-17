@@ -51,8 +51,8 @@ export default function ProfissionalDashboard() {
             <button onClick={() => navigate("/profissional/historico")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
               Fila operacional
             </button>
-            <button onClick={() => navigate("/profissional/permissoes")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
-              Ver permissoes
+            <button onClick={() => navigate("/profissional/chats")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
+              Chats pendentes
             </button>
           </div>
         </div>

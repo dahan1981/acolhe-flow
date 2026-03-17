@@ -16,6 +16,7 @@ export type Ethnicity =
   | "amarela"
   | "indigena"
   | "nao_informada";
+export type ChatStatus = "aguardando_assuncao" | "em_atendimento" | "encerrado";
 
 export interface SessionUser {
   id: string;
@@ -200,4 +201,33 @@ export interface CreateInternalUserPayload {
   organizationId: string;
   cargo?: string;
   especialidades?: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  senderProfile: UserProfile | "sistema";
+  senderName: string;
+  body: string;
+  createdAt: string;
+}
+
+export interface ChatTicket {
+  id: string;
+  caseId?: string | null;
+  ownerUserId: string;
+  ownerEmail: string;
+  ownerName: string;
+  protocolo?: string | null;
+  channel: string;
+  status: ChatStatus;
+  queue: "assistencia_social";
+  assunto: string;
+  context: string;
+  assignedProfessionalName?: string | null;
+  assignedProfessionalUserId?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  unreadForWoman: number;
+  unreadForTeam: number;
+  messages: ChatMessage[];
 }

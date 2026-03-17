@@ -27,6 +27,7 @@ import NotificationsPage from "./pages/shared/NotificationsPage";
 import InstitutionalPage from "./pages/shared/InstitutionalPage";
 import AccessOverviewPage from "./pages/shared/AccessOverviewPage";
 import NovoProtocolo from "./pages/shared/NovoProtocolo";
+import ChatPage from "./pages/shared/ChatPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -113,6 +114,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={["mulher"]}>
                   <MulherHistorico />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mulher/chat"
+              element={
+                <ProtectedRoute allowedRoles={["mulher"]}>
+                  <ChatPage />
                 </ProtectedRoute>
               }
             />
@@ -226,6 +235,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={["profissional", "gestora"]}>
                   <NovoEncaminhamento />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profissional/chats"
+              element={
+                <ProtectedRoute allowedRoles={["profissional"]}>
+                  <ChatPage />
                 </ProtectedRoute>
               }
             />
@@ -355,6 +372,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={["gestora"]}>
                   <Relatorios />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/gestora/chats"
+              element={
+                <ProtectedRoute allowedRoles={["gestora"]}>
+                  <ChatPage />
                 </ProtectedRoute>
               }
             />

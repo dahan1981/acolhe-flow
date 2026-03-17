@@ -63,8 +63,8 @@ export default function GestoraDashboard() {
             <button onClick={() => navigate("/gestora/administracao")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
               Criar contas internas
             </button>
-            <button onClick={() => navigate("/gestora/relatorios")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
-              Abrir relatorios
+            <button onClick={() => navigate("/gestora/chats")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
+              Monitorar chats
             </button>
           </div>
         </section>

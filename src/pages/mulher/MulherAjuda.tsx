@@ -11,7 +11,7 @@ import type { Ethnicity, ViolenceType } from "@/types/domain";
 const services = [
   { icon: Phone, label: "Solicitar apoio imediato", desc: "Registrar necessidade urgente de contato ou orientacao", value: "apoio_imediato" },
   { icon: MapPin, label: "Protecao e abrigo", desc: "Informar necessidade de local seguro ou deslocamento assistido", value: "protecao_abrigo" },
-  { icon: MessageCircle, label: "Atendimento especializado", desc: "Solicitar orientacao psicossocial, juridica ou intersetorial", value: "atendimento_especializado" },
+  { icon: MessageCircle, label: "Atendimento especializado", desc: "Abrir chat protegido com assistencia social", value: "atendimento_especializado" },
   { icon: Heart, label: "Nova ocorrencia", desc: "Registrar uma nova situacao e iniciar o acompanhamento", value: "nova_ocorrencia" },
 ];
 
@@ -67,7 +67,12 @@ export default function MulherAjuda() {
           {services.map((service) => (
             <button
               key={service.value}
-              onClick={() => setSelectedService(service.value)}
+              onClick={() => {
+                setSelectedService(service.value);
+                if (service.value === "atendimento_especializado") {
+                  navigate("/mulher/chat?start=1");
+                }
+              }}
               className={`flex w-full items-center gap-4 rounded-[24px] p-4 text-left transition-all ${
                 selectedService === service.value
                   ? "bg-primary text-primary-foreground shadow-card"
@@ -153,21 +158,31 @@ export default function MulherAjuda() {
             </select>
           </div>
 
-          <button
-            onClick={() =>
-              mutation.mutate({
-                tipo: selectedService,
-                mensagem: message,
-                situacaoRisco: riskLevel,
-                tiposViolencia,
-                etniaCor,
-              })
-            }
-            disabled={mutation.isPending}
-            className="w-full rounded-2xl bg-primary py-4 text-base font-semibold text-primary-foreground shadow-card transition-all hover:shadow-card-hover active:scale-[0.98] disabled:opacity-70"
-          >
-            {mutation.isPending ? "Registrando solicitacao..." : "Registrar solicitacao"}
-          </button>
+          {selectedService === "atendimento_especializado" ? (
+            <button
+              type="button"
+              onClick={() => navigate("/mulher/chat?start=1")}
+              className="w-full rounded-2xl bg-primary py-4 text-base font-semibold text-primary-foreground shadow-card transition-all hover:shadow-card-hover active:scale-[0.98]"
+            >
+              Abrir chat com assistencia social
+            </button>
+          ) : (
+            <button
+              onClick={() =>
+                mutation.mutate({
+                  tipo: selectedService,
+                  mensagem: message,
+                  situacaoRisco: riskLevel,
+                  tiposViolencia,
+                  etniaCor,
+                })
+              }
+              disabled={mutation.isPending}
+              className="w-full rounded-2xl bg-primary py-4 text-base font-semibold text-primary-foreground shadow-card transition-all hover:shadow-card-hover active:scale-[0.98] disabled:opacity-70"
+            >
+              {mutation.isPending ? "Registrando solicitacao..." : "Registrar solicitacao"}
+            </button>
+          )}
           <p className="text-xs text-muted-foreground">
             Depois do envio, acompanhe o status em "Meu caso" e veja as atualizacoes realizadas pela equipe responsavel.
           </p>
