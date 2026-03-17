@@ -80,17 +80,17 @@ export default function Login() {
           <div className="rounded-[32px] border border-white/60 bg-card/80 p-8 shadow-elevated backdrop-blur-sm">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
               <Sparkles className="h-3.5 w-3.5" />
-              Demo institucional
+              Fase piloto assistida
             </div>
             <h1 className="text-4xl font-semibold text-foreground">Acolhe Flow</h1>
             <p className="mt-3 text-base text-muted-foreground">
-              Plataforma demonstrativa para acolhimento, operacao e gestao integrada da rede de atendimento a mulher.
+              Plataforma para acolhimento, operacao e monitoramento integrado da rede de atendimento a mulher em fase de testes controlados.
             </p>
             <div className="mt-8 space-y-3">
               {[
                 "Ambientes proprios para Mulher, Profissional e Gestora",
-                "Navegacao completa com dashboards, historicos e areas institucionais",
-                "Fluxos demonstrativos prontos para apresentacao comercial",
+                "Navegacao completa com dashboards, historicos, protocolos e areas institucionais",
+                "Fluxos acompanhados por equipe autorizada durante a implantacao inicial",
               ].map((item) => (
                 <div key={item} className="flex items-start gap-3 rounded-2xl bg-background/80 px-4 py-3 shadow-card">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 text-accent" />
@@ -113,7 +113,7 @@ export default function Login() {
             <Shield className="w-8 h-8 text-primary" />
           </div>
           <h1 className="text-3xl font-semibold text-foreground">Acolhe Flow</h1>
-          <p className="text-sm text-muted-foreground mt-2">Plataforma unificada de acolhimento, atendimento e gestao</p>
+          <p className="text-sm text-muted-foreground mt-2">Plataforma unificada de acolhimento, atendimento e gestao em operacao assistida</p>
         </div>
 
         <div className="grid grid-cols-3 gap-2 mb-4">
@@ -187,7 +187,7 @@ export default function Login() {
               {isSubmitting ? "Entrando..." : `Entrar como ${profiles.find((item) => item.id === selectedProfile)?.label}`}
             </button>
             <p className="text-xs text-muted-foreground text-center">
-              Cadastros publicos sao permitidos apenas para Mulheres.
+              O cadastro publico permanece disponivel apenas para mulheres acolhidas.
             </p>
           </form>
         ) : (
@@ -307,7 +307,7 @@ export default function Login() {
       </motion.div>
 
           <p className="mt-8 text-center text-xs text-muted-foreground">
-            Ambiente demonstrativo para apresentacao institucional e comercial
+            Ambiente em fase piloto com acesso acompanhado por equipes autorizadas
           </p>
         </div>
       </div>

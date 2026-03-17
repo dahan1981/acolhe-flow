@@ -29,17 +29,16 @@ export default function ConfigPage() {
   ];
 
   return (
-    <AppLayout title="Configuracoes" subtitle="Preferencias simples para reforcar maturidade e consistencia da demo.">
+    <AppLayout title="Configuracoes" subtitle="Preferencias de uso, notificacoes e privacidade para o periodo de testes assistidos.">
       <div className="space-y-5">
         <section className="rounded-[28px] border border-white/60 bg-card/90 p-5 shadow-card">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
             <ToggleLeft className="h-3.5 w-3.5" />
             Preferencias
           </div>
-          <h2 className="text-xl font-semibold text-foreground">Ajustes demonstrativos</h2>
+          <h2 className="text-xl font-semibold text-foreground">Ajustes do ambiente</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Os controles abaixo simulam configuracoes comuns de notificacao e modo de uso, ajudando a apresentar um produto mais
-            completo.
+            Os controles abaixo organizam configuracoes de notificacao e modo de uso para apoiar a operacao durante a implantacao inicial.
           </p>
         </section>
 

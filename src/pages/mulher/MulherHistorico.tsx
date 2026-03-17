@@ -27,14 +27,14 @@ export default function MulherHistorico() {
     return (
       <AppLayout title="Historico" subtitle="Resumo dos principais registros do acompanhamento.">
         <div className="rounded-[24px] border border-border/70 bg-card/90 p-5 shadow-card">
-          <p className="text-sm text-muted-foreground">Assim que uma solicitacao for registrada, o historico aparecera aqui.</p>
+          <p className="text-sm text-muted-foreground">Assim que uma solicitacao for registrada, o historico do caso aparecera aqui.</p>
         </div>
       </AppLayout>
     );
   }
 
   return (
-    <AppLayout title="Historico do caso" subtitle="Linha do tempo simplificada com foco em entendimento rapido.">
+    <AppLayout title="Historico do caso" subtitle="Acompanhe as movimentacoes do caso em uma linha do tempo unica e organizada.">
       <div className="space-y-5">
         <section className="grid grid-cols-2 gap-3">
           <div className="rounded-[24px] border border-border/70 bg-card/90 p-4 shadow-card">
@@ -71,13 +71,13 @@ export default function MulherHistorico() {
             <h3 className="text-base font-semibold text-foreground">O que este historico mostra</h3>
           </div>
           <p className="text-sm text-muted-foreground">
-            Esta visao organiza registros de atendimento e encaminhamentos da rede em uma sequencia simples, ajudando a acompanhar
+            Esta visao organiza registros de solicitacao, atendimento, atualizacao de status e encaminhamento em uma sequencia simples, ajudando a acompanhar
             o andamento sem expor detalhes tecnicos desnecessarios.
           </p>
         </section>
 
         <section>
-          <Timeline atendimentos={caso.atendimentos} encaminhamentos={caso.encaminhamentos} />
+          <Timeline caso={caso} atendimentos={caso.atendimentos} encaminhamentos={caso.encaminhamentos} solicitacoesApoio={caso.solicitacoesApoio} />
         </section>
       </div>
     </AppLayout>

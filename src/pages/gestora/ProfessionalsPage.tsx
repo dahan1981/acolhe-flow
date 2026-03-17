@@ -4,7 +4,7 @@ import { teamMembers } from "@/lib/demo-content";
 
 export default function ProfessionalsPage() {
   return (
-    <AppLayout title="Equipe e perfis internos" subtitle="Visao demonstrativa de profissionais e gestoras vinculadas ao sistema.">
+    <AppLayout title="Equipe e perfis internos" subtitle="Distribuicao de profissionais e gestoras vinculadas ao ambiente em implantacao.">
       <div className="space-y-5">
         <section className="rounded-[28px] border border-white/60 bg-card/90 p-5 shadow-card">
           <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
@@ -13,7 +13,7 @@ export default function ProfessionalsPage() {
           </div>
           <h2 className="text-xl font-semibold text-foreground">Distribuicao da equipe</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Esta tela ajuda a demonstrar organizacao institucional, status de perfis e foco de atuacao por area.
+            Esta tela organiza a equipe por perfil, orgao e foco de atuacao para apoiar o monitoramento institucional.
           </p>
         </section>
 

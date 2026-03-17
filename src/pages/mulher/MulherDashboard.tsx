@@ -30,15 +30,15 @@ export default function MulherDashboard() {
         <div className="rounded-[28px] border border-white/60 bg-card/90 p-5 shadow-card space-y-4">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
             <Sparkles className="h-3.5 w-3.5" />
-            Ambiente acolhedor
+            Acesso em fase piloto
           </div>
           <p className="text-sm text-muted-foreground">{roleDescriptions.mulher}</p>
           <button
             onClick={() => navigate("/mulher/ajuda")}
             className="w-full py-3 rounded-2xl bg-primary text-primary-foreground font-semibold shadow-card"
           >
-            Solicitar ajuda agora
-          </button>
+              Registrar solicitacao
+            </button>
         </div>
       </AppLayout>
     );
@@ -54,7 +54,7 @@ export default function MulherDashboard() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Status do seu caso</p>
-              <p className="font-semibold text-foreground">Protocolo #{caso.protocolo}</p>
+              <p className="font-semibold text-foreground">Protocolo {caso.protocolo}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 mb-3">
@@ -62,7 +62,7 @@ export default function MulherDashboard() {
             <StatusBadge type="risk" value={caso.situacaoRisco} />
           </div>
           <p className="text-sm text-muted-foreground">
-            Seu caso esta sendo acompanhado por {getOrganizationName(caso.orgaoAtual)}. O ultimo registro foi em{" "}
+            Seu caso esta sendo acompanhado por {getOrganizationName(caso.orgaoAtual)}. O ultimo registro foi feito em{" "}
             {formatDate(caso.atendimentos[0]?.data || caso.dataPrimeiroAtendimento)}.
           </p>
           <div className="mt-4 grid grid-cols-2 gap-3">
@@ -136,7 +136,7 @@ export default function MulherDashboard() {
         </div>
 
         <div>
-          <h2 className="text-sm font-semibold text-foreground mb-3">Quem acessou seu caso</h2>
+          <h2 className="text-sm font-semibold text-foreground mb-3">Encaminhamentos ativos</h2>
           <div className="bg-card/90 p-4 rounded-2xl shadow-card space-y-3 border border-border/70">
             {data?.encaminhamentosRecentes.map((item) => (
               <div key={item.id} className="flex items-center gap-3">
@@ -174,8 +174,8 @@ export default function MulherDashboard() {
             <h3 className="text-sm font-semibold text-foreground">Orientacao rapida</h3>
           </div>
           <p className="text-sm text-muted-foreground">
-            Este ambiente foi desenhado para reduzir complexidade. As principais acoes ficam visiveis logo na entrada, com acesso
-            rapido ao pedido de ajuda, historico do caso e central de orientacoes.
+            Este ambiente foi organizado para facilitar o acompanhamento durante a fase piloto. As principais acoes ficam visiveis logo na entrada, com acesso
+            rapido ao registro de solicitacao, historico do caso e central de orientacoes.
           </p>
         </div>
       </div>

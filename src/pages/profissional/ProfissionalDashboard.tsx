@@ -29,7 +29,7 @@ export default function ProfissionalDashboard() {
         <div className="rounded-[28px] border border-white/60 bg-card/90 p-5 shadow-card">
           <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
             <ShieldCheck className="h-3.5 w-3.5" />
-            Operacao organizada
+            Operacao assistida
           </div>
           <h2 className="text-xl font-semibold text-foreground">Painel profissional</h2>
           <p className="mt-1 text-sm text-muted-foreground">{roleDescriptions.profissional}</p>
@@ -39,14 +39,14 @@ export default function ProfissionalDashboard() {
                 <FilePlus2 className="h-4 w-4" />
                 Novo protocolo
               </div>
-              <p className="text-xs text-primary-foreground/80">Cadastrar nova vitima</p>
+              <p className="text-xs text-primary-foreground/80">Cadastrar nova mulher e abrir caso</p>
             </button>
             <button onClick={() => navigate("/profissional/novo-atendimento")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
               <div className="mb-1 flex items-center gap-2">
                 <Stethoscope className="h-4 w-4 text-accent" />
                 Novo atendimento
               </div>
-              <p className="text-xs text-muted-foreground">Escolher caso e registrar acao</p>
+              <p className="text-xs text-muted-foreground">Escolher caso, registrar atendimento e atualizar status</p>
             </button>
             <button onClick={() => navigate("/profissional/historico")} className="rounded-2xl bg-background px-4 py-3 text-left text-sm font-medium text-foreground shadow-card">
               Fila operacional
@@ -113,8 +113,8 @@ export default function ProfissionalDashboard() {
             <h3 className="text-sm font-semibold text-foreground">Fluxo operacional</h3>
           </div>
           <p className="text-sm text-muted-foreground">
-            O profissional consegue alternar entre fila, detalhe do caso, registro de atendimento, encaminhamento, ajuda e
-            permissao sem sair do contexto da operacao.
+            A equipe consegue alternar entre fila, detalhe do caso, registro de atendimento, encaminhamento, ajuda e
+            permissoes sem perder o contexto do atendimento em curso.
           </p>
         </div>
       </div>

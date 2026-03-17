@@ -1,17 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Heart, MapPin, MessageCircle, Phone } from "lucide-react";
+import { CheckCircle2, Heart, MapPin, MessageCircle, Phone, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { api } from "@/lib/api";
-import type { RiskLevel } from "@/types/domain";
+import { ethnicityOptions, riskOptions, violenceTypeOptions } from "@/lib/form-options";
+import type { Ethnicity, ViolenceType } from "@/types/domain";
 
 const services = [
-  { icon: Phone, label: "Ligue 180", desc: "Central de Atendimento a Mulher", value: "ligue_180" },
-  { icon: MapPin, label: "Encontrar abrigo", desc: "Locais seguros mais proximos", value: "abrigo" },
-  { icon: MessageCircle, label: "Falar com alguem", desc: "Contato com profissional da rede", value: "contato_profissional" },
-  { icon: Heart, label: "Solicitar novo apoio", desc: "Saude, juridico, assistencia social", value: "apoio_geral" },
+  { icon: Phone, label: "Solicitar apoio imediato", desc: "Registrar necessidade urgente de contato ou orientacao", value: "apoio_imediato" },
+  { icon: MapPin, label: "Protecao e abrigo", desc: "Informar necessidade de local seguro ou deslocamento assistido", value: "protecao_abrigo" },
+  { icon: MessageCircle, label: "Atendimento especializado", desc: "Solicitar orientacao psicossocial, juridica ou intersetorial", value: "atendimento_especializado" },
+  { icon: Heart, label: "Nova ocorrencia", desc: "Registrar uma nova situacao e iniciar o acompanhamento", value: "nova_ocorrencia" },
 ];
 
 export default function MulherAjuda() {
@@ -19,7 +20,9 @@ export default function MulherAjuda() {
   const queryClient = useQueryClient();
   const [selectedService, setSelectedService] = useState(services[0].value);
   const [message, setMessage] = useState("");
-  const [riskLevel, setRiskLevel] = useState<RiskLevel>("medio");
+  const [riskLevel, setRiskLevel] = useState<"baixo" | "medio" | "alto" | "critico">("medio");
+  const [etniaCor, setEtniaCor] = useState<Ethnicity>("nao_informada");
+  const [tiposViolencia, setTiposViolencia] = useState<ViolenceType[]>(["violencia_psicologica"]);
 
   const mutation = useMutation({
     mutationFn: api.createSupportRequest,
@@ -31,7 +34,7 @@ export default function MulherAjuda() {
         queryClient.invalidateQueries({ queryKey: ["professional-dashboard"] }),
         queryClient.invalidateQueries({ queryKey: ["manager-dashboard"] }),
       ]);
-      toast.success("Solicitacao registrada e compartilhada na demo.");
+      toast.success("Solicitacao registrada com sucesso.");
       navigate("/mulher/caso");
     },
     onError: (error) => {
@@ -39,72 +42,115 @@ export default function MulherAjuda() {
     },
   });
 
+  function toggleViolenceType(type: ViolenceType) {
+    setTiposViolencia((current) => {
+      const exists = current.includes(type);
+      const next = exists ? current.filter((item) => item !== type) : [...current, type];
+      return next.length ? next : current;
+    });
+  }
+
   return (
-    <AppLayout title="Pedir Ajuda" showBack>
-      <div className="space-y-4">
-        <div className="rounded-[24px] border border-white/60 bg-card/90 p-4 shadow-card">
+    <AppLayout title="Registrar solicitacao" subtitle="Descreva a necessidade atual para abrir ou atualizar o acompanhamento do caso." showBack>
+      <div className="space-y-5">
+        <section className="rounded-[26px] border border-primary/15 bg-card/95 p-5 shadow-card">
           <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-            <CheckCircle2 className="h-3.5 w-3.5" />
-            Fluxo integrado da demo
+            <ShieldCheck className="h-3.5 w-3.5" />
+            Fluxo protegido
           </div>
           <p className="text-sm text-muted-foreground">
-            Ao registrar esta solicitacao, um novo caso sera criado na sua area e tambem aparecera automaticamente para a
-            Profissional e para a Gestora no mesmo navegador.
+            Quando uma solicitacao e registrada, o caso passa a ficar disponivel para acompanhamento da equipe responsavel e da gestao autorizada.
           </p>
-        </div>
+        </section>
 
-        <div className="space-y-3">
+        <section className="space-y-3">
           {services.map((service) => (
             <button
               key={service.value}
               onClick={() => setSelectedService(service.value)}
-              className={`w-full flex items-center gap-4 p-4 rounded-[24px] text-left transition-all ${
+              className={`flex w-full items-center gap-4 rounded-[24px] p-4 text-left transition-all ${
                 selectedService === service.value
                   ? "bg-primary text-primary-foreground shadow-card"
-                  : "bg-card/90 shadow-card hover:shadow-card-hover border border-border/70"
+                  : "border border-border/70 bg-card/90 shadow-card hover:shadow-card-hover"
               }`}
             >
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <service.icon className={`w-6 h-6 ${selectedService === service.value ? "text-primary-foreground" : "text-primary"}`} />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 shrink-0">
+                <service.icon className={`h-6 w-6 ${selectedService === service.value ? "text-primary-foreground" : "text-primary"}`} />
               </div>
               <div className="flex-1">
                 <p className="font-semibold">{service.label}</p>
-                <p className={`text-sm ${selectedService === service.value ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
-                  {service.desc}
-                </p>
+                <p className={`text-sm ${selectedService === service.value ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{service.desc}</p>
               </div>
             </button>
           ))}
-        </div>
+        </section>
 
-        <div className="bg-card/90 p-4 rounded-[24px] shadow-card space-y-4 border border-border/70">
+        <section className="grid gap-4 rounded-[26px] border border-border/70 bg-card/95 p-5 shadow-card">
           <div>
-            <label className="text-sm font-medium text-foreground">Mensagem</label>
+            <label className="text-sm font-medium text-foreground">Relato da solicitacao</label>
             <textarea
               value={message}
               onChange={(event) => setMessage(event.target.value)}
               rows={4}
-              placeholder="Descreva o ocorrido, o apoio desejado e qualquer detalhe importante para a triagem."
-              className="mt-1 w-full p-3 bg-background rounded-xl border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+              placeholder="Descreva o ocorrido, o tipo de apoio necessario e qualquer informacao importante para a triagem inicial."
+              className="mt-1 w-full rounded-2xl border border-border bg-background p-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
             />
+            <p className="mt-2 text-xs text-muted-foreground">Esse texto fica visivel no historico inicial do caso.</p>
           </div>
 
           <div>
-            <label className="text-sm font-medium text-foreground">Nivel de risco percebido</label>
-            <div className="mt-2 flex gap-2 flex-wrap">
-              {(["baixo", "medio", "alto", "critico"] as RiskLevel[]).map((item) => (
+            <label className="text-sm font-medium text-foreground">Percepcao atual de risco</label>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {riskOptions.map((item) => (
                 <button
-                  key={item}
+                  key={item.value}
                   type="button"
-                  onClick={() => setRiskLevel(item)}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                    riskLevel === item ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground border border-border"
+                  onClick={() => setRiskLevel(item.value)}
+                  className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+                    riskLevel === item.value
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border bg-background text-muted-foreground"
                   }`}
                 >
-                  {item}
+                  {item.label}
                 </button>
               ))}
             </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-foreground">Tipos de violencia relacionados</label>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {violenceTypeOptions.map((item) => (
+                <button
+                  key={item.value}
+                  type="button"
+                  onClick={() => toggleViolenceType(item.value)}
+                  className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+                    tiposViolencia.includes(item.value)
+                      ? "bg-warning text-warning-foreground"
+                      : "border border-border bg-background text-muted-foreground"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-foreground">Etnia/cor</label>
+            <select
+              value={etniaCor}
+              onChange={(event) => setEtniaCor(event.target.value as Ethnicity)}
+              className="mt-1 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              {ethnicityOptions.map((item) => (
+                <option key={item.value} value={item.value}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           <button
@@ -113,24 +159,27 @@ export default function MulherAjuda() {
                 tipo: selectedService,
                 mensagem: message,
                 situacaoRisco: riskLevel,
+                tiposViolencia,
+                etniaCor,
               })
             }
             disabled={mutation.isPending}
-            className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-semibold text-base shadow-card hover:shadow-card-hover active:scale-[0.98] transition-all disabled:opacity-70"
+            className="w-full rounded-2xl bg-primary py-4 text-base font-semibold text-primary-foreground shadow-card transition-all hover:shadow-card-hover active:scale-[0.98] disabled:opacity-70"
           >
-            {mutation.isPending ? "Registrando caso..." : "Criar denuncia de teste"}
+            {mutation.isPending ? "Registrando solicitacao..." : "Registrar solicitacao"}
           </button>
           <p className="text-xs text-muted-foreground">
-            Depois do envio, acompanhe o andamento em "Meu caso" e valide o reflexo nas areas Profissional e Gestora.
+            Depois do envio, acompanhe o status em "Meu caso" e veja as atualizacoes realizadas pela equipe responsavel.
           </p>
-        </div>
+        </section>
 
-        <div className="bg-urgent/10 p-4 rounded-[24px] mt-6">
-          <p className="text-sm font-semibold text-urgent">Em situacao de emergencia?</p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Ligue imediatamente para o 190 ou procure a delegacia mais proxima.
-          </p>
-        </div>
+        <section className="rounded-[24px] bg-urgent/10 p-4">
+          <div className="mb-1 flex items-center gap-2 text-urgent">
+            <CheckCircle2 className="h-4 w-4" />
+            <p className="text-sm font-semibold">Em situacao de emergencia?</p>
+          </div>
+          <p className="text-sm text-muted-foreground">Em risco imediato, priorize os canais emergenciais e busque apoio presencial da rede de protecao.</p>
+        </section>
       </div>
     </AppLayout>
   );

@@ -50,7 +50,7 @@ export default function GestoraAdmin() {
   );
 
   return (
-    <AppLayout title="Painel administrativo" subtitle="Criacao interna de contas e governanca visual da equipe.">
+    <AppLayout title="Painel administrativo" subtitle="Criacao interna de contas e governanca visual da equipe em operacao assistida.">
       <div className="space-y-5">
         <section className="grid grid-cols-1 gap-3">
           {adminHighlights.map((item) => (
@@ -147,7 +147,7 @@ export default function GestoraAdmin() {
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground">As contas criadas nesta demonstracao aparecem aqui para reforcar o fluxo administrativo.</p>
+              <p className="text-sm text-muted-foreground">As contas criadas nesta sessao aparecem aqui para facilitar a validacao do fluxo administrativo.</p>
             )}
           </div>
         </section>

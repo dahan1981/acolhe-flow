@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search } from "lucide-react";
+import { ClipboardCheck, Search, Stethoscope } from "lucide-react";
 import { toast } from "sonner";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { api } from "@/lib/api";
-import type { RiskLevel } from "@/types/domain";
+import { ethnicityLabel, getOrganizationName, violenceTypeLabel } from "@/lib/domain";
+import { riskOptions, violenceTypeOptions } from "@/lib/form-options";
+import type { RiskLevel, ViolenceType } from "@/types/domain";
 
 export default function NovoAtendimento() {
   const navigate = useNavigate();
@@ -32,6 +34,8 @@ export default function NovoAtendimento() {
     riscoIdentificado: "medio" as RiskLevel,
     necessidadeEncaminhamento: false,
     proximosPassos: "",
+    observacoesInternas: "",
+    tiposViolencia: ["violencia_psicologica"] as ViolenceType[],
   });
 
   const mutation = useMutation({
@@ -43,6 +47,8 @@ export default function NovoAtendimento() {
         riscoIdentificado: form.riscoIdentificado,
         necessidadeEncaminhamento: form.necessidadeEncaminhamento,
         proximosPassos: form.proximosPassos,
+        observacoesInternas: form.observacoesInternas,
+        tiposViolencia: form.tiposViolencia,
       }),
     onSuccess: async () => {
       await Promise.all([
@@ -62,14 +68,13 @@ export default function NovoAtendimento() {
   });
 
   const tipos = [
-    "Acolhimento Inicial",
-    "Acompanhamento Social",
-    "Atendimento Psicologico",
-    "Orientacao Juridica",
-    "Registro de Ocorrencia",
-    "Acolhimento em Abrigo",
-    "Visita Domiciliar",
-    "Reavaliacao de Risco",
+    "Acolhimento inicial",
+    "Reavaliacao de risco",
+    "Atendimento psicossocial",
+    "Orientacao juridica",
+    "Registro complementar",
+    "Contato de seguimento",
+    "Acompanhamento intersetorial",
   ];
 
   const availableCases = (casesData?.casos ?? []).filter((item) => {
@@ -83,32 +88,51 @@ export default function NovoAtendimento() {
     );
   });
 
-  const selectedCase =
-    data?.caso ?? (casesData?.casos ?? []).find((item) => item.id === selectedCaseId);
+  const selectedCase = data?.caso ?? (casesData?.casos ?? []).find((item) => item.id === selectedCaseId);
+
+  function toggleViolenceType(type: ViolenceType) {
+    setForm((current) => {
+      const exists = current.tiposViolencia.includes(type);
+      const next = exists ? current.tiposViolencia.filter((item) => item !== type) : [...current.tiposViolencia, type];
+      return { ...current, tiposViolencia: next.length ? next : current.tiposViolencia };
+    });
+  }
 
   return (
-    <AppLayout title="Novo Atendimento" subtitle="O registro atualiza o historico do caso e o andamento visivel para os demais perfis." showBack>
+    <AppLayout
+      title="Registrar atendimento"
+      subtitle="Selecione um caso ja aberto, registre a acao executada e atualize o andamento compartilhado."
+      showBack
+    >
       <form
         onSubmit={(event) => {
           event.preventDefault();
           if (!selectedCaseId) {
-            toast.error("Selecione uma vitima antes de registrar o atendimento.");
+            toast.error("Selecione um caso antes de salvar o atendimento.");
             return;
           }
           mutation.mutate();
         }}
-        className="space-y-4"
+        className="space-y-5"
       >
-        <div>
-          <label className="text-sm font-medium text-foreground">Vitima / caso</label>
-          <div className="mt-1 rounded-[24px] border border-border/70 bg-card/90 p-4 shadow-card space-y-3">
+        <section className="rounded-[26px] border border-primary/15 bg-card/95 p-5 shadow-card">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+            <ClipboardCheck className="h-3.5 w-3.5" />
+            Etapa 1 de 2
+          </div>
+          <h2 className="text-lg font-semibold text-foreground">Selecao do caso</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            O atendimento sempre fica vinculado a um caso e a um protocolo ja existentes, preservando a leitura do historico unico.
+          </p>
+
+          <div className="mt-4 space-y-3 rounded-[24px] border border-border/70 bg-background/70 p-4">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
                 value={caseSearch}
                 onChange={(event) => setCaseSearch(event.target.value)}
-                placeholder="Buscar por nome ou protocolo"
+                placeholder="Buscar por nome, protocolo ou nome social"
                 className="w-full rounded-2xl border border-border/70 bg-background pl-10 pr-4 py-3 text-sm text-foreground outline-none transition-all focus:border-primary"
               />
             </div>
@@ -118,103 +142,150 @@ export default function NovoAtendimento() {
               className="w-full rounded-2xl border border-border/70 bg-background px-4 py-3 text-sm text-foreground outline-none transition-all focus:border-primary"
               required
             >
-              <option value="">Selecione a vitima</option>
+              <option value="">Selecione o caso</option>
               {availableCases.map((item) => (
                 <option key={item.id} value={item.id}>
-                  {(item.nomeSocial || item.nomeCompleto) + " • #" + item.protocolo}
+                  {(item.nomeSocial || item.nomeCompleto) + " • protocolo " + item.protocolo}
                 </option>
               ))}
             </select>
           </div>
-        </div>
 
-        <div>
-          <label className="text-sm font-medium text-foreground">Caso selecionado</label>
-          <div className="mt-1 min-h-[78px] rounded-xl border border-border/70 bg-card/90 p-3 shadow-card">
-            <p className="text-sm font-medium text-foreground">
-              {selectedCase ? selectedCase.nomeSocial || selectedCase.nomeCompleto : "Nenhuma vitima selecionada"}
+          <div className="mt-4 rounded-[24px] border border-border/70 bg-background px-4 py-4">
+            <p className="text-sm font-semibold text-foreground">
+              {selectedCase ? selectedCase.nomeSocial || selectedCase.nomeCompleto : "Nenhum caso selecionado"}
             </p>
-            <p className="text-xs text-muted-foreground">
-              Protocolo #{selectedCase ? selectedCase.protocolo : "aguardando selecao"}
+            <p className="mt-1 text-xs text-muted-foreground">
+              {selectedCase ? `Protocolo ${selectedCase.protocolo} • ${getOrganizationName(selectedCase.orgaoEntrada)}` : "Selecione um caso para visualizar o protocolo e os dados de referencia."}
             </p>
+            {selectedCase ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                  Etnia/cor: {ethnicityLabel(selectedCase.etniaCor ?? "nao_informada")}
+                </span>
+                {(selectedCase.tiposViolencia ?? []).map((tipo) => (
+                  <span key={tipo} className="rounded-full bg-warning/10 px-2.5 py-1 text-[11px] font-medium text-warning">
+                    {violenceTypeLabel(tipo)}
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </div>
-        </div>
+        </section>
 
-        <div>
-          <label className="text-sm font-medium text-foreground">Tipo de atendimento</label>
-          <select
-            value={form.tipoAtendimento}
-            onChange={(event) => setForm({ ...form, tipoAtendimento: event.target.value })}
-            className="mt-1 w-full p-3 bg-card rounded-xl border border-border text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
-            required
-          >
-            <option value="">Selecione...</option>
-            {tipos.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-foreground">Resumo do atendimento</label>
-          <textarea
-            value={form.resumo}
-            onChange={(event) => setForm({ ...form, resumo: event.target.value })}
-            rows={4}
-            className="mt-1 w-full p-3 bg-card rounded-xl border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-foreground">Risco identificado</label>
-          <div className="mt-2 flex gap-2 flex-wrap">
-            {(["baixo", "medio", "alto", "critico"] as RiskLevel[]).map((item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => setForm({ ...form, riscoIdentificado: item })}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                  form.riscoIdentificado === item ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground border border-border"
-                }`}
-              >
-                {item}
-              </button>
-            ))}
+        <section className="grid gap-4 rounded-[26px] border border-border/70 bg-card/95 p-5 shadow-card">
+          <div>
+            <label className="text-sm font-medium text-foreground">Tipo de atendimento</label>
+            <select
+              value={form.tipoAtendimento}
+              onChange={(event) => setForm({ ...form, tipoAtendimento: event.target.value })}
+              className="mt-1 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+              required
+            >
+              <option value="">Selecione a acao realizada</option>
+              {tipos.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
           </div>
-        </div>
 
-        <div>
-          <label className="text-sm font-medium text-foreground">Proximos passos</label>
-          <textarea
-            value={form.proximosPassos}
-            onChange={(event) => setForm({ ...form, proximosPassos: event.target.value })}
-            rows={3}
-            className="mt-1 w-full p-3 bg-card rounded-xl border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
-          />
-        </div>
+          <div>
+            <label className="text-sm font-medium text-foreground">Resumo do atendimento</label>
+            <textarea
+              value={form.resumo}
+              onChange={(event) => setForm({ ...form, resumo: event.target.value })}
+              rows={4}
+              placeholder="Registre o atendimento realizado, a escuta qualificada e os encaminhamentos sugeridos."
+              className="mt-1 w-full rounded-2xl border border-border bg-background p-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+              required
+            />
+          </div>
 
-        <div className="flex items-center gap-3 bg-card p-4 rounded-xl shadow-card">
-          <input
-            type="checkbox"
-            id="encaminhamento"
-            checked={form.necessidadeEncaminhamento}
-            onChange={(event) => setForm({ ...form, necessidadeEncaminhamento: event.target.checked })}
-            className="w-5 h-5 rounded border-border text-primary focus:ring-primary/20"
-          />
-          <label htmlFor="encaminhamento" className="text-sm text-foreground">
-            Necessita encaminhamento para outro orgao
+          <div>
+            <label className="text-sm font-medium text-foreground">Classificacao de risco atual</label>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {riskOptions.map((item) => (
+                <button
+                  key={item.value}
+                  type="button"
+                  onClick={() => setForm({ ...form, riscoIdentificado: item.value })}
+                  className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+                    form.riscoIdentificado === item.value
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border bg-background text-muted-foreground"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-foreground">Tipos de violencia observados ou confirmados</label>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {violenceTypeOptions.map((item) => (
+                <button
+                  key={item.value}
+                  type="button"
+                  onClick={() => toggleViolenceType(item.value)}
+                  className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+                    form.tiposViolencia.includes(item.value)
+                      ? "bg-warning text-warning-foreground"
+                      : "border border-border bg-background text-muted-foreground"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-foreground">Proximos passos</label>
+            <textarea
+              value={form.proximosPassos}
+              onChange={(event) => setForm({ ...form, proximosPassos: event.target.value })}
+              rows={3}
+              placeholder="Informe o que deve ocorrer depois deste atendimento."
+              className="mt-1 w-full rounded-2xl border border-border bg-background p-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-foreground">Observacao operacional</label>
+            <textarea
+              value={form.observacoesInternas}
+              onChange={(event) => setForm({ ...form, observacoesInternas: event.target.value })}
+              rows={3}
+              placeholder="Use este campo para orientar a equipe interna, sem expor informacoes alem do necessario."
+              className="mt-1 w-full rounded-2xl border border-border bg-background p-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+            />
+          </div>
+
+          <label className="flex items-center gap-3 rounded-2xl border border-border/70 bg-background px-4 py-4 shadow-card">
+            <input
+              type="checkbox"
+              checked={form.necessidadeEncaminhamento}
+              onChange={(event) => setForm({ ...form, necessidadeEncaminhamento: event.target.checked })}
+              className="h-5 w-5 rounded border-border text-primary focus:ring-primary/20"
+            />
+            <div>
+              <p className="text-sm font-medium text-foreground">Encaminhamento necessario</p>
+              <p className="text-xs text-muted-foreground">Marque quando a equipe precisar direcionar o caso para outro orgao.</p>
+            </div>
           </label>
-        </div>
+        </section>
 
         <button
           type="submit"
           disabled={mutation.isPending || !selectedCaseId}
-          className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-semibold text-base shadow-card hover:shadow-card-hover active:scale-[0.98] transition-all disabled:opacity-70"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-4 text-base font-semibold text-primary-foreground shadow-card transition-all hover:shadow-card-hover active:scale-[0.98] disabled:opacity-70"
         >
-          {mutation.isPending ? "Registrando..." : "Registrar Atendimento"}
+          <Stethoscope className="h-4 w-4" />
+          {mutation.isPending ? "Salvando atendimento..." : "Salvar atendimento"}
         </button>
       </form>
     </AppLayout>

@@ -3,6 +3,19 @@ export type RiskLevel = "baixo" | "medio" | "alto" | "critico";
 export type CaseStatus = "ativo" | "em_andamento" | "encaminhado" | "resolvido" | "arquivado";
 export type Priority = "baixa" | "media" | "alta" | "urgente";
 export type ReferralStatus = "pendente" | "aceito" | "em_atendimento" | "concluido";
+export type ViolenceType =
+  | "violencia_patrimonial"
+  | "violencia_sexual"
+  | "violencia_fisica"
+  | "violencia_moral"
+  | "violencia_psicologica";
+export type Ethnicity =
+  | "branca"
+  | "preta"
+  | "parda"
+  | "amarela"
+  | "indigena"
+  | "nao_informada";
 
 export interface SessionUser {
   id: string;
@@ -30,6 +43,7 @@ export interface WomanProfile {
   endereco: string;
   municipio: string;
   uf: string;
+  etniaCor?: Ethnicity;
 }
 
 export interface CaseSummary {
@@ -46,6 +60,9 @@ export interface CaseSummary {
   dataPrimeiroAtendimento: string;
   observacoesIniciais: string;
   status: CaseStatus;
+  tiposViolencia?: ViolenceType[];
+  etniaCor?: Ethnicity;
+  ultimaAtualizacao?: string;
 }
 
 export interface Attendance {
@@ -58,6 +75,8 @@ export interface Attendance {
   riscoIdentificado: RiskLevel;
   necessidadeEncaminhamento: boolean;
   proximosPassos?: string | null;
+  observacoesInternas?: string | null;
+  tiposViolencia?: ViolenceType[];
 }
 
 export interface Referral {
@@ -75,6 +94,8 @@ export interface SupportRequest {
   mensagem?: string | null;
   status: string;
   data: string;
+  tiposViolencia?: ViolenceType[];
+  etniaCor?: Ethnicity;
 }
 
 export interface CaseDetail extends CaseSummary {
@@ -119,6 +140,10 @@ export interface ManagerStats {
   encaminhamentosPendentes: number;
   porOrgao: Array<{ orgao: string; sigla: string; total: number }>;
   porRisco: Array<{ nivel: string; total: number; cor: string }>;
+  porViolencia?: Array<{ tipo: ViolenceType; total: number }>;
+  porEtnia?: Array<{ etnia: Ethnicity; total: number }>;
+  porPeriodo?: Array<{ periodo: string; total: number }>;
+  distribuicaoEncaminhamentos?: Array<{ orgao: string; total: number }>;
 }
 
 export interface RegisterWomanPayload {
@@ -147,6 +172,8 @@ export interface CreateAttendancePayload {
   riscoIdentificado: RiskLevel;
   necessidadeEncaminhamento: boolean;
   proximosPassos?: string;
+  observacoesInternas?: string;
+  tiposViolencia?: ViolenceType[];
 }
 
 export interface CreateReferralPayload {
@@ -161,6 +188,8 @@ export interface CreateSupportRequestPayload {
   tipo: string;
   mensagem?: string;
   situacaoRisco: RiskLevel;
+  tiposViolencia?: ViolenceType[];
+  etniaCor?: Ethnicity;
 }
 
 export interface CreateInternalUserPayload {

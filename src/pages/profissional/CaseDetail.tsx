@@ -1,12 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowRight, Calendar, FileText, MapPin, Phone, PlusCircle, User } from "lucide-react";
+import { ArrowRight, Calendar, ClipboardList, FileText, MapPin, Phone, PlusCircle, User } from "lucide-react";
 import { toast } from "sonner";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Timeline } from "@/components/shared/Timeline";
 import { api } from "@/lib/api";
-import { formatDate, getOrganizationName } from "@/lib/domain";
+import { ethnicityLabel, formatDate, getOrganizationName, violenceTypeLabel } from "@/lib/domain";
 import { useAuthStore } from "@/stores/auth-store";
 
 export default function CaseDetail() {
@@ -40,7 +40,7 @@ export default function CaseDetail() {
   if (isLoading) {
     return (
       <AppLayout title="Carregando caso" showBack>
-        <p className="text-muted-foreground text-center py-12">Carregando...</p>
+        <p className="py-12 text-center text-muted-foreground">Carregando informacoes do caso...</p>
       </AppLayout>
     );
   }
@@ -50,7 +50,7 @@ export default function CaseDetail() {
   if (!caso) {
     return (
       <AppLayout title="Caso nao encontrado" showBack>
-        <p className="text-muted-foreground text-center py-12">Caso nao encontrado.</p>
+        <p className="py-12 text-center text-muted-foreground">Nao foi possivel localizar o caso solicitado.</p>
       </AppLayout>
     );
   }
@@ -59,104 +59,138 @@ export default function CaseDetail() {
   const basePath = currentUser?.perfil === "gestora" ? "/gestora" : "/profissional";
 
   return (
-    <AppLayout title={`#${caso.protocolo}`} showBack>
-      <div className="space-y-4">
-        <div className="bg-card p-5 rounded-2xl shadow-card">
-          <div className="flex items-start gap-3 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <User className="w-6 h-6 text-primary" />
+    <AppLayout title={`Caso ${caso.protocolo}`} subtitle="Consulte dados principais, acompanhe a timeline unica e registre a proxima acao." showBack>
+      <div className="space-y-5">
+        <section className="rounded-[28px] border border-white/60 bg-card/95 p-5 shadow-card">
+          <div className="mb-4 flex items-start gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 shrink-0">
+              <User className="h-6 w-6 text-primary" />
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
+              <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                <span className="inline-flex items-center gap-1">
+                  <ClipboardList className="h-3.5 w-3.5" />
+                  Caso
+                </span>
+                <span>Protocolo {caso.protocolo}</span>
+              </div>
               <h2 className="text-lg font-semibold text-foreground">{caso.nomeCompleto}</h2>
-              {caso.nomeSocial && <p className="text-sm text-muted-foreground">Nome social: {caso.nomeSocial}</p>}
+              {caso.nomeSocial ? <p className="text-sm text-muted-foreground">Nome social: {caso.nomeSocial}</p> : null}
             </div>
           </div>
-          <div className="flex gap-2 mb-4 flex-wrap">
+
+          <div className="mb-4 flex flex-wrap gap-2">
             <StatusBadge type="status" value={caso.status} />
             <StatusBadge type="risk" value={caso.situacaoRisco} />
+            <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+              Etnia/cor: {ethnicityLabel(caso.etniaCor ?? "nao_informada")}
+            </span>
           </div>
-          <div className="space-y-2 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 shrink-0" />
-              <span>CPF: {caso.perfilMulher.cpf}</span>
+
+          <div className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
+            <div className="flex items-center gap-2 rounded-2xl bg-background px-3 py-3">
+              <FileText className="h-4 w-4 shrink-0" />
+              CPF: {caso.perfilMulher.cpf}
             </div>
-            <div className="flex items-center gap-2">
-              <Phone className="w-4 h-4 shrink-0" />
-              <span>{caso.perfilMulher.telefone}</span>
+            <div className="flex items-center gap-2 rounded-2xl bg-background px-3 py-3">
+              <Phone className="h-4 w-4 shrink-0" />
+              {caso.perfilMulher.telefone}
             </div>
-            <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 shrink-0" />
-              <span>
-                {caso.perfilMulher.endereco}, {caso.perfilMulher.municipio} - {caso.perfilMulher.uf}
+            <div className="flex items-center gap-2 rounded-2xl bg-background px-3 py-3 sm:col-span-2">
+              <MapPin className="h-4 w-4 shrink-0" />
+              {caso.perfilMulher.endereco}, {caso.perfilMulher.municipio} - {caso.perfilMulher.uf}
+            </div>
+            <div className="flex items-center gap-2 rounded-2xl bg-background px-3 py-3">
+              <Calendar className="h-4 w-4 shrink-0" />
+              Abertura: {formatDate(caso.dataPrimeiroAtendimento)}
+            </div>
+            <div className="flex items-center gap-2 rounded-2xl bg-background px-3 py-3">
+              <ArrowRight className="h-4 w-4 shrink-0" />
+              Orgao atual: {getOrganizationName(caso.orgaoAtual)}
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {(caso.tiposViolencia ?? []).map((tipo) => (
+              <span key={tipo} className="rounded-full bg-warning/10 px-2.5 py-1 text-[11px] font-medium text-warning">
+                {violenceTypeLabel(tipo)}
               </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 shrink-0" />
-              <span>Primeiro atendimento: {formatDate(caso.dataPrimeiroAtendimento)}</span>
-            </div>
+            ))}
           </div>
-        </div>
+        </section>
 
-        <div className="bg-card p-4 rounded-2xl shadow-card">
-          <h3 className="text-sm font-semibold text-foreground mb-2">Observacoes iniciais</h3>
+        <section className="rounded-[24px] border border-border/70 bg-card/95 p-5 shadow-card">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Resumo inicial</p>
+              <h3 className="text-base font-semibold text-foreground">Contexto de abertura</h3>
+            </div>
+            <span className="rounded-full bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
+              Atribuida para {caso.atribuidaPara || "fila de triagem"}
+            </span>
+          </div>
           <p className="text-sm text-muted-foreground">{caso.observacoesIniciais}</p>
-        </div>
+        </section>
 
-        <div className="bg-card/90 p-4 rounded-2xl shadow-card border border-border/70">
-          <h3 className="text-sm font-semibold text-foreground mb-3">Gestao do caso</h3>
-          <div className="flex gap-2 flex-wrap">
+        <section className="rounded-[24px] border border-border/70 bg-card/95 p-5 shadow-card">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Acoes principais</p>
+              <h3 className="text-base font-semibold text-foreground">Conducao operacional do caso</h3>
+            </div>
+            {canEdit ? (
+              <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">Atualizacao compartilhada</span>
+            ) : null}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <button
+              onClick={() => navigate(`${basePath}/novo-atendimento?caseId=${caso.id}`)}
+              className="flex items-center justify-center gap-2 rounded-2xl bg-primary p-4 text-sm font-semibold text-primary-foreground shadow-card transition-all"
+            >
+              <PlusCircle className="h-4 w-4" />
+              Registrar atendimento
+            </button>
+            <button
+              onClick={() => navigate(`${basePath}/novo-encaminhamento?caseId=${caso.id}`)}
+              className="flex items-center justify-center gap-2 rounded-2xl bg-accent p-4 text-sm font-semibold text-accent-foreground shadow-card transition-all"
+            >
+              <ArrowRight className="h-4 w-4" />
+              Criar encaminhamento
+            </button>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
             {([
-              { value: "em_andamento", label: "Mover para andamento" },
+              { value: "em_andamento", label: "Marcar em andamento" },
               { value: "resolvido", label: "Concluir caso" },
-              { value: "arquivado", label: "Arquivar demonstracao" },
+              { value: "arquivado", label: "Arquivar caso" },
             ] as const).map((status) => (
               <button
                 key={status.value}
                 onClick={() => statusMutation.mutate(status.value)}
                 disabled={statusMutation.isPending || !canEdit}
-                className="px-4 py-2 rounded-xl text-sm font-medium bg-background border border-border text-foreground disabled:opacity-60"
+                className="rounded-xl border border-border bg-background px-4 py-2 text-sm font-medium text-foreground disabled:opacity-60"
               >
                 {status.label}
               </button>
             ))}
           </div>
-          {canEdit ? (
-            <p className="mt-3 text-xs text-muted-foreground">
-              Esta atualizacao de status reflete automaticamente na visao da Mulher e no painel da Gestora.
-            </p>
-          ) : null}
-        </div>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Atendimentos, status e encaminhamentos atualizam o mesmo historico visivel para a mulher acolhida e para a gestao.
+          </p>
+        </section>
 
-        {canEdit ? (
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => navigate(`${basePath}/novo-atendimento?caseId=${caso.id}`)}
-              className="flex items-center gap-2 bg-primary text-primary-foreground p-3 rounded-2xl font-medium text-sm shadow-card active:scale-[0.98] transition-all justify-center"
-            >
-              <PlusCircle className="w-4 h-4" />
-              Atendimento
-            </button>
-            <button
-              onClick={() => navigate(`${basePath}/novo-encaminhamento?caseId=${caso.id}`)}
-              className="flex items-center gap-2 bg-accent text-accent-foreground p-3 rounded-2xl font-medium text-sm shadow-card active:scale-[0.98] transition-all justify-center"
-            >
-              <ArrowRight className="w-4 h-4" />
-              Encaminhar
-            </button>
+        <section>
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Timeline unica</p>
+              <h3 className="text-base font-semibold text-foreground">Evolucao do caso</h3>
+            </div>
+            <span className="rounded-full bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
+              {caso.atendimentos.length} atendimentos • {caso.encaminhamentos.length} encaminhamentos
+            </span>
           </div>
-        ) : null}
-
-        <div className="bg-card p-4 rounded-2xl shadow-card">
-          <h3 className="text-sm font-semibold text-foreground mb-2">Orgao atual</h3>
-          <p className="text-sm text-muted-foreground">{getOrganizationName(caso.orgaoAtual)}</p>
-        </div>
-
-        <div>
-          <h3 className="text-sm font-semibold text-foreground mb-3">
-            Historico ({caso.atendimentos.length + caso.encaminhamentos.length} registros)
-          </h3>
-          <Timeline atendimentos={caso.atendimentos} encaminhamentos={caso.encaminhamentos} />
-        </div>
+          <Timeline caso={caso} atendimentos={caso.atendimentos} encaminhamentos={caso.encaminhamentos} solicitacoesApoio={caso.solicitacoesApoio} />
+        </section>
       </div>
     </AppLayout>
   );

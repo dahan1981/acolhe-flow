@@ -22,7 +22,7 @@ export default function InstitutionalPage({ topic }: { topic: InstitutionalTopic
   const articles = helpArticlesByRole[currentUser.perfil];
 
   return (
-    <AppLayout title={topicTitles[topic]} subtitle="Conteudo institucional generico, claro e pronto para demonstracao.">
+    <AppLayout title={topicTitles[topic]} subtitle="Conteudo institucional para orientar o uso da plataforma durante a fase piloto.">
       <div className="space-y-5">
         <section className="rounded-[28px] border border-white/60 bg-card/90 p-5 shadow-card">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
@@ -31,7 +31,7 @@ export default function InstitutionalPage({ topic }: { topic: InstitutionalTopic
           </div>
           <h2 className="text-xl font-semibold text-foreground">{topicTitles[topic]}</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Esta pagina reforca contexto, orientacao e confianca de uso sem depender de integracoes reais.
+            Esta pagina reforca contexto, orientacao e confianca de uso para equipes e pessoas autorizadas durante o periodo de implantacao inicial.
           </p>
         </section>
 

@@ -27,7 +27,7 @@ export default function ProfissionalWorkspace() {
   }, [activeFilter, data?.casos]);
 
   return (
-    <AppLayout title="Fila operacional" subtitle="Visao demonstrativa da distribuicao e do historico dos casos.">
+    <AppLayout title="Fila operacional" subtitle="Distribuicao de casos, prioridades e leitura rapida do contexto assistencial.">
       <div className="space-y-5">
         <section className="rounded-[28px] border border-white/60 bg-card/90 p-5 shadow-card">
           <div className="flex items-start justify-between gap-3">
@@ -38,7 +38,7 @@ export default function ProfissionalWorkspace() {
               </div>
               <h2 className="text-xl font-semibold text-foreground">Casos em acompanhamento</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Use os filtros para demonstrar triagem, organizacao por prioridade e leitura de contexto.
+                Use os filtros para acompanhar triagem, prioridade e contexto do atendimento em curso.
               </p>
             </div>
             <div className="rounded-2xl bg-background px-3 py-2 shadow-card">
@@ -103,7 +103,7 @@ export default function ProfissionalWorkspace() {
               <h3 className="text-sm font-semibold text-foreground">Historico assistido</h3>
             </div>
             <p className="text-sm text-muted-foreground">
-              A timeline do detalhe do caso resume atendimentos e encaminhamentos para facilitar continuidade de atendimento.
+              A timeline do detalhe do caso resume solicitacoes, atendimentos e encaminhamentos para facilitar continuidade de atendimento.
             </p>
           </div>
           <div className="rounded-[24px] border border-border/70 bg-card/90 p-4 shadow-card">
@@ -112,7 +112,7 @@ export default function ProfissionalWorkspace() {
               <h3 className="text-sm font-semibold text-foreground">Ritmo operacional</h3>
             </div>
             <p className="text-sm text-muted-foreground">
-              O ambiente foi desenhado para consultas rapidas, transicao entre telas e registro de acao com o menor atrito visual.
+              O ambiente foi organizado para consultas rapidas, transicao entre telas e registro de acao com o menor atrito visual.
             </p>
           </div>
         </section>

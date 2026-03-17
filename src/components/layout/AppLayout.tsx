@@ -51,26 +51,26 @@ type NavItem = {
 
 const navItems: Record<UserProfile, NavItem[]> = {
   mulher: [
-    { label: "Inicio", icon: Home, path: "/mulher", description: "Visao geral e atalhos principais" },
-    { label: "Solicitacao", icon: Heart, path: "/mulher/ajuda", match: ["/mulher/ajuda", "/mulher/solicitacao"], description: "Pedir ajuda e registrar necessidades" },
-    { label: "Meu caso", icon: FileText, path: "/mulher/caso", match: ["/mulher/caso", "/mulher/historico"], description: "Status, historico e acompanhamento" },
+    { label: "Inicio", icon: Home, path: "/mulher", description: "Visao geral do acompanhamento e atalhos principais" },
+    { label: "Solicitacao", icon: Heart, path: "/mulher/ajuda", match: ["/mulher/ajuda", "/mulher/solicitacao"], description: "Registrar pedido de ajuda ou nova ocorrencia" },
+    { label: "Meu caso", icon: FileText, path: "/mulher/caso", match: ["/mulher/caso", "/mulher/historico"], description: "Status do caso, protocolo e historico de movimentacoes" },
     { label: "Alertas", icon: Bell, path: "/mulher/notificacoes", description: "Comunicacoes e atualizacoes recentes" },
-    { label: "Central de ajuda", icon: Shield, path: "/mulher/central-ajuda", description: "Orientacoes e perguntas frequentes" },
+    { label: "Central de ajuda", icon: Shield, path: "/mulher/central-ajuda", description: "Orientacoes de uso e suporte em fase piloto" },
     { label: "Perfil", icon: User, path: "/mulher/perfil", match: ["/mulher/perfil", "/mulher/configuracoes"], description: "Dados e preferencias da conta" },
   ],
   profissional: [
-    { label: "Painel", icon: LayoutDashboard, path: "/profissional", description: "Prioridades do dia e fila operacional" },
-    { label: "Casos", icon: Search, path: "/profissional/casos", match: ["/profissional/casos", "/profissional/caso", "/profissional/historico"], description: "Busca, detalhe e historico do caso" },
-    { label: "Atendimento", icon: PlusCircle, path: "/profissional/novo-atendimento", match: ["/profissional/novo-atendimento", "/profissional/novo-encaminhamento", "/profissional/novo-protocolo"], description: "Registrar atendimento, encaminhamento e novo protocolo" },
+    { label: "Painel", icon: LayoutDashboard, path: "/profissional", description: "Prioridades do turno, fila operacional e acessos rapidos" },
+    { label: "Casos", icon: Search, path: "/profissional/casos", match: ["/profissional/casos", "/profissional/caso", "/profissional/historico"], description: "Busca, status do caso, protocolo e historico operacional" },
+    { label: "Atendimento", icon: PlusCircle, path: "/profissional/novo-atendimento", match: ["/profissional/novo-atendimento", "/profissional/novo-encaminhamento", "/profissional/novo-protocolo"], description: "Gerar protocolo, registrar atendimento e criar encaminhamento" },
     { label: "Alertas", icon: Bell, path: "/profissional/notificacoes", description: "Atualizacoes da operacao" },
     { label: "Permissoes", icon: Shield, path: "/profissional/permissoes", description: "Escopo de acesso do perfil" },
     { label: "Perfil", icon: User, path: "/profissional/perfil", match: ["/profissional/perfil", "/profissional/configuracoes", "/profissional/ajuda"], description: "Conta, ajuda e configuracoes" },
   ],
   gestora: [
-    { label: "Painel", icon: LayoutDashboard, path: "/gestora", description: "Indicadores e visao executiva" },
-    { label: "Casos", icon: Search, path: "/gestora/casos", match: ["/gestora/casos", "/gestora/caso", "/gestora/novo-atendimento", "/gestora/novo-encaminhamento", "/gestora/novo-protocolo"], description: "Acompanhamento, novos atendimentos e protocolos" },
+    { label: "Painel", icon: LayoutDashboard, path: "/gestora", description: "Indicadores, distribuicao operacional e acompanhamento executivo" },
+    { label: "Casos", icon: Search, path: "/gestora/casos", match: ["/gestora/casos", "/gestora/caso", "/gestora/novo-atendimento", "/gestora/novo-encaminhamento", "/gestora/novo-protocolo"], description: "Monitorar casos, protocolos e movimentacoes da rede" },
     { label: "Equipe", icon: Users, path: "/gestora/profissionais", match: ["/gestora/profissionais", "/gestora/administracao"], description: "Contas internas e organizacao da equipe" },
-    { label: "Relatorios", icon: BarChart3, path: "/gestora/relatorios", description: "Exportacoes e resumos gerenciais" },
+    { label: "Relatorios", icon: BarChart3, path: "/gestora/relatorios", description: "Indicadores de volume, risco, violencia e distribuicao" },
     { label: "Alertas", icon: Bell, path: "/gestora/notificacoes", description: "Eventos administrativos e operacionais" },
     { label: "Governanca", icon: Shield, path: "/gestora/permissoes", match: ["/gestora/permissoes", "/gestora/seguranca", "/gestora/ajuda", "/gestora/sobre"], description: "Permissoes, seguranca e orientacoes" },
     { label: "Perfil", icon: Settings, path: "/gestora/config", match: ["/gestora/config", "/gestora/configuracoes", "/gestora/perfil"], description: "Configuracoes e preferencias" },
@@ -132,13 +132,13 @@ export function AppLayout({ children, title, subtitle, showBack }: AppLayoutProp
               {title ? (
                 <>
                   <h1 className="text-lg font-semibold text-foreground">{title}</h1>
-                  <p className="text-xs text-muted-foreground">{subtitle ?? activeItem?.description ?? "Fluxo demonstrativo com navegacao guiada."}</p>
+                  <p className="text-xs text-muted-foreground">{subtitle ?? activeItem?.description ?? "Ambiente em fase piloto com navegacao orientada."}</p>
                 </>
               ) : (
                 <>
                   <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground/90">Acolhe Flow</p>
                   <h1 className="text-base font-semibold text-foreground">Ola, {currentUser.nome.split(" ")[0]}</h1>
-                  <p className="text-xs text-muted-foreground">{activeItem?.description ?? "Ambiente demonstrativo organizado para apresentacao."}</p>
+                  <p className="text-xs text-muted-foreground">{activeItem?.description ?? "Ambiente piloto organizado para uso acompanhado."}</p>
                 </>
               )}
             </div>
@@ -171,7 +171,7 @@ export function AppLayout({ children, title, subtitle, showBack }: AppLayoutProp
               <SheetContent side="left" className="border-r border-border/60 bg-background/95">
                 <SheetHeader className="text-left">
                   <SheetTitle>Acolhe Flow</SheetTitle>
-                  <SheetDescription>{profileLabel(currentUser.perfil)} com navegacao expandida para demonstracao.</SheetDescription>
+                  <SheetDescription>{profileLabel(currentUser.perfil)} com navegacao completa para o periodo de testes assistidos.</SheetDescription>
                 </SheetHeader>
                 <div className="mt-6 space-y-2">
                   {items.map((item) => {

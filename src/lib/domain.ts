@@ -1,3 +1,5 @@
+import type { Ethnicity, ViolenceType } from "@/types/domain";
+
 const organizationNames: Record<string, string> = {
   "sec-mulher": "Secretaria da Mulher",
   creas: "CREAS",
@@ -38,4 +40,29 @@ export function profileLabel(profile: string) {
   if (profile === "mulher") return "Acolhida";
   if (profile === "profissional") return "Profissional";
   return "Gestora";
+}
+
+export function violenceTypeLabel(type: ViolenceType) {
+  const labels: Record<ViolenceType, string> = {
+    violencia_patrimonial: "Violência patrimonial",
+    violencia_sexual: "Violência sexual",
+    violencia_fisica: "Violência física",
+    violencia_moral: "Violência moral",
+    violencia_psicologica: "Violência psicológica",
+  };
+
+  return labels[type];
+}
+
+export function ethnicityLabel(value: Ethnicity) {
+  const labels: Record<Ethnicity, string> = {
+    branca: "Branca",
+    preta: "Preta",
+    parda: "Parda",
+    amarela: "Amarela",
+    indigena: "Indígena",
+    nao_informada: "Não informada",
+  };
+
+  return labels[value];
 }

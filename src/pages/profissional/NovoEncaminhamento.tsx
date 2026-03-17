@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search } from "lucide-react";
+import { ArrowRightLeft, Search } from "lucide-react";
 import { toast } from "sonner";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { api } from "@/lib/api";
+import { getOrganizationName, violenceTypeLabel } from "@/lib/domain";
 import type { Priority } from "@/types/domain";
 
 export default function NovoEncaminhamento() {
@@ -73,25 +74,31 @@ export default function NovoEncaminhamento() {
     );
   });
 
-  const selectedCase =
-    caseData?.caso ?? (casesData?.casos ?? []).find((item) => item.id === selectedCaseId);
+  const selectedCase = caseData?.caso ?? (casesData?.casos ?? []).find((item) => item.id === selectedCaseId);
 
   return (
-    <AppLayout title="Novo Encaminhamento" subtitle="O encaminhamento altera o status do caso e deixa o novo orgao visivel na demo." showBack>
+    <AppLayout
+      title="Criar encaminhamento"
+      subtitle="Direcione o caso para outro orgao da rede e atualize o historico compartilhado."
+      showBack
+    >
       <form
         onSubmit={(event) => {
           event.preventDefault();
           if (!selectedCaseId) {
-            toast.error("Selecione uma vitima antes de registrar o encaminhamento.");
+            toast.error("Selecione um caso antes de registrar o encaminhamento.");
             return;
           }
           mutation.mutate();
         }}
-        className="space-y-4"
+        className="space-y-5"
       >
-        <div>
-          <label className="text-sm font-medium text-foreground">Vitima / caso</label>
-          <div className="mt-1 rounded-[24px] border border-border/70 bg-card/90 p-4 shadow-card space-y-3">
+        <section className="rounded-[26px] border border-primary/15 bg-card/95 p-5 shadow-card">
+          <h2 className="text-lg font-semibold text-foreground">Caso de referencia</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            O encaminhamento preserva o caso e o protocolo de origem, acrescentando o orgao de destino e a justificativa da decisao.
+          </p>
+          <div className="mt-4 space-y-3 rounded-[24px] border border-border/70 bg-background/70 p-4">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
@@ -108,85 +115,95 @@ export default function NovoEncaminhamento() {
               className="w-full rounded-2xl border border-border/70 bg-background px-4 py-3 text-sm text-foreground outline-none transition-all focus:border-primary"
               required
             >
-              <option value="">Selecione a vitima</option>
+              <option value="">Selecione o caso</option>
               {availableCases.map((item) => (
                 <option key={item.id} value={item.id}>
-                  {(item.nomeSocial || item.nomeCompleto) + " • #" + item.protocolo}
+                  {(item.nomeSocial || item.nomeCompleto) + " • protocolo " + item.protocolo}
                 </option>
               ))}
             </select>
           </div>
-        </div>
 
-        <div>
-          <label className="text-sm font-medium text-foreground">Caso</label>
-          <div className="mt-1 min-h-[78px] bg-card/90 p-3 rounded-xl shadow-card border border-border/70">
-            <p className="text-sm font-medium text-foreground">
-              {selectedCase ? selectedCase.nomeSocial || selectedCase.nomeCompleto : "Nenhuma vitima selecionada"}
+          <div className="mt-4 rounded-[24px] border border-border/70 bg-background px-4 py-4">
+            <p className="text-sm font-semibold text-foreground">
+              {selectedCase ? selectedCase.nomeSocial || selectedCase.nomeCompleto : "Nenhum caso selecionado"}
             </p>
-            <p className="text-xs text-muted-foreground">
-              Protocolo #{selectedCase ? selectedCase.protocolo : "aguardando selecao"}
+            <p className="mt-1 text-xs text-muted-foreground">
+              {selectedCase ? `Protocolo ${selectedCase.protocolo} • orgao atual ${getOrganizationName(selectedCase.orgaoEntrada)}` : "Selecione o caso para consultar o protocolo e o orgao de origem."}
             </p>
+            {selectedCase?.tiposViolencia?.length ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {selectedCase.tiposViolencia.map((tipo) => (
+                  <span key={tipo} className="rounded-full bg-warning/10 px-2.5 py-1 text-[11px] font-medium text-warning">
+                    {violenceTypeLabel(tipo)}
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </div>
-        </div>
+        </section>
 
-        <div>
-          <label className="text-sm font-medium text-foreground">Orgao de destino</label>
-          <select
-            value={form.orgaoDestinoId}
-            onChange={(event) => setForm({ ...form, orgaoDestinoId: event.target.value })}
-            className="mt-1 w-full p-3 bg-card rounded-xl border border-border text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
-            required
-          >
-            <option value="">Selecione...</option>
-            {organizationsData?.organizations.map((organization) => (
-              <option key={organization.id} value={organization.id}>
-                {organization.nome}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-foreground">Motivo do encaminhamento</label>
-          <textarea
-            value={form.motivo}
-            onChange={(event) => setForm({ ...form, motivo: event.target.value })}
-            rows={4}
-            className="mt-1 w-full p-3 bg-card rounded-xl border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-foreground">Prioridade</label>
-          <div className="mt-2 flex gap-2 flex-wrap">
-            {([
-              { v: "baixa", l: "Baixa" },
-              { v: "media", l: "Media" },
-              { v: "alta", l: "Alta" },
-              { v: "urgente", l: "Urgente" },
-            ] as Array<{ v: Priority; l: string }>).map((item) => (
-              <button
-                key={item.v}
-                type="button"
-                onClick={() => setForm({ ...form, prioridade: item.v })}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                  form.prioridade === item.v ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground border border-border"
-                }`}
-              >
-                {item.l}
-              </button>
-            ))}
+        <section className="grid gap-4 rounded-[26px] border border-border/70 bg-card/95 p-5 shadow-card">
+          <div>
+            <label className="text-sm font-medium text-foreground">Orgao de destino</label>
+            <select
+              value={form.orgaoDestinoId}
+              onChange={(event) => setForm({ ...form, orgaoDestinoId: event.target.value })}
+              className="mt-1 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+              required
+            >
+              <option value="">Selecione o orgao de destino</option>
+              {organizationsData?.organizations.map((organization) => (
+                <option key={organization.id} value={organization.id}>
+                  {organization.nome}
+                </option>
+              ))}
+            </select>
           </div>
-        </div>
+
+          <div>
+            <label className="text-sm font-medium text-foreground">Justificativa do encaminhamento</label>
+            <textarea
+              value={form.motivo}
+              onChange={(event) => setForm({ ...form, motivo: event.target.value })}
+              rows={4}
+              placeholder="Explique por que o caso deve seguir para outro orgao, o objetivo esperado e o contexto da articulacao."
+              className="mt-1 w-full rounded-2xl border border-border bg-background p-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-foreground">Prioridade do encaminhamento</label>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {([
+                { v: "baixa", l: "Baixa" },
+                { v: "media", l: "Media" },
+                { v: "alta", l: "Alta" },
+                { v: "urgente", l: "Urgente" },
+              ] as Array<{ v: Priority; l: string }>).map((item) => (
+                <button
+                  key={item.v}
+                  type="button"
+                  onClick={() => setForm({ ...form, prioridade: item.v })}
+                  className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+                    form.prioridade === item.v ? "bg-accent text-accent-foreground" : "border border-border bg-background text-muted-foreground"
+                  }`}
+                >
+                  {item.l}
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
 
         <button
           type="submit"
           disabled={mutation.isPending || !selectedCaseId}
-          className="w-full py-4 bg-accent text-accent-foreground rounded-2xl font-semibold text-base shadow-card hover:shadow-card-hover active:scale-[0.98] transition-all disabled:opacity-70"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-4 text-base font-semibold text-accent-foreground shadow-card transition-all hover:shadow-card-hover active:scale-[0.98] disabled:opacity-70"
         >
-          {mutation.isPending ? "Registrando..." : "Registrar Encaminhamento"}
+          <ArrowRightLeft className="h-4 w-4" />
+          {mutation.isPending ? "Salvando encaminhamento..." : "Salvar encaminhamento"}
         </button>
       </form>
     </AppLayout>

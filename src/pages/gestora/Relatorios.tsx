@@ -1,22 +1,50 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Download, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { api } from "@/lib/api";
-import { formatDate, getOrganizationName } from "@/lib/domain";
+import { ethnicityLabel, formatDate, getOrganizationName, violenceTypeLabel } from "@/lib/domain";
 
 export default function Relatorios() {
-  const { data, isLoading } = useQuery({
+  const { data: summary, isLoading: isSummaryLoading } = useQuery({
     queryKey: ["manager-report-summary"],
     queryFn: api.getManagerReportSummary,
   });
 
+  const { data: managerData, isLoading: isManagerLoading } = useQuery({
+    queryKey: ["manager-dashboard"],
+    queryFn: api.getManagerDashboard,
+  });
+
   const reports = [
-    { title: "Resumo Geral de Casos", desc: "Exporta a base consolidada de casos", type: "geral" },
-    { title: "Casos por Nivel de Risco", desc: "Distribuicao dos casos por classificacao de risco", type: "risco" },
-    { title: "Atendimentos Realizados", desc: "Exporta historico para analise operacional", type: "atendimentos" },
-    { title: "Encaminhamentos", desc: "Exporta fluxo entre orgaos da rede", type: "encaminhamentos" },
+    { title: "Base consolidada de casos", desc: "Exporta identificadores, status e orgao atual de cada caso.", type: "geral" },
+    { title: "Classificacao de risco", desc: "Resumo dos casos distribuidos por nivel de risco.", type: "risco" },
+    { title: "Atendimentos realizados", desc: "Historico de atendimentos para leitura operacional.", type: "atendimentos" },
+    { title: "Encaminhamentos da rede", desc: "Fluxo de distribuicao entre orgaos participantes.", type: "encaminhamentos" },
   ];
+
+  const stats = managerData?.stats;
+
+  const evolution = useMemo(
+    () => [...(stats?.porPeriodo ?? [])].sort((a, b) => a.periodo.localeCompare(b.periodo)).slice(-6),
+    [stats?.porPeriodo],
+  );
+
+  const violence = useMemo(
+    () => [...(stats?.porViolencia ?? [])].sort((a, b) => b.total - a.total),
+    [stats?.porViolencia],
+  );
+
+  const ethnicity = useMemo(
+    () => [...(stats?.porEtnia ?? [])].sort((a, b) => b.total - a.total),
+    [stats?.porEtnia],
+  );
+
+  const referralDistribution = useMemo(
+    () => [...(stats?.distribuicaoEncaminhamentos ?? [])].sort((a, b) => b.total - a.total).slice(0, 5),
+    [stats?.distribuicaoEncaminhamentos],
+  );
 
   async function handleExport(type: string) {
     try {
@@ -34,56 +62,139 @@ export default function Relatorios() {
   }
 
   return (
-    <AppLayout title="Relatorios">
-      <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">Relatorios e indicadores para acompanhamento da rede de protecao.</p>
+    <AppLayout title="Relatorios e indicadores" subtitle="Acompanhe volume, tendencias e distribuicoes consolidadas da fase piloto.">
+      <div className="space-y-5">
+        <section className="rounded-[28px] border border-white/60 bg-card/90 p-5 shadow-card">
+          <h2 className="text-xl font-semibold text-foreground">Monitoramento consolidado</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Os paineis abaixo organizam volume de casos, tipos de violencia, recorte por etnia/cor, distribuicao entre orgaos e ritmo de evolucao recente.
+          </p>
+        </section>
 
-        <div className="space-y-3">
+        <section className="space-y-3">
           {reports.map((report) => (
-            <div key={report.type} className="bg-card p-4 rounded-2xl shadow-card">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3 flex-1">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                    <FileText className="w-5 h-5 text-primary" />
+            <div key={report.type} className="rounded-[24px] border border-border/70 bg-card/90 p-4 shadow-card">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex flex-1 items-start gap-3">
+                  <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                    <FileText className="h-5 w-5 text-primary" />
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-foreground">{report.title}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{report.desc}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{report.desc}</p>
                   </div>
                 </div>
                 <button
                   onClick={() => handleExport(report.type)}
-                  className="p-2 rounded-xl text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all shrink-0"
+                  className="rounded-xl p-2 text-muted-foreground transition-all hover:bg-primary/5 hover:text-primary"
                 >
-                  <Download className="w-5 h-5" />
+                  <Download className="h-5 w-5" />
                 </button>
               </div>
             </div>
           ))}
-        </div>
+        </section>
 
-        <div className="bg-card p-5 rounded-2xl shadow-card mt-6">
-          <h3 className="text-sm font-semibold text-foreground mb-4">Ultimos casos registrados</h3>
-          {isLoading ? (
-            <p className="text-sm text-muted-foreground">Carregando...</p>
-          ) : (
+        <section className="grid gap-4 lg:grid-cols-2">
+          <div className="rounded-[24px] border border-border/70 bg-card/90 p-5 shadow-card">
+            <h3 className="mb-4 text-sm font-semibold text-foreground">Evolucao por periodo</h3>
+            {isManagerLoading ? (
+              <p className="text-sm text-muted-foreground">Atualizando indicadores...</p>
+            ) : evolution.length ? (
+              <div className="space-y-3">
+                {evolution.map((item) => (
+                  <div key={item.periodo}>
+                    <div className="mb-1 flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">{item.periodo}</span>
+                      <span className="font-medium text-foreground">{item.total}</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-muted">
+                      <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(item.total * 12, 100)}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Ainda nao ha volume suficiente para consolidar a serie recente.</p>
+            )}
+          </div>
+
+          <div className="rounded-[24px] border border-border/70 bg-card/90 p-5 shadow-card">
+            <h3 className="mb-4 text-sm font-semibold text-foreground">Distribuicao de encaminhamentos</h3>
+            {referralDistribution.length ? (
+              <div className="space-y-3">
+                {referralDistribution.map((item) => (
+                  <div key={item.orgao} className="flex items-center justify-between rounded-2xl bg-background px-4 py-3">
+                    <span className="text-sm text-foreground">{getOrganizationName(item.orgao)}</span>
+                    <span className="text-sm font-semibold text-foreground">{item.total}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Nenhum encaminhamento consolidado no momento.</p>
+            )}
+          </div>
+        </section>
+
+        <section className="grid gap-4 lg:grid-cols-2">
+          <div className="rounded-[24px] border border-border/70 bg-card/90 p-5 shadow-card">
+            <h3 className="mb-4 text-sm font-semibold text-foreground">Tipos de violencia</h3>
+            {violence.length ? (
+              <div className="space-y-3">
+                {violence.map((item) => (
+                  <div key={item.tipo} className="flex items-center justify-between rounded-2xl bg-background px-4 py-3">
+                    <span className="text-sm text-foreground">{violenceTypeLabel(item.tipo)}</span>
+                    <span className="text-sm font-semibold text-foreground">{item.total}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Nao ha dados suficientes para compor o recorte por tipo de violencia.</p>
+            )}
+          </div>
+
+          <div className="rounded-[24px] border border-border/70 bg-card/90 p-5 shadow-card">
+            <h3 className="mb-4 text-sm font-semibold text-foreground">Etnia/cor</h3>
+            {ethnicity.length ? (
+              <div className="space-y-3">
+                {ethnicity.map((item) => (
+                  <div key={item.etnia} className="flex items-center justify-between rounded-2xl bg-background px-4 py-3">
+                    <span className="text-sm text-foreground">{ethnicityLabel(item.etnia)}</span>
+                    <span className="text-sm font-semibold text-foreground">{item.total}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Nao ha dados suficientes para compor o recorte por etnia/cor.</p>
+            )}
+          </div>
+        </section>
+
+        <section className="rounded-[24px] border border-border/70 bg-card/90 p-5 shadow-card">
+          <h3 className="mb-4 text-sm font-semibold text-foreground">Casos com movimentacao recente</h3>
+          {isSummaryLoading ? (
+            <p className="text-sm text-muted-foreground">Carregando lista recente...</p>
+          ) : summary?.casosRecentes.length ? (
             <div className="space-y-3">
-              {data?.casosRecentes.slice(0, 5).map((caso) => (
-                <div key={caso.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+              {summary.casosRecentes.slice(0, 6).map((caso) => (
+                <div key={caso.id} className="flex items-center justify-between gap-3 border-b border-border pb-3 last:border-0 last:pb-0">
                   <div>
                     <p className="text-sm font-medium text-foreground">{caso.nomeSocial || caso.nomeCompleto}</p>
                     <p className="text-xs text-muted-foreground">
-                      {getOrganizationName(caso.orgaoEntrada)} - {formatDate(caso.dataPrimeiroAtendimento)}
+                      {getOrganizationName(caso.orgaoEntrada)} • {formatDate(caso.dataPrimeiroAtendimento)}
                     </p>
                   </div>
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                    {caso.situacaoRisco}
-                  </span>
+                  <div className="text-right">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">{caso.protocolo}</p>
+                    <p className="text-xs text-muted-foreground">{caso.situacaoRisco}</p>
+                  </div>
                 </div>
               ))}
             </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">Nenhum caso recente disponivel para exibicao.</p>
           )}
-        </div>
+        </section>
       </div>
     </AppLayout>
   );

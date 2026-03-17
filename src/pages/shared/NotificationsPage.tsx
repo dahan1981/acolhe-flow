@@ -36,7 +36,7 @@ export default function NotificationsPage() {
               </div>
               <h2 className="text-xl font-semibold text-foreground">Mensagens recentes do ambiente</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                {unreadCount} {unreadCount === 1 ? "item requer" : "itens requerem"} atencao nesta demonstracao.
+                {unreadCount} {unreadCount === 1 ? "item requer" : "itens requerem"} atencao no uso atual da plataforma.
               </p>
             </div>
             <div className="rounded-2xl bg-background px-3 py-2 text-right shadow-card">
@@ -101,11 +101,11 @@ export default function NotificationsPage() {
         <section className="rounded-[24px] border border-border/70 bg-card/90 p-4 shadow-card">
           <div className="mb-3 flex items-center gap-2">
             <Filter className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-semibold text-foreground">Como esta area se comporta na demo</h3>
+            <h3 className="text-sm font-semibold text-foreground">Como esta area organiza a comunicacao</h3>
           </div>
           <p className="text-sm text-muted-foreground">
-            Os alertas simulam mensagens operacionais, atualizacoes de acompanhamento e comunicados institucionais. A leitura e
-            os filtros foram pensados para transmitir clareza e maturidade de produto em apresentacoes.
+            Os alertas organizam mensagens operacionais, atualizacoes de acompanhamento e comunicados institucionais. A leitura e
+            os filtros foram pensados para transmitir clareza e previsibilidade durante o periodo de testes assistidos.
           </p>
         </section>
       </div>

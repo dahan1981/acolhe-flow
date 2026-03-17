@@ -1,81 +1,163 @@
-import { ArrowRight, FileText } from "lucide-react";
+import { AlertCircle, ArrowRight, ClipboardList, FileText, Flag, ShieldAlert } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
-import { formatDate, getOrganizationName } from "@/lib/domain";
-import type { Attendance, Referral } from "@/types/domain";
+import { ethnicityLabel, formatDate, getOrganizationName, violenceTypeLabel } from "@/lib/domain";
+import type { Attendance, CaseDetail, Referral, SupportRequest } from "@/types/domain";
 
 interface TimelineProps {
+  caso?: CaseDetail;
   atendimentos: Attendance[];
   encaminhamentos: Referral[];
+  solicitacoesApoio?: SupportRequest[];
 }
 
-type TimelineItem = {
-  id: string;
-  type: "atendimento" | "encaminhamento";
-  data: string;
-  item: Attendance | Referral;
-};
+type TimelineItem =
+  | { id: string; type: "abertura"; date: string; caso: CaseDetail }
+  | { id: string; type: "solicitacao"; date: string; item: SupportRequest }
+  | { id: string; type: "atendimento"; date: string; item: Attendance }
+  | { id: string; type: "encaminhamento"; date: string; item: Referral };
 
-export function Timeline({ atendimentos, encaminhamentos }: TimelineProps) {
+export function Timeline({ caso, atendimentos, encaminhamentos, solicitacoesApoio = [] }: TimelineProps) {
   const items: TimelineItem[] = [
-    ...atendimentos.map((item) => ({ id: item.id, type: "atendimento" as const, data: item.data, item })),
-    ...encaminhamentos.map((item) => ({ id: item.id, type: "encaminhamento" as const, data: item.data, item })),
-  ].sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
+    ...(caso ? [{ id: `${caso.id}-opening`, type: "abertura" as const, date: caso.dataPrimeiroAtendimento, caso }] : []),
+    ...solicitacoesApoio.map((item) => ({ id: item.id, type: "solicitacao" as const, date: item.data, item })),
+    ...atendimentos.map((item) => ({ id: item.id, type: "atendimento" as const, date: item.data, item })),
+    ...encaminhamentos.map((item) => ({ id: item.id, type: "encaminhamento" as const, date: item.data, item })),
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   if (items.length === 0) {
-    return <div className="text-center py-8 text-muted-foreground">Nenhum registro encontrado.</div>;
+    return (
+      <div className="rounded-[24px] border border-dashed border-border/70 bg-card/70 px-5 py-8 text-center text-sm text-muted-foreground">
+        Nenhum movimento foi registrado para este caso ate o momento.
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {items.map((entry, index) => (
-        <div key={entry.id} className="relative pl-6">
-          <div className="absolute left-0 top-2 w-3 h-3 rounded-full bg-primary/20 border-2 border-primary" />
-          {index < items.length - 1 && <div className="absolute left-[5px] top-5 w-0.5 h-full bg-border" />}
-          {entry.type === "atendimento" ? (
-            <AtendimentoCard atendimento={entry.item as Attendance} />
-          ) : (
-            <EncaminhamentoCard encaminhamento={entry.item as Referral} />
-          )}
+        <div key={entry.id} className="relative pl-7">
+          <div className="absolute left-0 top-3 flex h-4 w-4 items-center justify-center rounded-full border border-primary/20 bg-background">
+            <div className="h-2.5 w-2.5 rounded-full bg-primary" />
+          </div>
+          {index < items.length - 1 ? <div className="absolute left-[7px] top-7 bottom-[-18px] w-px bg-border" /> : null}
+          {entry.type === "abertura" ? <OpeningCard caso={entry.caso} /> : null}
+          {entry.type === "solicitacao" ? <SupportRequestCard item={entry.item} /> : null}
+          {entry.type === "atendimento" ? <AttendanceCard atendimento={entry.item} /> : null}
+          {entry.type === "encaminhamento" ? <ReferralCard encaminhamento={entry.item} /> : null}
         </div>
       ))}
     </div>
   );
 }
 
-function AtendimentoCard({ atendimento }: { atendimento: Attendance }) {
+function OpeningCard({ caso }: { caso: CaseDetail }) {
   return (
-    <div className="bg-card p-4 rounded-xl shadow-card">
-      <div className="flex items-center gap-2 mb-2">
-        <FileText className="w-4 h-4 text-primary" />
-        <span className="text-xs font-medium text-primary uppercase tracking-wider">Atendimento</span>
-        <span className="text-xs text-muted-foreground ml-auto">{formatDate(atendimento.data)}</span>
+    <div className="rounded-[24px] border border-primary/15 bg-card/95 p-4 shadow-card">
+      <div className="mb-3 flex items-center gap-2">
+        <ClipboardList className="h-4 w-4 text-primary" />
+        <span className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Abertura do caso</span>
+        <span className="ml-auto text-xs text-muted-foreground">{formatDate(caso.dataPrimeiroAtendimento)}</span>
       </div>
-      <p className="text-sm font-medium text-foreground mb-1">{atendimento.tipoAtendimento}</p>
-      <p className="text-sm text-muted-foreground mb-2">{atendimento.resumo}</p>
-      <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
-        <span>{atendimento.profissionalResponsavel}</span>
-        <span>&bull;</span>
-        <span>{getOrganizationName(atendimento.orgao)}</span>
-        <span>&bull;</span>
-        <StatusBadge type="risk" value={atendimento.riscoIdentificado} />
+      <p className="text-sm font-semibold text-foreground">Protocolo #{caso.protocolo}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{caso.observacoesIniciais}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <StatusBadge type="status" value={caso.status} />
+        <StatusBadge type="risk" value={caso.situacaoRisco} />
+      </div>
+      <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+        <div className="rounded-2xl bg-background px-3 py-2">Órgão de entrada: {getOrganizationName(caso.orgaoEntrada)}</div>
+        <div className="rounded-2xl bg-background px-3 py-2">Etnia/cor: {ethnicityLabel(caso.etniaCor ?? "nao_informada")}</div>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {(caso.tiposViolencia ?? []).map((tipo) => (
+          <span key={tipo} className="rounded-full bg-warning/10 px-2.5 py-1 text-[11px] font-medium text-warning">
+            {violenceTypeLabel(tipo)}
+          </span>
+        ))}
       </div>
     </div>
   );
 }
 
-function EncaminhamentoCard({ encaminhamento }: { encaminhamento: Referral }) {
+function SupportRequestCard({ item }: { item: SupportRequest }) {
   return (
-    <div className="bg-card p-4 rounded-xl shadow-card border-l-4 border-l-accent">
-      <div className="flex items-center gap-2 mb-2">
-        <ArrowRight className="w-4 h-4 text-accent" />
-        <span className="text-xs font-medium text-accent uppercase tracking-wider">Encaminhamento</span>
-        <span className="text-xs text-muted-foreground ml-auto">{formatDate(encaminhamento.data)}</span>
+    <div className="rounded-[24px] border border-border/70 bg-card/95 p-4 shadow-card">
+      <div className="mb-3 flex items-center gap-2">
+        <AlertCircle className="h-4 w-4 text-urgent" />
+        <span className="text-xs font-semibold uppercase tracking-[0.18em] text-urgent">Solicitacao registrada</span>
+        <span className="ml-auto text-xs text-muted-foreground">{new Date(item.data).toLocaleString("pt-BR")}</span>
       </div>
-      <p className="text-sm font-medium text-foreground mb-1">&rarr; {getOrganizationName(encaminhamento.orgaoDestino)}</p>
-      <p className="text-sm text-muted-foreground mb-2">{encaminhamento.motivo}</p>
-      <div className="flex items-center gap-2">
+      <p className="text-sm font-semibold text-foreground">{item.tipo}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{item.mensagem || "Sem observacao adicional informada."}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {(item.tiposViolencia ?? []).map((tipo) => (
+          <span key={tipo} className="rounded-full bg-warning/10 px-2.5 py-1 text-[11px] font-medium text-warning">
+            {violenceTypeLabel(tipo)}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AttendanceCard({ atendimento }: { atendimento: Attendance }) {
+  return (
+    <div className="rounded-[24px] border border-border/70 bg-card/95 p-4 shadow-card">
+      <div className="mb-3 flex items-center gap-2">
+        <FileText className="h-4 w-4 text-primary" />
+        <span className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Atendimento</span>
+        <span className="ml-auto text-xs text-muted-foreground">{formatDate(atendimento.data)}</span>
+      </div>
+      <p className="text-sm font-semibold text-foreground">{atendimento.tipoAtendimento}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{atendimento.resumo}</p>
+      <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+        <div className="rounded-2xl bg-background px-3 py-2">Responsavel: {atendimento.profissionalResponsavel}</div>
+        <div className="rounded-2xl bg-background px-3 py-2">Órgão: {getOrganizationName(atendimento.orgao)}</div>
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <StatusBadge type="risk" value={atendimento.riscoIdentificado} />
+        {(atendimento.tiposViolencia ?? []).map((tipo) => (
+          <span key={tipo} className="rounded-full bg-warning/10 px-2.5 py-1 text-[11px] font-medium text-warning">
+            {violenceTypeLabel(tipo)}
+          </span>
+        ))}
+      </div>
+      {atendimento.proximosPassos ? (
+        <div className="mt-3 rounded-2xl bg-background px-3 py-3 text-sm text-muted-foreground">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Proximos passos</p>
+          {atendimento.proximosPassos}
+        </div>
+      ) : null}
+      {atendimento.observacoesInternas ? (
+        <div className="mt-3 flex items-start gap-2 rounded-2xl border border-border/60 bg-muted/40 px-3 py-3 text-sm text-muted-foreground">
+          <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+          <div>
+            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Observacao operacional</p>
+            {atendimento.observacoesInternas}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function ReferralCard({ encaminhamento }: { encaminhamento: Referral }) {
+  return (
+    <div className="rounded-[24px] border border-accent/15 bg-card/95 p-4 shadow-card">
+      <div className="mb-3 flex items-center gap-2">
+        <ArrowRight className="h-4 w-4 text-accent" />
+        <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Encaminhamento</span>
+        <span className="ml-auto text-xs text-muted-foreground">{formatDate(encaminhamento.data)}</span>
+      </div>
+      <p className="text-sm font-semibold text-foreground">{getOrganizationName(encaminhamento.orgaoDestino)}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{encaminhamento.motivo}</p>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
         <StatusBadge type="priority" value={encaminhamento.prioridade} />
         <StatusBadge type="encaminhamento" value={encaminhamento.status} />
+        <span className="inline-flex items-center gap-1 rounded-full bg-background px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+          <Flag className="h-3 w-3" />
+          Distribuicao na rede
+        </span>
       </div>
     </div>
   );

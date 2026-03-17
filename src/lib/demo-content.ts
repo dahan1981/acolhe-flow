@@ -22,26 +22,26 @@ export type DemoSection = {
 };
 
 export const roleDescriptions: Record<UserProfile, string> = {
-  mulher: "Ambiente acolhedor para pedir ajuda, acompanhar solicitacoes e acessar orientacoes com clareza.",
-  profissional: "Espaco operacional para priorizar casos, registrar atendimentos e organizar a jornada da mulher.",
-  gestora: "Camada estrategica para acompanhar indicadores, organizar a equipe e conduzir a administracao do sistema.",
+  mulher: "Ambiente de acolhimento em fase piloto, com acompanhamento do caso, orientacoes essenciais e atualizacoes da rede autorizada.",
+  profissional: "Area operacional para triagem, registro de atendimentos e articulacao de encaminhamentos durante a implantacao assistida.",
+  gestora: "Area de monitoramento para acompanhar indicadores, validar fluxos e coordenar a operacao em periodo de testes controlados.",
 };
 
 export const notificationsByRole: Record<UserProfile, DemoNotification[]> = {
   mulher: [
-    { id: "n1", title: "Atualizacao no seu caso", description: "Seu caso recebeu novo registro de acompanhamento pela rede de atendimento.", time: "Hoje, 09:20", kind: "info", read: false },
-    { id: "n2", title: "Solicitacao encaminhada", description: "Seu pedido de apoio juridico foi encaminhado e esta em analise.", time: "Ontem, 16:45", kind: "success", read: false },
-    { id: "n3", title: "Orientacao importante", description: "Revise os canais de emergencia e mantenha seus dados de contato atualizados.", time: "Ontem, 08:10", kind: "alert", read: true },
+    { id: "n1", title: "Atualizacao no acompanhamento", description: "Sua solicitacao recebeu novo registro de andamento pela equipe responsavel.", time: "Hoje, 09:20", kind: "info", read: false },
+    { id: "n2", title: "Encaminhamento em analise", description: "O apoio juridico solicitado foi direcionado para a etapa de validacao interna.", time: "Ontem, 16:45", kind: "success", read: false },
+    { id: "n3", title: "Revisao de seguranca", description: "Mantenha seus dados de contato atualizados e revise os canais de apoio imediato.", time: "Ontem, 08:10", kind: "alert", read: true },
   ],
   profissional: [
-    { id: "n4", title: "Caso prioritario atualizado", description: "Um caso de risco alto recebeu novo encaminhamento e precisa de revisao.", time: "Hoje, 10:05", kind: "alert", read: false },
-    { id: "n5", title: "Relatorio diario disponivel", description: "O resumo de atendimentos do dia esta pronto para consulta.", time: "Hoje, 08:00", kind: "info", read: true },
-    { id: "n6", title: "Fluxo validado", description: "O ultimo atendimento registrado foi sincronizado com sucesso.", time: "Ontem, 17:20", kind: "success", read: true },
+    { id: "n4", title: "Caso prioritario atualizado", description: "Um caso de risco alto recebeu nova movimentacao e exige leitura da equipe responsavel.", time: "Hoje, 10:05", kind: "alert", read: false },
+    { id: "n5", title: "Resumo operacional disponivel", description: "O consolidado de atendimentos do turno foi atualizado para consulta.", time: "Hoje, 08:00", kind: "info", read: true },
+    { id: "n6", title: "Registro sincronizado", description: "O ultimo atendimento foi incorporado ao historico compartilhado do caso.", time: "Ontem, 17:20", kind: "success", read: true },
   ],
   gestora: [
-    { id: "n7", title: "Novo acesso interno solicitado", description: "Ha uma solicitacao pendente para criacao de conta interna.", time: "Hoje, 09:40", kind: "alert", read: false },
-    { id: "n8", title: "Painel semanal atualizado", description: "Os indicadores de volume e risco foram recalculados.", time: "Hoje, 07:55", kind: "info", read: true },
-    { id: "n9", title: "Governanca revisada", description: "As diretrizes de permissao desta semana foram registradas.", time: "Ontem, 15:30", kind: "success", read: true },
+    { id: "n7", title: "Solicitacao de acesso pendente", description: "Ha um cadastro interno aguardando validacao da gestao.", time: "Hoje, 09:40", kind: "alert", read: false },
+    { id: "n8", title: "Indicadores atualizados", description: "Os paines de volume, risco e distribuicao por orgao foram recalculados.", time: "Hoje, 07:55", kind: "info", read: true },
+    { id: "n9", title: "Revisao de governanca concluida", description: "Os registros de permissao e acompanhamento foram consolidados nesta semana.", time: "Ontem, 15:30", kind: "success", read: true },
   ],
 };
 
@@ -59,7 +59,7 @@ export const helpArticlesByRole: Record<UserProfile, DemoArticle[]> = {
   gestora: [
     { id: "a7", category: "Administracao", title: "Como estruturar acessos internos", description: "Cadastre perfis com escopo claro, associe orgaos e revise periodicamente a distribuicao de acessos." },
     { id: "a8", category: "Indicadores", title: "Como interpretar o painel gerencial", description: "Observe volume, risco, tempos e distribuicao por orgao para identificar gargalos e prioridades." },
-    { id: "a9", category: "Apresentacao", title: "Como usar a demo com clientes", description: "Combine painel, operacao e acolhimento para demonstrar consistencia entre estrategia e atendimento." },
+    { id: "a9", category: "Implantacao", title: "Como acompanhar a fase piloto", description: "Use os paineis para monitorar volume, distribuicao de casos e aderencia da equipe aos fluxos definidos." },
   ],
 };
 
@@ -68,24 +68,24 @@ export const institutionalContent: Record<
   DemoSection[]
 > = {
   ajuda: [
-    { title: "Central de apoio", body: "Esta area concentra orientacoes objetivas para uso do sistema, organizadas por perfil e por momento da jornada. O objetivo e facilitar a navegacao sem sobrecarregar a experiencia de quem precisa agir rapido." },
-    { title: "Fluxos guiados", body: "Os conteudos desta central foram pensados para orientar tarefas frequentes, esclarecer etapas e reduzir duvidas comuns no uso cotidiano da plataforma." },
+    { title: "Central de apoio", body: "Esta area concentra orientacoes objetivas para uso do sistema em fase piloto, organizadas por perfil e por momento da jornada. O objetivo e facilitar a navegacao sem sobrecarregar a experiencia de quem precisa agir rapido." },
+    { title: "Fluxos guiados", body: "Os conteudos desta central orientam tarefas frequentes, esclarecem etapas e reduzem duvidas comuns no uso cotidiano da plataforma em operacao assistida." },
   ],
   sobre: [
-    { title: "Visao do sistema", body: "O sistema foi concebido para reunir acolhimento, acompanhamento e gestao em uma experiencia unica. Mesmo em modo demonstrativo, a proposta visual reforca organizacao, confianca e clareza institucional." },
-    { title: "Proposta de valor", body: "A plataforma busca reduzir fragmentacao entre atendimentos, melhorar rastreabilidade do fluxo e ampliar a percepcao de continuidade entre os atores da rede." },
+    { title: "Visao do sistema", body: "O sistema foi concebido para reunir acolhimento, acompanhamento e gestao em uma experiencia unica. Nesta fase piloto, a interface prioriza organizacao, confianca e clareza institucional." },
+    { title: "Proposta de valor", body: "A plataforma busca reduzir fragmentacao entre atendimentos, melhorar a rastreabilidade do fluxo e ampliar a percepcao de continuidade entre os atores da rede." },
   ],
   permissoes: [
     { title: "Controle por perfil", body: "Cada perfil visualiza apenas os recursos relacionados ao seu contexto de atuacao. Essa organizacao melhora a legibilidade do sistema e reforca a separacao entre acolhimento, operacao e gestao." },
-    { title: "Escopos claros", body: "As permissoes foram pensadas para traduzir responsabilidade operacional e administrativa de forma simples, com rotas, cards e areas dedicadas para cada ambiente." },
+    { title: "Escopos claros", body: "Os acessos desta fase piloto foram organizados para traduzir responsabilidade operacional e administrativa de forma simples, com rotas e ambientes dedicados para cada equipe." },
   ],
   seguranca: [
-    { title: "Confianca de uso", body: "A camada de seguranca desta demo privilegia previsibilidade de navegacao, clareza de contexto e boas praticas de separacao entre perfis, comunicando confiabilidade mesmo em ambiente de apresentacao." },
+    { title: "Confianca de uso", body: "A camada de seguranca privilegia previsibilidade de navegacao, clareza de contexto e separacao entre perfis, sustentando o uso monitorado da plataforma durante a implantacao inicial." },
     { title: "Protecao de jornada", body: "A experiencia visual reforca o cuidado com dados, o acompanhamento das etapas e a percepcao de produto maduro, sem depender de linguagem excessivamente tecnica." },
   ],
   notificacoes: [
     { title: "Atualizacoes relevantes", body: "As notificacoes destacam apenas eventos com impacto no acompanhamento da jornada, evitando ruido e ajudando cada perfil a perceber o que mudou, quando mudou e o que precisa ser feito." },
-    { title: "Leitura orientada", body: "O design das mensagens prioriza entendimento rapido, com contexto curto, horarios visiveis e destaque para o tipo de alerta." },
+    { title: "Leitura orientada", body: "As mensagens foram estruturadas para leitura rapida, com contexto curto, horarios visiveis e prioridade clara durante o periodo de uso controlado." },
   ],
 };
 
