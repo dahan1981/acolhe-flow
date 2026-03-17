@@ -20,20 +20,20 @@ import { useAuthStore } from "@/stores/auth-store";
 export default function ChatPage() {
   const { currentUser } = useAuthStore();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [tickets, setTickets] = useState(() => getChatTicketsForCurrentUser());
+  const [tickets, setTickets] = useState(() => getChatTicketsForCurrentUser(currentUser ?? null));
   const [selectedId, setSelectedId] = useState<string | null>(tickets[0]?.id ?? null);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
     function sync() {
-      const next = getChatTicketsForCurrentUser();
+      const next = getChatTicketsForCurrentUser(currentUser ?? null);
       setTickets(next);
       setSelectedId((current) => current ?? next[0]?.id ?? null);
     }
 
     sync();
     return subscribeDemoChatStore(sync);
-  }, []);
+  }, [currentUser]);
 
   useEffect(() => {
     if (!currentUser || !selectedId) return;
@@ -45,9 +45,9 @@ export default function ChatPage() {
     if (searchParams.get("start") !== "1") return;
 
     try {
-      const ticket = createOrGetSupportChat("Solicitacao aberta a partir de atendimento especializado.");
+      const ticket = createOrGetSupportChat(currentUser, "Solicitacao aberta a partir de atendimento especializado.");
       setSelectedId(ticket.id);
-      setTickets(getChatTicketsForCurrentUser());
+      setTickets(getChatTicketsForCurrentUser(currentUser));
       setSearchParams({}, { replace: true });
     } catch {
       setSearchParams({}, { replace: true });
@@ -63,12 +63,12 @@ export default function ChatPage() {
   const canMonitor = currentUser.perfil === "gestora";
 
   function refreshTickets() {
-    setTickets(getChatTicketsForCurrentUser());
+    setTickets(getChatTicketsForCurrentUser(currentUser ?? null));
   }
 
   function openSupportChat() {
     try {
-      const ticket = createOrGetSupportChat("Solicitacao aberta a partir de atendimento especializado.");
+      const ticket = createOrGetSupportChat(currentUser, "Solicitacao aberta a partir de atendimento especializado.");
       setSelectedId(ticket.id);
       refreshTickets();
       toast.success("Canal de chat protegido aberto com sucesso.");
@@ -81,7 +81,7 @@ export default function ChatPage() {
     if (!selectedId || !message.trim()) return;
 
     try {
-      sendChatMessage(selectedId, message);
+      sendChatMessage(currentUser, selectedId, message);
       setMessage("");
       refreshTickets();
     } catch (error) {
@@ -92,9 +92,9 @@ export default function ChatPage() {
   function handleAssume() {
     if (!selectedId) return;
     try {
-      assumeChatTicket(selectedId);
+      assumeChatTicket(currentUser, selectedId);
       refreshTickets();
-      toast.success("Chat assumido pela profissional responsavel.");
+      toast.success("Chat assumido pela conta interna responsavel.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Nao foi possivel assumir o chat.");
     }

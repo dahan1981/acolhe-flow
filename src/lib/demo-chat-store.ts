@@ -2,7 +2,6 @@ import type { ChatMessage, ChatTicket, SessionUser, UserProfile } from "@/types/
 import { findDemoCase, getOwnLatestDemoCase } from "@/lib/demo-case-store";
 
 const CHAT_STORAGE_KEY = "acolhe-flow-demo-chat-tickets";
-const SESSION_STORAGE_KEY = "acolhe-flow-demo-session";
 const CHAT_EVENT = "acolhe-flow-chat-updated";
 
 function isBrowser() {
@@ -11,18 +10,6 @@ function isBrowser() {
 
 function nowIso() {
   return new Date().toISOString();
-}
-
-function readSessionUser() {
-  if (!isBrowser()) return null;
-  const raw = window.localStorage.getItem(SESSION_STORAGE_KEY);
-  if (!raw) return null;
-
-  try {
-    return JSON.parse(raw) as SessionUser;
-  } catch {
-    return null;
-  }
 }
 
 function loadTickets() {
@@ -64,8 +51,7 @@ export function subscribeDemoChatStore(listener: () => void) {
   return () => window.removeEventListener(CHAT_EVENT, handler);
 }
 
-export function getChatTicketsForCurrentUser() {
-  const user = readSessionUser();
+export function getChatTicketsForCurrentUser(user: SessionUser | null) {
   if (!user) return [];
 
   const tickets = loadTickets().sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
@@ -80,8 +66,7 @@ export function getChatTicketById(ticketId: string) {
   return loadTickets().find((ticket) => ticket.id === ticketId) ?? null;
 }
 
-export function createOrGetSupportChat(context?: string) {
-  const user = readSessionUser();
+export function createOrGetSupportChat(user: SessionUser | null, context?: string) {
   if (!user || user.perfil !== "mulher") {
     throw new Error("Sessao indisponivel para abrir o chat.");
   }
@@ -126,8 +111,7 @@ export function createOrGetSupportChat(context?: string) {
   return nextTicket;
 }
 
-export function sendChatMessage(ticketId: string, body: string) {
-  const user = readSessionUser();
+export function sendChatMessage(user: SessionUser | null, ticketId: string, body: string) {
   if (!user) {
     throw new Error("Sessao indisponivel para enviar mensagem.");
   }
@@ -160,10 +144,9 @@ export function sendChatMessage(ticketId: string, body: string) {
   return next;
 }
 
-export function assumeChatTicket(ticketId: string) {
-  const user = readSessionUser();
-  if (!user || user.perfil !== "profissional") {
-    throw new Error("Somente profissionais podem assumir este chat.");
+export function assumeChatTicket(user: SessionUser | null, ticketId: string) {
+  if (!user || (user.perfil !== "profissional" && user.perfil !== "gestora")) {
+    throw new Error("Somente contas internas podem assumir este chat.");
   }
 
   const tickets = loadTickets();
@@ -174,7 +157,7 @@ export function assumeChatTicket(ticketId: string) {
 
   const ticket = tickets[index];
   if (ticket.assignedProfessionalUserId && ticket.assignedProfessionalUserId !== user.id) {
-    throw new Error("Este chat ja foi assumido por outra profissional.");
+    throw new Error("Este chat ja foi assumido por outra conta interna.");
   }
 
   const system = systemMessage(`${user.nome} assumiu o atendimento e esta acompanhando esta conversa.`);
