@@ -34,6 +34,7 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const MulherCursos = lazy(() => import("./pages/mulher/MulherCursos"));
 const MapaViolencia = lazy(() => import("./pages/shared/MapaViolencia"));
+const MulherMedidaProtetiva = lazy(() => import("./pages/mulher/MulherMedidaProtetiva"));
 
 const queryClient = new QueryClient();
 
@@ -193,6 +194,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={["mulher"]}>
                   <ProfileEditPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mulher/medida-protetiva"
+              element={
+                <ProtectedRoute allowedRoles={["mulher"]}>
+                  <MulherMedidaProtetiva />
                 </ProtectedRoute>
               }
             />

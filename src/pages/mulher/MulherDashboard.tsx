@@ -1,299 +1,320 @@
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Bell, BookHeart, Clock, Shield, Phone, MessageCircleHeart, FileText, ChevronRight, Heart, Lock } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Shield,
+  MessageCircleHeart,
+  BookOpen,
+  HelpCircle,
+  FileText,
+  Phone,
+} from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { StatusBadge } from "@/components/shared/StatusBadge";
 import { api } from "@/lib/api";
-import { roleDescriptions } from "@/lib/demo-content";
-import { formatDate, getOrganizationName } from "@/lib/domain";
+import { usePanicStore } from "@/stores/panic-store";
+import { toast } from "sonner";
+
+const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL ?? "";
+
+const HOLD_DURATION = 3000; // 3s like the reference image says
+
+// Quick action grid items
+const QUICK_ACTIONS = [
+  {
+    label: "Medida protetiva",
+    icon: Shield,
+    path: "/mulher/medida-protetiva",
+    color: "bg-violet-100 text-violet-600",
+  },
+  {
+    label: "Dúvidas",
+    icon: HelpCircle,
+    path: "/mulher/central-ajuda",
+    color: "bg-sky-100 text-sky-600",
+  },
+  {
+    label: "Denúncia",
+    icon: FileText,
+    path: "/mulher/ajuda",
+    color: "bg-rose-100 text-rose-600",
+  },
+  {
+    label: "Chat seguro",
+    icon: MessageCircleHeart,
+    path: "/mulher/chat",
+    color: "bg-emerald-100 text-emerald-600",
+  },
+];
 
 export default function MulherDashboard() {
   const navigate = useNavigate();
-  const { data, isLoading } = useQuery({
+  const { isTriggered, triggerPanic, resetPanic, isOfflineSyncPending } = usePanicStore();
+
+  const [isHolding, setIsHolding] = useState(false);
+  const [holdProgress, setHoldProgress] = useState(0);
+  const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const progressTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const { data } = useQuery({
     queryKey: ["woman-dashboard"],
     queryFn: api.getWomanDashboard,
   });
 
-  // Stagger variants for smooth dashboard render
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
+  // --- Hold-to-activate logic ---
+  const startHold = () => {
+    if (isTriggered) return;
+    setIsHolding(true);
+    const startTime = Date.now();
+
+    progressTimerRef.current = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      setHoldProgress(Math.min((elapsed / HOLD_DURATION) * 100, 100));
+    }, 30);
+
+    holdTimerRef.current = setTimeout(() => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            triggerPanic({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+            toast.error("🚨 Pedido de socorro enviado com localização!");
+          },
+          () => {
+            triggerPanic();
+            toast.error("🚨 Pedido de socorro enviado.");
+          },
+          { timeout: 4000 }
+        );
+      } else {
+        triggerPanic();
+        toast.error("🚨 Pedido de socorro enviado.");
+      }
+      cancelHold();
+    }, HOLD_DURATION);
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", bounce: 0.2, duration: 0.6 } }
+  const cancelHold = () => {
+    setIsHolding(false);
+    setHoldProgress(0);
+    if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+    if (progressTimerRef.current) clearInterval(progressTimerRef.current);
   };
 
-  if (isLoading) {
-    return (
-      <AppLayout>
-        <div className="flex h-[50vh] items-center justify-center">
-          <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
-             <Shield className="h-8 w-8 text-primary/40" />
-          </motion.div>
-        </div>
-      </AppLayout>
-    );
-  }
-
-  const caso = data?.caso;
-
-  if (!caso) {
-    return (
-      <AppLayout>
-        <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-6">
-          <motion.div variants={itemVariants} className="glass-panel overflow-hidden relative">
-            <div className="absolute right-0 top-0 h-40 w-40 translate-x-1/3 -translate-y-1/3 rounded-full bg-primary/10 blur-3xl"></div>
-            
-            <div className="p-6 relative z-10">
-              <div className="inline-flex items-center rounded-full border border-primary/15 bg-white/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/80 shadow-sm">
-                Primeiro acesso
-              </div>
-              <h2 className="font-display mt-4 text-2xl font-bold tracking-tight text-foreground">
-                Seu acompanhamento seguro começa aqui.
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{roleDescriptions.mulher}</p>
-              
-              <div className="mt-6 flex flex-col gap-3">
-                <motion.button
-                  whileHover={{ y: -2, scale: 1.01 }}
-                  whileTap={{ scale: 0.97 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  onClick={() => navigate("/mulher/ajuda")}
-                  className="group relative overflow-hidden rounded-[20px] shadow-md hover:shadow-xl transition-all"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent"></div>
-                  <div className="absolute right-0 top-0 h-32 w-32 translate-x-8 -translate-y-8 rounded-full bg-white/10 blur-2xl"></div>
-                  <div className="relative flex items-center justify-between px-5 py-4">
-                     <div>
-                       <span className="font-display text-base font-bold text-white">Solicitar apoio inicial</span>
-                       <p className="mt-1 text-[13px] font-medium text-white/90">Informe o risco e receba assistência imediata.</p>
-                     </div>
-                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20 backdrop-blur-md">
-                       <ArrowRight className="h-5 w-5 text-white transition-transform group-hover:translate-x-1" />
-                     </div>
-                  </div>
-                </motion.button>
-                <motion.button
-                  whileHover={{ y: -2, scale: 1.01 }}
-                  whileTap={{ scale: 0.97 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  onClick={() => navigate("/mulher/chat")}
-                  className="glass-panel-interactive flex items-center justify-between rounded-[20px] px-5 py-4 text-left border border-primary/10"
-                >
-                   <div>
-                     <span className="font-display text-base font-bold text-foreground">Falar com especialista</span>
-                     <p className="max-w-[220px] mt-1 text-[13px] font-medium text-muted-foreground">Orientação rápida e protegida.</p>
-                   </div>
-                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                     <MessageCircleHeart className="h-5 w-5 text-primary" />
-                   </div>
-                </motion.button>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div variants={itemVariants} className="px-1">
-            <h2 className="mb-4 pl-1 font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">Próximos passos</h2>
-            <div className="flex flex-col gap-3">
-              {[
-                { title: "1. Relatar necessidade", desc: "Abra a solicitação informando urgência e prioridade.", icon: Shield },
-                { title: "2. Acompanhamento", desc: "A rede pública acompanha seu relato e direciona ao órgão ideal.", icon: FileText },
-                { title: "3. Confidencial", desc: "Todas as etapas são monitoradas em rigoroso sigilo.", icon: Lock },
-              ].map((step, idx) => (
-                <div key={idx} className="glass-panel flex items-start gap-4 p-4">
-                  <div className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <step.icon className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">{step.title}</p>
-                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{step.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </motion.div>
-      </AppLayout>
-    );
-  }
+  useEffect(() => () => cancelHold(), []);
 
   return (
     <AppLayout>
-      <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-6 pb-6">
-        
-        {/* Active Case Card (Hero) */}
-        <motion.div variants={itemVariants} className="glass-panel relative overflow-hidden border-none bg-gradient-to-br from-primary via-accent to-primary/80 p-6 text-white shadow-lg">
-          <div className="absolute -right-4 -top-8 h-32 w-32 rounded-full border-[20px] border-white/10 blur-sm"></div>
-          <div className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-white/5 blur-xl"></div>
-          
-          <div className="relative z-10">
-            <div className="mb-5 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-white/20 text-white shadow-inner backdrop-blur-md">
-                  <Shield className="h-6 w-6 stroke-[1.5]" />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-white/80">Caso ativo</p>
-                  <p className="font-display text-lg font-bold">#{caso.protocolo}</p>
-                </div>
-              </div>
-              <div className="flex items-end gap-1.5">
-                <StatusBadge type="status" value={caso.status} />
-                <StatusBadge type="risk" value={caso.situacaoRisco} />
-              </div>
-            </div>
-            
-            <div className="mb-6 border-l-2 border-white/30 pl-3">
-              <p className="text-sm font-medium leading-relaxed text-white/95">
-                Rede: <span className="font-bold">{getOrganizationName(caso.orgaoAtual)}</span>
-              </p>
-              <p className="mt-1 text-xs text-white/70">
-                Atualizado em {formatDate(caso.atendimentos[0]?.data || caso.dataPrimeiroAtendimento)}
-              </p>
-            </div>
+      <div className="flex flex-col gap-6 py-4 pb-8">
 
-            <div className="grid grid-cols-2 gap-3">
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/mulher/historico")}
-                className="flex items-center justify-center gap-2 rounded-xl bg-white/15 py-3 text-xs font-bold text-white backdrop-blur-md transition-colors hover:bg-white/25"
-              >
-                Detalhes
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/mulher/chat")}
-                className="flex items-center justify-center gap-2 rounded-xl bg-white py-3 text-xs font-bold text-primary shadow-xl transition-all hover:shadow-white/20"
-              >
-                <MessageCircleHeart className="h-4 w-4" /> Chat
-              </motion.button>
-            </div>
-          </div>
-        </motion.div>
+        {/* ── Hero SOS Section ─────────────────────────────── */}
+        <div className="flex flex-col items-center gap-3 py-6">
 
-        {/* Quick Actions Grid */}
-        <motion.div variants={itemVariants}>
-          <div className="mb-3 flex items-center justify-between px-1">
-            <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">Assistência urgente</h2>
-            <button onClick={() => navigate("/mulher/central-ajuda")} className="text-xs font-semibold text-primary hover:underline">
-              Ver todos
-            </button>
-          </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {[ 
-              { label: "Jurídica", icon: BookHeart }, 
-              { label: "Saúde", icon: Heart }, 
-              { label: "Abrigo", icon: Shield }, 
-              { label: "Emergência", icon: Phone, urgent: true } 
-            ].map((item) => (
-              <motion.button
-                key={item.label}
-                whileHover={{ y: -4, scale: 1.02 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                onClick={() => navigate("/mulher/ajuda")}
-                className={`glass-panel-interactive flex flex-col items-center justify-center gap-2 p-4 text-center transition-all ${
-                  item.urgent ? "border-destructive/30 bg-destructive/5 text-destructive" : "text-foreground"
+          {/* Outer pulse rings */}
+          <div className="relative flex items-center justify-center">
+            <AnimatePresence>
+              {isHolding && !isTriggered && (
+                <>
+                  <motion.div
+                    key="ring1"
+                    className="absolute rounded-full border-2 border-primary/30"
+                    initial={{ width: 120, height: 120, opacity: 0.6 }}
+                    animate={{ width: 200, height: 200, opacity: 0 }}
+                    transition={{ duration: 1.2, repeat: Infinity, ease: "easeOut" }}
+                  />
+                  <motion.div
+                    key="ring2"
+                    className="absolute rounded-full border-2 border-primary/20"
+                    initial={{ width: 120, height: 120, opacity: 0.4 }}
+                    animate={{ width: 240, height: 240, opacity: 0 }}
+                    transition={{ duration: 1.2, repeat: Infinity, ease: "easeOut", delay: 0.4 }}
+                  />
+                </>
+              )}
+              {isTriggered && (
+                <motion.div
+                  key="triggered-ring"
+                  className="absolute rounded-full border-4 border-destructive/40"
+                  animate={{ scale: [1, 1.3, 1], opacity: [0.7, 0, 0.7] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                  style={{ width: 180, height: 180 }}
+                />
+              )}
+            </AnimatePresence>
+
+            {/* Main SOS Button */}
+            <motion.button
+              onPointerDown={startHold}
+              onPointerUp={cancelHold}
+              onPointerLeave={cancelHold}
+              onClick={isTriggered ? resetPanic : undefined}
+              whileTap={{ scale: 0.94 }}
+              className="relative flex h-[130px] w-[130px] items-center justify-center rounded-full shadow-2xl overflow-hidden select-none"
+              style={{ touchAction: "none" }}
+              aria-label="Botão de emergência SOS – segure por 3 segundos"
+            >
+              {/* Base gradient */}
+              <div
+                className={`absolute inset-0 rounded-full transition-all duration-300 ${
+                  isTriggered
+                    ? "bg-gradient-to-br from-red-500 to-rose-700"
+                    : "bg-gradient-to-br from-primary via-violet-600 to-accent"
                 }`}
-              >
-                <div className={`flex h-11 w-11 items-center justify-center rounded-full ${item.urgent ? "bg-destructive/15" : "bg-primary/10"}`}>
-                  <item.icon className={`h-5 w-5 ${item.urgent ? "" : "text-primary/80"}`} />
-                </div>
-                <span className="font-display text-[11px] font-bold">{item.label}</span>
-              </motion.button>
-            ))}
-          </div>
-        </motion.div>
+              />
 
-        {/* Recent Activity Timeline */}
-        <motion.div variants={itemVariants} className="glass-panel p-5">
-          <div className="mb-4 flex items-center gap-2">
-            <Clock className="h-4 w-4 text-muted-foreground" />
-            <h2 className="font-display text-xs font-semibold uppercase tracking-wider text-muted-foreground">Histórico recente</h2>
-          </div>
-          
-          <div className="relative pl-3">
-            <div className="absolute bottom-2 left-[3px] top-2 w-px bg-border/60"></div>
-            {data?.atendimentosRecentes.length ? (
-              <div className="space-y-4">
-                {data.atendimentosRecentes.slice(0, 3).map((item) => (
-                  <div key={item.id} className="relative z-10 pl-6">
-                    <div className="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full border-2 border-primary bg-background"></div>
-                    <p className="text-sm font-semibold text-foreground">{item.tipoAtendimento}</p>
-                    <div className="mt-1 flex items-center gap-2">
-                      <span className="text-xs font-medium text-primary">{getOrganizationName(item.orgao)}</span>
-                      <span className="h-1 w-1 rounded-full bg-muted-foreground/30"></span>
-                      <span className="text-xs text-muted-foreground">{formatDate(item.data)}</span>
-                    </div>
-                  </div>
-                ))}
+              {/* Progress fill (fills from bottom) */}
+              {isHolding && !isTriggered && (
+                <div
+                  className="absolute bottom-0 left-0 right-0 bg-white/20 transition-none"
+                  style={{ height: `${holdProgress}%` }}
+                />
+              )}
+
+              {/* Circular progress ring */}
+              {isHolding && !isTriggered && (
+                <svg
+                  className="absolute inset-0 h-full w-full -rotate-90"
+                  viewBox="0 0 130 130"
+                >
+                  <circle
+                    cx="65"
+                    cy="65"
+                    r="60"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="5"
+                    strokeOpacity="0.4"
+                    strokeDasharray={`${2 * Math.PI * 60}`}
+                    strokeDashoffset={`${2 * Math.PI * 60 * (1 - holdProgress / 100)}`}
+                    strokeLinecap="round"
+                  />
+                </svg>
+              )}
+
+              {/* Label */}
+              <div className="relative z-10 flex flex-col items-center">
+                <span className="font-display text-4xl font-black tracking-tighter text-white drop-shadow">
+                  SOS
+                </span>
+                {isTriggered && (
+                  <span className="mt-0.5 text-[10px] font-bold uppercase tracking-widest text-white/80">
+                    Socorro
+                  </span>
+                )}
               </div>
-            ) : (
-              <p className="pl-4 text-sm leading-relaxed text-muted-foreground">As movimentações da rede protetora aparecerão aqui gradualmente.</p>
-            )}
+            </motion.button>
           </div>
-        </motion.div>
 
-        {/* Tracking Actions */}
-        <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
-          <motion.div
-            whileHover={{ y: -2 }}
-            whileTap={{ scale: 0.97 }}
+          {/* Caption */}
+          <AnimatePresence mode="wait">
+            {isTriggered ? (
+              <motion.div
+                key="triggered"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                className="text-center"
+              >
+                <p className="font-display text-base font-bold text-destructive">
+                  {isOfflineSyncPending ? "Sincronizando pedido..." : "Ajuda a caminho!"}
+                </p>
+                <p className="mt-1 text-[12px] text-muted-foreground">
+                  Toque novamente para cancelar
+                </p>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="idle"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                className="text-center"
+              >
+                <p className="font-display text-base font-bold text-foreground">Emergência</p>
+                <p className="text-[12px] text-muted-foreground">
+                  {isHolding
+                    ? `Aguarde… ${Math.round(((100 - holdProgress) / 100) * (HOLD_DURATION / 1000) * 10) / 10}s`
+                    : "Pressione por 3 segundos"}
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* ── Quick Actions Grid ────────────────────────────── */}
+        <div className="grid grid-cols-2 gap-3">
+          {QUICK_ACTIONS.map((action, i) => (
+            <motion.button
+              key={action.label}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + i * 0.07, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              whileTap={{ scale: 0.96 }}
+              onClick={() => navigate(action.path)}
+              className="flex flex-col items-center gap-3 rounded-[20px] border border-border bg-white p-5 shadow-sm transition-all hover:shadow-md active:scale-95"
+            >
+              <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${action.color}`}>
+                <action.icon className="h-6 w-6" />
+              </div>
+              <span className="text-center text-[13px] font-semibold text-foreground leading-snug">
+                {action.label}
+              </span>
+            </motion.button>
+          ))}
+        </div>
+
+        {/* ── Current Case Banner (if exists) ────────────────── */}
+        {data?.caso && (
+          <motion.button
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
             onClick={() => navigate("/mulher/caso")}
-            className="glass-panel-interactive group relative cursor-pointer overflow-hidden p-4"
+            className="group flex items-center gap-4 rounded-[22px] border border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5 p-4 text-left shadow-sm transition-all hover:shadow-md"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform group-hover:scale-110">
-              <FileText className="h-5 w-5" />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10">
+              <Shield className="h-6 w-6 text-primary" />
             </div>
-            <p className="mt-3 font-display text-sm font-bold text-foreground">Relatório do caso</p>
-            <p className="mt-1 text-xs font-medium text-muted-foreground">Acervo do seu caso.</p>
-            <ArrowRight className="absolute bottom-4 right-4 h-4 w-4 text-muted-foreground/40 transition-colors group-hover:text-primary" />
-          </motion.div>
-          <motion.div
-            whileHover={{ y: -2 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => navigate("/mulher/notificacoes")}
-            className="glass-panel-interactive group relative cursor-pointer overflow-hidden p-4"
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-primary/70">
+                Caso ativo
+              </p>
+              <p className="font-display text-sm font-bold text-foreground">
+                #{data.caso.protocolo}
+              </p>
+              <p className="truncate text-xs text-muted-foreground">{data.caso.orgaoAtual}</p>
+            </div>
+            <FileText className="h-4 w-4 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-primary" />
+          </motion.button>
+        )}
+
+        {/* ── Emergency contacts strip ─────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="flex items-center gap-3 rounded-[18px] border border-border bg-white p-4"
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-100">
+            <Phone className="h-5 w-5 text-rose-600" />
+          </div>
+          <div className="flex-1">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+              Ligue agora
+            </p>
+            <p className="font-display text-sm font-bold text-foreground">
+              180 — Central da Mulher
+            </p>
+          </div>
+          <a
+            href="tel:180"
+            onClick={(e) => e.stopPropagation()}
+            className="rounded-full bg-rose-600 px-4 py-2 text-[12px] font-bold text-white shadow-md transition-all hover:bg-rose-700 active:scale-95"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 text-accent transition-transform group-hover:scale-110">
-              <Bell className="h-5 w-5" />
-            </div>
-            <p className="mt-3 font-display text-sm font-bold text-foreground">Verificar avisos</p>
-            <p className="mt-1 text-xs font-medium text-muted-foreground">Notificações gerais.</p>
-            <ArrowRight className="absolute bottom-4 right-4 h-4 w-4 text-muted-foreground/40 transition-colors group-hover:text-accent" />
-          </motion.div>
+            Ligar
+          </a>
         </motion.div>
 
-        {/* Support Section */}
-        {data?.solicitacoesApoio.length ? (
-          <motion.div variants={itemVariants}>
-            <h2 className="mb-3 pl-1 font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">Solicitações abertas</h2>
-            <div className="glass-panel divide-y divide-border/40 space-y-0">
-              {data.solicitacoesApoio.map((item) => (
-                <div key={item.id} className="flex items-center gap-4 p-4 transition-colors hover:bg-muted/10">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500">
-                    <Bell className="h-4.5 w-4.5" />
-                  </div>
-                  <div>
-                    <p className="font-display text-sm font-semibold text-foreground">{item.tipo}</p>
-                    <p className="text-xs font-medium text-muted-foreground">{new Date(item.data).toLocaleString("pt-BR")}</p>
-                  </div>
-                  <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground/50" />
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        ) : null}
-
-      </motion.div>
+      </div>
     </AppLayout>
   );
 }

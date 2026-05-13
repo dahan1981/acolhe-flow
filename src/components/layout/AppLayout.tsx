@@ -64,14 +64,15 @@ type NavItem = {
 
 const navItems: Record<UserProfile, NavItem[]> = {
   mulher: [
-    { label: "Início", icon: Home, path: "/mulher", description: "Visão geral do acompanhamento" },
-    { label: "Ajuda", icon: Heart, path: "/mulher/ajuda", match: ["/mulher/ajuda"], description: "Registrar pedido" },
-    { label: "Meu caso", icon: FileText, path: "/mulher/caso", match: ["/mulher/caso", "/mulher/historico"], description: "Status do caso" },
+    { label: "Início", icon: Home, path: "/mulher", description: "SOS e painel" },
     { label: "Chat", icon: MessageCircleHeart, path: "/mulher/chat", description: "Atendimento" },
-    { label: "Cursos", icon: BookOpen, path: "/mulher/cursos", description: "Módulo educacional" },
-    { label: "Alertas", icon: Bell, path: "/mulher/notificacoes", description: "Comunicações" },
-    { label: "Central", icon: Shield, path: "/mulher/central-ajuda", description: "Orientações" },
+    { label: "Alertas", icon: Bell, path: "/mulher/notificacoes", description: "Notificações" },
     { label: "Perfil", icon: User, path: "/mulher/perfil", match: ["/mulher/perfil", "/mulher/perfil/editar", "/mulher/configuracoes"], description: "Dados da conta" },
+    // secondary (appear in pills / hamburger)
+    { label: "Cursos", icon: BookOpen, path: "/mulher/cursos", description: "Módulo educacional" },
+    { label: "Meu caso", icon: FileText, path: "/mulher/caso", match: ["/mulher/caso", "/mulher/historico"], description: "Status do caso" },
+    { label: "Ajuda", icon: Heart, path: "/mulher/ajuda", match: ["/mulher/ajuda"], description: "Registrar pedido" },
+    { label: "Central", icon: Shield, path: "/mulher/central-ajuda", description: "Orientações" },
   ],
   profissional: [
     { label: "Painel", icon: LayoutDashboard, path: "/profissional", description: "Prioridades e fila" },
@@ -473,8 +474,7 @@ export function AppLayout({ children, title, subtitle, showBack }: AppLayoutProp
         </div>
       </nav>
 
-      {/* Panic Button — visible only for Mulher profile */}
-      {isWoman && <PanicButton />}
+      {/* Panic Button — floating, only for Mulher, hidden because SOS is now in dashboard */}
     </div>
   );
 }
