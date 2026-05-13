@@ -57,7 +57,7 @@ export function PanicButton() {
 
   if (isTriggered) {
     return (
-      <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-4">
+    <div className="fixed bottom-24 right-5 z-50 animate-in fade-in slide-in-from-bottom-4">
         <button
           onClick={resetPanic}
           className="flex items-center gap-2 rounded-full bg-red-600 px-4 py-3 text-sm font-bold text-white shadow-lg ring-4 ring-red-600/30 transition-all hover:bg-red-700 active:scale-95"
@@ -79,7 +79,7 @@ export function PanicButton() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-24 right-5 z-50">
       <button
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}

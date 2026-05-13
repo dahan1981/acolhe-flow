@@ -472,6 +472,9 @@ export function AppLayout({ children, title, subtitle, showBack }: AppLayoutProp
           })}
         </div>
       </nav>
+
+      {/* Panic Button — visible only for Mulher profile */}
+      {isWoman && <PanicButton />}
     </div>
   );
 }
