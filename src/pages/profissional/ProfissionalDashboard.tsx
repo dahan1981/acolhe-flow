@@ -100,7 +100,7 @@ export default function ProfissionalDashboard() {
       <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-5 py-4 pb-8">
 
         {/* ── Quick Actions ──────────────────────────────────── */}
-        <motion.div variants={itemVariants} className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+        <motion.div variants={itemVariants} className="flex gap-2 overflow-x-auto no-scrollbar pb-1 lg:overflow-visible lg:flex-wrap">
           {[
             { label: "Novo Protocolo", icon: FilePlus2, path: "/profissional/novo-protocolo", primary: true },
             { label: "Atendimento", icon: Stethoscope, path: "/profissional/novo-atendimento" },
@@ -121,7 +121,7 @@ export default function ProfissionalDashboard() {
         </motion.div>
 
         {/* ── Stats Row ─────────────────────────────────────── */}
-        <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
+        <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {[
             { icon: Users, label: "Casos ativos", value: data?.casosAtivos ?? 0, accent: "text-violet-600 bg-violet-50" },
             { icon: Activity, label: "Atendimentos hoje", value: data?.atendimentosHoje ?? 0, accent: "text-cyan-600 bg-cyan-50" },
@@ -140,124 +140,131 @@ export default function ProfissionalDashboard() {
           ))}
         </motion.div>
 
-        {/* ── Mapa da Violência ──────────────────────────────── */}
-        <motion.div variants={itemVariants}>
-          <div className="mb-2 flex items-center justify-between px-1">
-            <h3 className="font-display text-sm font-bold text-foreground">Mapa da Violência</h3>
-            <span className="text-[11px] text-muted-foreground">{incidents.length} município(s) mapeado(s)</span>
-          </div>
-          <MiniMap incidents={incidents} />
-          <div className="mt-2 flex flex-wrap gap-3 px-1">
-            {Object.entries(RISK_COLOR).map(([k, c]) => (
-              <div key={k} className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full" style={{ background: c }} />
-                <span className="text-[10px] font-semibold text-muted-foreground">{k}</span>
+        {/* ── Main content grid for desktop ────────────────── */}
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1.5fr_1fr]">
+          <div className="space-y-5">
+            {/* ── Mapa da Violência ──────────────────────────────── */}
+            <motion.div variants={itemVariants}>
+              <div className="mb-2 flex items-center justify-between px-1">
+                <h3 className="font-display text-sm font-bold text-foreground">Mapa da Violência</h3>
+                <span className="text-[11px] text-muted-foreground">{incidents.length} município(s) mapeado(s)</span>
               </div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* ── Donut + Fila rápida ────────────────────────────── */}
-        {pieData.length > 0 && (
-          <motion.div variants={itemVariants} className="flex gap-3">
-            <div className="flex-shrink-0 rounded-[20px] border border-border bg-white p-4 shadow-sm" style={{ width: 140 }}>
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Visão geral</p>
-              <ResponsiveContainer width="100%" height={100}>
-                <PieChart>
-                  <Pie data={pieData} cx="50%" cy="50%" innerRadius={28} outerRadius={44} paddingAngle={4} dataKey="value">
-                    {pieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                  </Pie>
-                  <Tooltip formatter={(v: number) => [`${v}`]} contentStyle={{ borderRadius: 12, fontSize: 10 }} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="mt-1 space-y-1">
-                {pieData.map((d, i) => (
-                  <div key={d.name} className="flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full" style={{ background: COLORS[i] }} />
-                    <span className="text-[9px] text-muted-foreground">{d.name} <b className="text-foreground">{d.value}</b></span>
+              <MiniMap incidents={incidents} />
+              <div className="mt-2 flex flex-wrap gap-3 px-1">
+                {Object.entries(RISK_COLOR).map(([k, c]) => (
+                  <div key={k} className="flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full" style={{ background: c }} />
+                    <span className="text-[10px] font-semibold text-muted-foreground">{k}</span>
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
-            <div className="flex-1 rounded-[20px] border border-border bg-white p-4 shadow-sm">
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Acesso rápido</p>
-              <div className="space-y-2">
-                {[
-                  { label: "Mapa da Violência", icon: Map, path: "/profissional/mapa" },
-                  { label: "Relatórios", icon: FileText, path: "/profissional/historico" },
-                  { label: "Equipe", icon: Users, path: "/profissional/permissoes" },
-                ].map((link) => (
-                  <button
-                    key={link.label}
-                    onClick={() => navigate(link.path)}
-                    className="flex w-full items-center gap-2.5 rounded-xl border border-border/50 px-3 py-2.5 transition-all hover:bg-muted/30 active:scale-[0.98]"
-                  >
-                    <link.icon className="h-3.5 w-3.5 text-primary" />
-                    <span className="text-[12px] font-semibold text-foreground">{link.label}</span>
-                    <ChevronRight className="ml-auto h-3.5 w-3.5 text-muted-foreground/40" />
-                  </button>
-                ))}
+            {/* ── Fila de prioridades ────────────────────────────── */}
+            <motion.section variants={itemVariants}>
+              <div className="mb-3 flex items-center justify-between px-1">
+                <h2 className="font-display text-sm font-bold text-foreground">Fila de Prioridades</h2>
+                <button onClick={() => navigate("/profissional/casos")} className="flex items-center gap-1 text-[11px] font-semibold text-primary">
+                  Ver todos <ChevronRight className="h-3.5 w-3.5" />
+                </button>
               </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* ── Fila de prioridades ────────────────────────────── */}
-        <motion.section variants={itemVariants}>
-          <div className="mb-3 flex items-center justify-between px-1">
-            <h2 className="font-display text-sm font-bold text-foreground">Fila de Prioridades</h2>
-            <button onClick={() => navigate("/profissional/casos")} className="flex items-center gap-1 text-[11px] font-semibold text-primary">
-              Ver todos <ChevronRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
-          {hasCases ? (
-            <div className="space-y-3">
-              <AnimatePresence>
-                {data?.casosPrioritarios.map((caso, i) => (
-                  <motion.div
-                    key={caso.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.07 }}
-                  >
-                    <CaseCard caso={caso} />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-3 rounded-[22px] border border-dashed border-border bg-white py-10 text-center">
-              <CheckCircle className="h-8 w-8 text-emerald-500/60" />
-              <div>
-                <p className="text-sm font-semibold text-foreground">Fila zerada!</p>
-                <p className="text-xs text-muted-foreground">Nenhum caso prioritário no momento.</p>
-              </div>
-            </div>
-          )}
-        </motion.section>
-
-        {/* ── Últimas movimentações ──────────────────────────── */}
-        {hasAttendances && (
-          <motion.section variants={itemVariants}>
-            <h2 className="mb-3 pl-1 font-display text-sm font-bold text-foreground">Últimas Movimentações</h2>
-            <div className="overflow-hidden rounded-[22px] border border-border bg-white shadow-sm">
-              {data?.ultimosAtendimentos.map((item, i) => (
-                <div key={item.id} className={`p-4 ${i !== 0 ? "border-t border-border/50" : ""}`}>
-                  <div className="mb-1.5 flex items-center gap-2">
-                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{formatDate(item.data)}</span>
-                    <div className="ml-auto"><StatusBadge type="risk" value={item.riscoIdentificado} /></div>
-                  </div>
-                  <p className="font-display text-sm font-bold text-foreground">{item.caso.nomeSocial || item.caso.nomeCompleto}</p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    <span className="font-semibold">{item.tipoAtendimento}</span> · {getOrganizationName(item.orgao)}
-                  </p>
+              {hasCases ? (
+                <div className="space-y-3">
+                  <AnimatePresence>
+                    {data?.casosPrioritarios.map((caso, i) => (
+                      <motion.div
+                        key={caso.id}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.07 }}
+                      >
+                        <CaseCard caso={caso} />
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
                 </div>
-              ))}
-            </div>
-          </motion.section>
-        )}
+              ) : (
+                <div className="flex flex-col items-center gap-3 rounded-[22px] border border-dashed border-border bg-white py-10 text-center">
+                  <CheckCircle className="h-8 w-8 text-emerald-500/60" />
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">Fila zerada!</p>
+                    <p className="text-xs text-muted-foreground">Nenhum caso prioritário no momento.</p>
+                  </div>
+                </div>
+              )}
+            </motion.section>
+          </div>
+
+          <div className="space-y-5">
+            {/* ── Donut + Fila rápida ────────────────────────────── */}
+            {pieData.length > 0 && (
+              <motion.div variants={itemVariants} className="flex flex-col gap-3">
+                <div className="rounded-[20px] border border-border bg-white p-5 shadow-sm">
+                  <p className="mb-4 text-[11px] font-bold uppercase tracking-wider text-muted-foreground text-center">Visão Geral Operacional</p>
+                  <ResponsiveContainer width="100%" height={140}>
+                    <PieChart>
+                      <Pie data={pieData} cx="50%" cy="50%" innerRadius={40} outerRadius={60} paddingAngle={4} dataKey="value">
+                        {pieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                      </Pie>
+                      <Tooltip formatter={(v: number) => [`${v}`]} contentStyle={{ borderRadius: 12, fontSize: 10 }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="mt-4 flex flex-wrap justify-center gap-4">
+                    {pieData.map((d, i) => (
+                      <div key={d.name} className="flex items-center gap-1.5">
+                        <span className="h-2 w-2 rounded-full" style={{ background: COLORS[i % COLORS.length] }} />
+                        <span className="text-[11px] text-muted-foreground">{d.name} <b className="text-foreground">{d.value}</b></span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-[20px] border border-border bg-white p-4 shadow-sm">
+                  <p className="mb-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Acesso rápido</p>
+                  <div className="space-y-2">
+                    {[
+                      { label: "Mapa da Violência", icon: Map, path: "/profissional/mapa" },
+                      { label: "Relatórios de Casos", icon: FileText, path: "/profissional/historico" },
+                      { label: "Equipe e Permissões", icon: Users, path: "/profissional/permissoes" },
+                    ].map((link) => (
+                      <button
+                        key={link.label}
+                        onClick={() => navigate(link.path)}
+                        className="flex w-full items-center gap-2.5 rounded-xl border border-border/50 px-3 py-2.5 transition-all hover:bg-muted/30 active:scale-[0.98]"
+                      >
+                        <link.icon className="h-3.5 w-3.5 text-primary" />
+                        <span className="text-[12px] font-semibold text-foreground">{link.label}</span>
+                        <ChevronRight className="ml-auto h-3.5 w-3.5 text-muted-foreground/40" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ── Últimas movimentações ──────────────────────────── */}
+            {hasAttendances && (
+              <motion.section variants={itemVariants}>
+                <h2 className="mb-3 pl-1 font-display text-sm font-bold text-foreground">Últimas Movimentações</h2>
+                <div className="overflow-hidden rounded-[22px] border border-border bg-white shadow-sm">
+                  {data?.ultimosAtendimentos.map((item, i) => (
+                    <div key={item.id} className={`p-4 transition-colors hover:bg-muted/10 ${i !== 0 ? "border-t border-border/50" : ""}`}>
+                      <div className="mb-1.5 flex items-center gap-2">
+                        <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{formatDate(item.data)}</span>
+                        <div className="ml-auto"><StatusBadge type="risk" value={item.riscoIdentificado} /></div>
+                      </div>
+                      <p className="font-display text-sm font-bold text-foreground truncate">{item.caso.nomeSocial || item.caso.nomeCompleto}</p>
+                      <p className="mt-1 text-[11px] text-muted-foreground truncate">
+                        <span className="font-semibold">{item.tipoAtendimento}</span> · {getOrganizationName(item.orgao)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </motion.section>
+            )}
+          </div>
+        </div>
 
       </motion.div>
     </AppLayout>

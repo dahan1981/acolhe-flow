@@ -142,7 +142,7 @@ export default function GestoraDashboard() {
       <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-5 py-4 pb-8">
 
         {/* ── Quick Actions ──────────────────────────────────── */}
-        <motion.div variants={itemVariants} className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+        <motion.div variants={itemVariants} className="flex gap-2 overflow-x-auto no-scrollbar pb-1 lg:overflow-visible lg:flex-wrap">
           {[
             { label: "Novo Protocolo", icon: FilePlus2, path: "/gestora/novo-protocolo", bg: "bg-violet-600" },
             { label: "Atendimento", icon: Stethoscope, path: "/gestora/novo-atendimento", bg: "bg-primary/10 !text-primary" },
@@ -163,7 +163,7 @@ export default function GestoraDashboard() {
         </motion.div>
 
         {/* ── Stats Row ─────────────────────────────────────── */}
-        <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
+        <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <StatCard icon={Users} label="Total de casos" value={stats.total} delta={2} />
           <StatCard icon={AlertTriangle} label="Em triagem" value={stats.ativos} accent="warning" delta={-4} />
           <StatCard icon={Clock} label="Pendentes" value={stats.encaminhamentosPendentes} accent="urgent" />
@@ -176,22 +176,50 @@ export default function GestoraDashboard() {
             <h3 className="font-display text-sm font-bold text-foreground">Mapa da Violência</h3>
             <span className="text-[11px] text-muted-foreground">{incidents.length} município(s)</span>
           </div>
-          <MiniMap incidents={incidents} />
-          {/* Risk legend */}
-          <div className="mt-2 flex flex-wrap gap-3 px-1">
-            {Object.entries(RISK_COLOR).map(([k, c]) => (
-              <div key={k} className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full" style={{ background: c }} />
-                <span className="text-[10px] font-semibold text-muted-foreground">{k}</span>
+          <div className="lg:grid lg:grid-cols-[2fr_1fr] lg:gap-4">
+            <div className="space-y-3">
+              <MiniMap incidents={incidents} />
+              {/* Risk legend */}
+              <div className="mt-2 flex flex-wrap gap-3 px-1">
+                {Object.entries(RISK_COLOR).map(([k, c]) => (
+                  <div key={k} className="flex items-center gap-1.5">
+                    <span className="h-2.5 w-2.5 rounded-full" style={{ background: c }} />
+                    <span className="text-[10px] font-semibold text-muted-foreground">{k}</span>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+
+            {/* Side column on desktop: Donut Chart */}
+            <div className="hidden lg:block rounded-[20px] border border-border bg-white p-5 shadow-sm h-full">
+              <p className="mb-4 text-[12px] font-bold uppercase tracking-wider text-muted-foreground text-center">Status Operacional</p>
+              <div className="flex flex-col items-center justify-center">
+                <ResponsiveContainer width="100%" height={160}>
+                  <PieChart>
+                    <Pie data={pieData} cx="50%" cy="50%" innerRadius={45} outerRadius={65} paddingAngle={4} dataKey="value">
+                      {pieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                    </Pie>
+                    <Tooltip formatter={(v: number) => [`${v} casos`]} contentStyle={{ borderRadius: 12, fontSize: 11 }} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="mt-4 w-full space-y-2">
+                  {pieData.map((d, i) => (
+                    <div key={d.name} className="flex items-center gap-2 px-2">
+                      <span className="h-2 w-2 rounded-full shrink-0" style={{ background: COLORS[i % COLORS.length] }} />
+                      <span className="text-[11px] text-muted-foreground truncate flex-1">{d.name}</span>
+                      <span className="text-[11px] font-bold text-foreground">{d.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </motion.div>
 
-        {/* ── Donut — Casos por status + Barras — por tipo ─── */}
-        <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
-          {/* Donut */}
-          <div className="rounded-[20px] border border-border bg-white p-4 shadow-sm">
+        {/* ── Grids for Mobile/Tablet or Bottom Section on Desktop ─── */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          {/* Donut — Mobile only (already shown on desktop above) */}
+          <motion.div variants={itemVariants} className="lg:hidden rounded-[20px] border border-border bg-white p-4 shadow-sm">
             <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Por status</p>
             <ResponsiveContainer width="100%" height={130}>
               <PieChart>
@@ -210,10 +238,10 @@ export default function GestoraDashboard() {
                 </div>
               ))}
             </div>
-          </div>
+          </motion.div>
 
           {/* Risk matrix */}
-          <div className="rounded-[20px] border border-border bg-white p-4 shadow-sm">
+          <motion.div variants={itemVariants} className="rounded-[20px] border border-border bg-white p-4 shadow-sm">
             <p className="mb-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Matriz de Risco</p>
             <div className="grid grid-cols-2 gap-2">
               {stats.porRisco.map((item) => (
@@ -224,14 +252,16 @@ export default function GestoraDashboard() {
               ))}
             </div>
             {stats.total > 0 && (
-              <div className="mt-3 space-y-1.5">
+              <div className="mt-4 space-y-2">
                 {stats.porRisco.map((item) => (
                   <div key={item.nivel} className="flex items-center gap-2">
+                    <span className="w-16 text-[9px] font-bold uppercase text-muted-foreground truncate">{item.nivel}</span>
                     <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted/50">
-                      <div
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${(item.total / stats.total) * 100}%` }}
                         className="h-full rounded-full"
                         style={{
-                          width: `${(item.total / stats.total) * 100}%`,
                           background: RISK_COLOR[item.nivel.toUpperCase()] ?? "#7c3aed",
                         }}
                       />
@@ -241,81 +271,56 @@ export default function GestoraDashboard() {
                 ))}
               </div>
             )}
-          </div>
-        </motion.div>
-
-        {/* ── Bar chart — violências ─────────────────────────── */}
-        {violenceData.length > 0 && (
-          <motion.div variants={itemVariants} className="rounded-[20px] border border-border bg-white p-4 shadow-sm">
-            <p className="mb-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Ocorrências por tipo</p>
-            <ResponsiveContainer width="100%" height={140}>
-              <BarChart data={violenceData} barSize={22} margin={{ left: -20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="name" tick={{ fontSize: 9 }} />
-                <YAxis tick={{ fontSize: 9 }} />
-                <Tooltip contentStyle={{ borderRadius: 12, fontSize: 11 }} />
-                <Bar dataKey="total" radius={[6, 6, 0, 0]}>
-                  {violenceData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
           </motion.div>
-        )}
+
+          {/* ── Bar chart — violências ─────────────────────────── */}
+          {violenceData.length > 0 && (
+            <motion.div variants={itemVariants} className="rounded-[20px] border border-border bg-white p-4 shadow-sm">
+              <p className="mb-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Ocorrências por tipo</p>
+              <ResponsiveContainer width="100%" height={160}>
+                <BarChart data={violenceData} barSize={24} margin={{ left: -20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                  <XAxis dataKey="name" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
+                  <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: 12, fontSize: 11, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                  <Bar dataKey="total" radius={[6, 6, 0, 0]}>
+                    {violenceData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </motion.div>
+          )}
+        </div>
 
         {/* ── Distribuição na rede ───────────────────────────── */}
         {stats.porOrgao.length > 0 && (
-          <motion.div variants={itemVariants} className="rounded-[20px] border border-border bg-white p-4 shadow-sm">
-            <div className="mb-3 flex items-center gap-2">
+          <motion.div variants={itemVariants} className="rounded-[20px] border border-border bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center gap-2">
               <Building className="h-4 w-4 text-primary" />
               <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Distribuição na rede</p>
             </div>
-            <div className="space-y-2">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               {stats.porOrgao.map((item) => (
-                <div key={item.sigla} className="flex items-center gap-3">
-                  <span className="rounded-lg bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">{item.sigla}</span>
-                  <div className="flex-1 overflow-hidden rounded-full bg-muted/40" style={{ height: 6 }}>
-                    <div
-                      className="h-full rounded-full bg-primary"
-                      style={{ width: `${stats.total ? (item.total / stats.total) * 100 : 0}%` }}
-                    />
+                <div key={item.sigla} className="flex items-center gap-3 bg-muted/20 p-3 rounded-xl border border-border/30">
+                  <span className="rounded-lg bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary shrink-0">{item.sigla}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[11px] font-semibold text-foreground truncate">{item.orgao}</span>
+                      <span className="text-[11px] font-bold text-foreground">{item.total}</span>
+                    </div>
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${stats.total ? (item.total / stats.total) * 100 : 0}%` }}
+                        className="h-full rounded-full bg-primary"
+                      />
+                    </div>
                   </div>
-                  <span className="w-5 text-right text-[11px] font-bold text-foreground">{item.total}</span>
                 </div>
               ))}
             </div>
           </motion.div>
         )}
-
-        {/* ── Casos recentes ─────────────────────────────────── */}
-        {reportData?.casosRecentes?.length ? (
-          <motion.div variants={itemVariants}>
-            <div className="mb-2 flex items-center justify-between px-1">
-              <h3 className="font-display text-sm font-bold text-foreground">Casos recentes</h3>
-              <button onClick={() => navigate("/gestora/casos")} className="flex items-center gap-1 text-[11px] font-semibold text-primary">
-                Ver todos <ChevronRight className="h-3.5 w-3.5" />
-              </button>
-            </div>
-            <div className="space-y-2">
-              {reportData.casosRecentes.slice(0, 4).map((caso) => (
-                <button
-                  key={caso.id}
-                  onClick={() => navigate(`/gestora/caso/${caso.id}`)}
-                  className="flex w-full items-center gap-3 rounded-[18px] border border-border bg-white p-3.5 shadow-sm transition-all hover:shadow-md active:scale-[0.99]"
-                >
-                  <div
-                    className="h-2.5 w-2.5 shrink-0 rounded-full"
-                    style={{ background: RISK_COLOR[caso.situacaoRisco?.toUpperCase() ?? ""] ?? "#7c3aed" }}
-                  />
-                  <div className="min-w-0 flex-1 text-left">
-                    <p className="truncate text-[13px] font-semibold text-foreground">#{caso.protocolo}</p>
-                    <p className="text-[11px] text-muted-foreground">{caso.orgaoAtual}</p>
-                  </div>
-                  <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/40" />
-                </button>
-              ))}
-            </div>
-          </motion.div>
-        ) : null}
 
       </motion.div>
     </AppLayout>

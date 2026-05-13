@@ -245,14 +245,72 @@ export function AppLayout({ children, title, subtitle, showBack }: AppLayoutProp
   };
 
   return (
-    <div className="relative mx-auto flex min-h-screen max-w-lg flex-col overflow-x-hidden bg-[#faf9fc] text-foreground">
+    <div className="relative flex min-h-screen bg-[#faf9fc] text-foreground lg:flex-row">
+
+      {/* ── Desktop Sidebar (hidden on mobile) ───────────────── */}
+      <aside className="hidden lg:flex lg:w-[220px] lg:shrink-0 lg:flex-col lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:border-r lg:border-border lg:bg-white/80 lg:backdrop-blur-xl">
+        {/* Logo */}
+        <div className="flex items-center gap-3 px-5 py-5 border-b border-border/50">
+          <div className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-gradient-to-br from-primary/20 to-accent/10">
+            <AthenaMark className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <p className="font-display text-sm font-bold text-foreground">Athena</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-primary/60">{profileLabel(currentUser.perfil)}</p>
+          </div>
+        </div>
+        {/* Nav items */}
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+          {items.map((item) => {
+            const isActive = isItemActive(location.pathname, item);
+            return (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all ${
+                  isActive ? 'bg-primary text-white font-semibold shadow-sm' : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+                }`}
+              >
+                <item.icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-white' : 'text-muted-foreground'}`} />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+        {/* User + logout */}
+        <div className="border-t border-border/50 p-4 space-y-3">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="text-xs bg-primary/10 text-primary font-bold">
+                {currentUser.nome.split(' ').map((n: string) => n[0]).join('').slice(0,2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[12px] font-semibold text-foreground">{currentUser.nome.split(' ')[0]}</p>
+              <p className="truncate text-[10px] text-muted-foreground">{currentUser.perfil}</p>
+            </div>
+            <motion.button onClick={togglePrivacyMode} whileTap={{ scale: 0.9 }} className={`flex h-7 w-7 items-center justify-center rounded-lg border transition-all ${ privacyMode ? 'bg-primary text-white border-primary' : 'border-border text-muted-foreground hover:bg-muted/50' }`}>
+              {privacyMode ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
+            </motion.button>
+          </div>
+          <button
+            onClick={async () => { await logout(); navigate('/'); }}
+            className="w-full flex items-center justify-center gap-2 rounded-xl border border-destructive/20 bg-destructive/5 py-2 text-xs font-semibold text-destructive hover:bg-destructive hover:text-white transition-colors"
+          >
+            <LogOut className="h-3.5 w-3.5" /> Sair
+          </button>
+        </div>
+      </aside>
+
+      {/* ── Mobile + Desktop content wrapper ─────────────────── */}
+      <div className="flex flex-1 flex-col min-w-0 lg:ml-[220px] lg:max-w-none max-w-lg mx-auto w-full overflow-x-hidden">
       {/* Light Premium Ambience / Glow */}
       <div className={`pointer-events-none fixed inset-0 z-0 h-full w-full bg-[linear-gradient(to_bottom,rgba(255,255,255,0)_0%,rgba(255,255,255,0.7)_100%)] opacity-60 mix-blend-overlay`} />
       <div className="pointer-events-none fixed left-[-10%] top-[0%] z-0 h-[500px] w-[500px] rounded-full bg-primary/5 blur-[100px]" />
       <div className="pointer-events-none fixed right-[-10%] top-[20%] z-0 h-[400px] w-[400px] rounded-full bg-accent/5 blur-[80px]" />
 
-      {/* Floating Glass Header */}
-      <header className="sticky top-0 z-50 px-4 pt-4 pb-2">
+      {/* Floating Glass Header — mobile only */}
+      <header className="sticky top-0 z-50 px-4 pt-4 pb-2 lg:hidden">
         <div className="glass-panel flex items-start justify-between gap-3 rounded-[28px] p-2.5 pl-4 pr-3">
           <div className="flex min-w-0 flex-1 items-start gap-3 overflow-hidden">
             {showBack && (
@@ -396,8 +454,27 @@ export function AppLayout({ children, title, subtitle, showBack }: AppLayoutProp
 
       {/* Main Content Area */}
       <div className="relative z-10 flex flex-1 flex-col">
+        {/* Desktop top bar */}
+        <div className="hidden lg:flex items-center justify-between px-8 pt-6 pb-2">
+          <div>
+            {title ? (
+              <div>
+                <h1 className="font-display text-2xl font-bold text-foreground">{title}</h1>
+                {subtitle && <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mt-0.5">{subtitle}</p>}
+              </div>
+            ) : (
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-primary/70">Athena • {profileLabel(currentUser.perfil)}</p>
+                <h1 className="font-display text-xl font-bold text-foreground">Olá, {currentUser.nome.split(' ')[0]} 👋</h1>
+              </div>
+            )}
+          </div>
+          <motion.button onClick={togglePrivacyMode} whileTap={{ scale: 0.92 }} className={`flex h-9 w-9 items-center justify-center rounded-xl border shadow-sm transition-all ${ privacyMode ? 'bg-primary text-white border-primary' : 'bg-white text-muted-foreground border-border hover:bg-muted/50' }`}>
+            {privacyMode ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+          </motion.button>
+        </div>
         <main
-          className={`flex-1 px-4 pb-[110px] overflow-hidden transition-all duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          className={`flex-1 px-4 lg:px-8 pb-[110px] lg:pb-8 overflow-hidden transition-all duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
             privacyMode ? "blur-[16px] saturate-50 brightness-90 grayscale-[0.2]" : "blur-0"
           }`}
         >
@@ -438,8 +515,8 @@ export function AppLayout({ children, title, subtitle, showBack }: AppLayoutProp
         </AnimatePresence>
       </div>
 
-      {/* Bottom Floating Navigation (Native App Style) */}
-      <nav className={`fixed bottom-6 left-1/2 z-50 w-[calc(100%-2rem)] max-w-[calc(32rem-2rem)] -translate-x-1/2 transition-all duration-300 ${
+      {/* Bottom Floating Navigation — mobile only */}
+      <nav className={`lg:hidden fixed bottom-6 left-1/2 z-50 w-[calc(100%-2rem)] max-w-[calc(32rem-2rem)] -translate-x-1/2 transition-all duration-300 ${
         privacyMode ? "blur-md opacity-60 pointer-events-none" : "blur-0 opacity-100"
       }`}>
         <div className="glass-panel flex items-center justify-between overflow-hidden rounded-full p-2 shadow-2xl">
@@ -475,6 +552,7 @@ export function AppLayout({ children, title, subtitle, showBack }: AppLayoutProp
       </nav>
 
       {/* Panic Button — floating, only for Mulher, hidden because SOS is now in dashboard */}
+      </div>{/* end mobile+desktop content wrapper */}
     </div>
   );
 }
