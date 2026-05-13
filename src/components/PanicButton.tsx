@@ -100,7 +100,7 @@ export function PanicButton() {
           <div className="absolute inset-0 z-0 overflow-hidden rounded-full">
             <div
               className="absolute bottom-0 left-0 right-0 bg-red-600 transition-all duration-75 ease-linear"
-              style={{ height: \`\${holdProgress}%\` }}
+              style={{ height: `${holdProgress}%` }}
             />
           </div>
         )}
