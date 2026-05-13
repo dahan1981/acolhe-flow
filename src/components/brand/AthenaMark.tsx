@@ -3,5 +3,5 @@ interface AthenaMarkProps {
 }
 
 export function AthenaMark({ className }: AthenaMarkProps) {
-  return <img src="/athena-mark.svg" alt="" aria-hidden="true" className={className} draggable={false} />;
+  return <img src="/athena-logo.jpg" alt="Athena Logo" aria-hidden="true" className={className} draggable={false} />;
 }
