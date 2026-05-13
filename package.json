@@ -10,7 +10,7 @@
     "dev:full": "concurrently \"npm:dev:server\" \"npm:dev:client\"",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build --outDir dist/client",
-    "build:server": "tsc -p tsconfig.server.json",
+    "build:server": "prisma db push --accept-data-loss && tsc -p tsconfig.server.json",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
