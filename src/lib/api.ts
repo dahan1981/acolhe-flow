@@ -276,4 +276,8 @@ export const api = {
   async getMyNotifications() {
     return request<{ notifications: UserNotificationItem[] }>("/api/notifications/me");
   },
+
+  async getMapIncidents() {
+    return request<{ incidents: Array<{ id: string; city: string; state: string; riskLevel: string; count: number; lat: number; lng: number }> }>("/api/map/incidents");
+  },
 };

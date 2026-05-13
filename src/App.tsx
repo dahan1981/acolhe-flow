@@ -32,6 +32,8 @@ const ArticlePage = lazy(() => import("./pages/shared/ArticlePage"));
 const ProfileEditPage = lazy(() => import("./pages/shared/ProfileEditPage"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const MulherCursos = lazy(() => import("./pages/mulher/MulherCursos"));
+const MapaViolencia = lazy(() => import("./pages/shared/MapaViolencia"));
 
 const queryClient = new QueryClient();
 
@@ -195,6 +197,14 @@ const App = () => (
               }
             />
             <Route
+              path="/mulher/cursos"
+              element={
+                <ProtectedRoute allowedRoles={["mulher"]}>
+                  <MulherCursos />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/mulher/configuracoes"
               element={
                 <ProtectedRoute allowedRoles={["mulher"]}>
@@ -333,6 +343,15 @@ const App = () => (
             />
 
             <Route
+              path="/profissional/mapa"
+              element={
+                <ProtectedRoute allowedRoles={["profissional"]}>
+                  <MapaViolencia />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
               path="/gestora"
               element={
                 <ProtectedRoute allowedRoles={["gestora"]}>
@@ -401,6 +420,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={["gestora"]}>
                   <Relatorios />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/gestora/mapa"
+              element={
+                <ProtectedRoute allowedRoles={["gestora"]}>
+                  <MapaViolencia />
                 </ProtectedRoute>
               }
             />

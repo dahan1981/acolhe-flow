@@ -2696,6 +2696,119 @@ app.get(
   }),
 );
 
+// ─── Panic Button ────────────────────────────────────────────────────────────
+
+const panicSchema = z.object({
+  lat: z.number().optional(),
+  lng: z.number().optional(),
+  timestamp: z.number().optional(),
+});
+
+app.post(
+  "/api/panic",
+  requireAuth,
+  asyncHandler(async (request, response) => {
+    const payload = panicSchema.parse(request.body);
+    const user = request.currentUser!;
+
+    await audit(request, "panic.triggered", "user", user.id, {
+      lat: payload.lat,
+      lng: payload.lng,
+      timestamp: payload.timestamp ?? Date.now(),
+    });
+
+    // Notify all internal staff (profissional/gestora) via WebSocket
+    for (const socket of internalSockets) {
+      sendSocketEvent(socket, {
+        type: "panic.alert",
+        userId: user.id,
+        userName: user.fullName,
+        lat: payload.lat ?? null,
+        lng: payload.lng ?? null,
+        triggeredAt: new Date().toISOString(),
+      });
+    }
+
+    response.json({ ok: true });
+  }),
+);
+
+// ─── Mapa da Violência ────────────────────────────────────────────────────────
+
+// Simple in-memory geocoding cache to avoid hammering Nominatim
+const geocodeCache = new Map<string, { lat: number; lng: number } | null>();
+
+async function geocodeCity(city: string, state: string): Promise<{ lat: number; lng: number } | null> {
+  const key = `${city},${state},BR`;
+  if (geocodeCache.has(key)) return geocodeCache.get(key)!;
+
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city + ", " + state + ", Brasil")}&format=json&limit=1`;
+    const res = await fetch(url, { headers: { "User-Agent": "Athena-Platform/1.0" } });
+    const data = (await res.json()) as Array<{ lat: string; lon: string }>;
+    const result = data[0] ? { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) } : null;
+    geocodeCache.set(key, result);
+    return result;
+  } catch {
+    geocodeCache.set(key, null);
+    return null;
+  }
+}
+
+app.get(
+  "/api/map/incidents",
+  requireAuth,
+  requireRole(Role.PROFISSIONAL, Role.GESTORA),
+  asyncHandler(async (_request, response) => {
+    const cases = await prisma.caseRecord.findMany({
+      where: { deletedAt: null },
+      select: {
+        id: true,
+        riskLevel: true,
+        womanProfile: { select: { city: true, state: true } },
+      },
+    });
+
+    // Group by city+state
+    const grouped = new Map<string, { city: string; state: string; riskLevel: string; count: number }>();
+    for (const c of cases) {
+      const k = `${c.womanProfile.city}|${c.womanProfile.state}`;
+      const existing = grouped.get(k);
+      if (existing) {
+        existing.count += 1;
+        // Escalate risk level if higher
+        const order = ["BAIXO", "MEDIO", "ALTO", "CRITICO"];
+        if (order.indexOf(c.riskLevel) > order.indexOf(existing.riskLevel)) {
+          existing.riskLevel = c.riskLevel;
+        }
+      } else {
+        grouped.set(k, { city: c.womanProfile.city, state: c.womanProfile.state, riskLevel: c.riskLevel, count: 1 });
+      }
+    }
+
+    // Geocode (limit to avoid overwhelming Nominatim on first call)
+    const GEOCODE_LIMIT = 30;
+    const entries = Array.from(grouped.values()).slice(0, GEOCODE_LIMIT);
+    const incidents = await Promise.all(
+      entries.map(async (entry) => {
+        const coords = await geocodeCity(entry.city, entry.state);
+        if (!coords) return null;
+        return {
+          id: `${entry.city}-${entry.state}`,
+          city: entry.city,
+          state: entry.state,
+          riskLevel: entry.riskLevel,
+          count: entry.count,
+          lat: coords.lat,
+          lng: coords.lng,
+        };
+      }),
+    );
+
+    response.json({ incidents: incidents.filter(Boolean) });
+  }),
+);
+
 if (isProduction) {
   app.use(express.static(clientDistPath));
   app.get("*", (request, response, next) => {
