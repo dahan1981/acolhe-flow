@@ -27,13 +27,22 @@ export function Timeline({ caso, atendimentos, encaminhamentos, solicitacoesApoi
   if (items.length === 0) {
     return (
       <div className="rounded-[24px] border border-dashed border-border/70 bg-card/70 px-5 py-8 text-center text-sm text-muted-foreground">
-        Nenhum movimento foi registrado para este caso ate o momento.
+        Nenhum movimento foi registrado para este caso até o momento.
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
+      {caso ? (
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <SummaryCard label="Protocolo" value={caso.protocolo} helper="Vinculo principal do caso" />
+          <SummaryCard label="Solicitações" value={String(solicitacoesApoio.length)} helper="Pedidos registrados pela conta" />
+          <SummaryCard label="Atendimentos" value={String(atendimentos.length)} helper="Ações conduzidas pela equipe" />
+          <SummaryCard label="Encaminhamentos" value={String(encaminhamentos.length)} helper="Movimentos para a rede de apoio" />
+        </div>
+      ) : null}
+
       {items.map((entry, index) => (
         <div key={entry.id} className="relative pl-7">
           <div className="absolute left-0 top-3 flex h-4 w-4 items-center justify-center rounded-full border border-primary/20 bg-background">
@@ -50,6 +59,16 @@ export function Timeline({ caso, atendimentos, encaminhamentos, solicitacoesApoi
   );
 }
 
+function SummaryCard({ label, value, helper }: { label: string; value: string; helper: string }) {
+  return (
+    <div className="rounded-[22px] border border-border/70 bg-card/85 px-4 py-4 shadow-card">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label}</p>
+      <p className="mt-2 text-lg font-semibold text-foreground">{value}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{helper}</p>
+    </div>
+  );
+}
+
 function OpeningCard({ caso }: { caso: CaseDetail }) {
   return (
     <div className="rounded-[24px] border border-primary/15 bg-card/95 p-4 shadow-card">
@@ -58,6 +77,7 @@ function OpeningCard({ caso }: { caso: CaseDetail }) {
         <span className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Abertura do caso</span>
         <span className="ml-auto text-xs text-muted-foreground">{formatDate(caso.dataPrimeiroAtendimento)}</span>
       </div>
+      <p className="text-xs text-muted-foreground">Protocolo gerado e caso distribuído para início do acompanhamento.</p>
       <p className="text-sm font-semibold text-foreground">Protocolo #{caso.protocolo}</p>
       <p className="mt-1 text-sm text-muted-foreground">{caso.observacoesIniciais}</p>
       <div className="mt-3 flex flex-wrap gap-2">
@@ -84,11 +104,12 @@ function SupportRequestCard({ item }: { item: SupportRequest }) {
     <div className="rounded-[24px] border border-border/70 bg-card/95 p-4 shadow-card">
       <div className="mb-3 flex items-center gap-2">
         <AlertCircle className="h-4 w-4 text-urgent" />
-        <span className="text-xs font-semibold uppercase tracking-[0.18em] text-urgent">Solicitacao registrada</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.18em] text-urgent">Solicitação registrada</span>
         <span className="ml-auto text-xs text-muted-foreground">{new Date(item.data).toLocaleString("pt-BR")}</span>
       </div>
+      <p className="text-xs text-muted-foreground">Solicitação registrada pela conta da mulher e encaminhada para análise da equipe.</p>
       <p className="text-sm font-semibold text-foreground">{item.tipo}</p>
-      <p className="mt-1 text-sm text-muted-foreground">{item.mensagem || "Sem observacao adicional informada."}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{item.mensagem || "Sem observação adicional informada."}</p>
       <div className="mt-3 flex flex-wrap gap-2">
         {(item.tiposViolencia ?? []).map((tipo) => (
           <span key={tipo} className="rounded-full bg-warning/10 px-2.5 py-1 text-[11px] font-medium text-warning">
@@ -108,10 +129,11 @@ function AttendanceCard({ atendimento }: { atendimento: Attendance }) {
         <span className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Atendimento</span>
         <span className="ml-auto text-xs text-muted-foreground">{formatDate(atendimento.data)}</span>
       </div>
+      <p className="text-xs text-muted-foreground">Registro operacional com avaliação de risco e próxima conduta definida.</p>
       <p className="text-sm font-semibold text-foreground">{atendimento.tipoAtendimento}</p>
       <p className="mt-1 text-sm text-muted-foreground">{atendimento.resumo}</p>
       <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
-        <div className="rounded-2xl bg-background px-3 py-2">Responsavel: {atendimento.profissionalResponsavel}</div>
+        <div className="rounded-2xl bg-background px-3 py-2">Responsável: {atendimento.profissionalResponsavel}</div>
         <div className="rounded-2xl bg-background px-3 py-2">Órgão: {getOrganizationName(atendimento.orgao)}</div>
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -124,7 +146,7 @@ function AttendanceCard({ atendimento }: { atendimento: Attendance }) {
       </div>
       {atendimento.proximosPassos ? (
         <div className="mt-3 rounded-2xl bg-background px-3 py-3 text-sm text-muted-foreground">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Proximos passos</p>
+          <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Próximos passos</p>
           {atendimento.proximosPassos}
         </div>
       ) : null}
@@ -132,7 +154,7 @@ function AttendanceCard({ atendimento }: { atendimento: Attendance }) {
         <div className="mt-3 flex items-start gap-2 rounded-2xl border border-border/60 bg-muted/40 px-3 py-3 text-sm text-muted-foreground">
           <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
           <div>
-            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Observacao operacional</p>
+            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Observação operacional</p>
             {atendimento.observacoesInternas}
           </div>
         </div>
@@ -149,6 +171,7 @@ function ReferralCard({ encaminhamento }: { encaminhamento: Referral }) {
         <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Encaminhamento</span>
         <span className="ml-auto text-xs text-muted-foreground">{formatDate(encaminhamento.data)}</span>
       </div>
+      <p className="text-xs text-muted-foreground">Movimento formal para outro órgão ou serviço da rede com prioridade definida.</p>
       <p className="text-sm font-semibold text-foreground">{getOrganizationName(encaminhamento.orgaoDestino)}</p>
       <p className="mt-1 text-sm text-muted-foreground">{encaminhamento.motivo}</p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -156,7 +179,7 @@ function ReferralCard({ encaminhamento }: { encaminhamento: Referral }) {
         <StatusBadge type="encaminhamento" value={encaminhamento.status} />
         <span className="inline-flex items-center gap-1 rounded-full bg-background px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
           <Flag className="h-3 w-3" />
-          Distribuicao na rede
+          Distribuição na rede
         </span>
       </div>
     </div>

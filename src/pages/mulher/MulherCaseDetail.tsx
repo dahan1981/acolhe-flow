@@ -4,7 +4,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Timeline } from "@/components/shared/Timeline";
 import { api } from "@/lib/api";
-import { getCaseActivitySummary } from "@/lib/demo-case-store";
+import { getCaseActivitySummary } from "@/lib/case-activity";
 import { ethnicityLabel, formatDate, violenceTypeLabel } from "@/lib/domain";
 
 export default function MulherCaseDetail() {
@@ -16,7 +16,7 @@ export default function MulherCaseDetail() {
   if (isLoading) {
     return (
       <AppLayout title="Meu Caso" showBack>
-        <p className="text-sm text-muted-foreground">Carregando historico...</p>
+        <p className="text-sm text-muted-foreground">Carregando histórico...</p>
       </AppLayout>
     );
   }
@@ -58,7 +58,7 @@ export default function MulherCaseDetail() {
           <div className="rounded-[24px] border border-border/70 bg-card/90 p-4 shadow-card">
             <div className="mb-2 flex items-center gap-2">
               <Clock3 className="h-4 w-4 text-primary" />
-              <span className="text-xs text-muted-foreground">Ultima atualizacao</span>
+              <span className="text-xs text-muted-foreground">Última atualização</span>
             </div>
             <p className="text-sm font-semibold text-foreground">{formatDate(getCaseActivitySummary(caso).date.slice(0, 10))}</p>
             <p className="mt-1 text-xs text-muted-foreground">{getCaseActivitySummary(caso).summary}</p>
@@ -68,14 +68,14 @@ export default function MulherCaseDetail() {
               <ShieldCheck className="h-4 w-4 text-accent" />
               <span className="text-xs text-muted-foreground">Andamento integrado</span>
             </div>
-            <p className="text-sm font-semibold text-foreground">Acompanhamento em fase piloto</p>
+            <p className="text-sm font-semibold text-foreground">Acompanhamento compartilhado</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              O mesmo status fica visivel para a equipe responsavel e para a gestao autorizada.
+              O mesmo status fica visível para a equipe responsável e para a gestão autorizada.
             </p>
           </div>
         </div>
 
-        <h3 className="text-sm font-semibold text-foreground">Historico completo</h3>
+        <h3 className="text-sm font-semibold text-foreground">Histórico completo</h3>
         <Timeline caso={caso} atendimentos={caso.atendimentos} encaminhamentos={caso.encaminhamentos} solicitacoesApoio={caso.solicitacoesApoio} />
       </div>
     </AppLayout>

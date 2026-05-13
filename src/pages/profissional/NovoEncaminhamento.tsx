@@ -59,7 +59,7 @@ export default function NovoEncaminhamento() {
       navigate(-1);
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : "Nao foi possivel registrar o encaminhamento.");
+      toast.error(error instanceof Error ? error.message : "Não foi possível registrar o encaminhamento.");
     },
   });
 
@@ -79,7 +79,7 @@ export default function NovoEncaminhamento() {
   return (
     <AppLayout
       title="Criar encaminhamento"
-      subtitle="Direcione o caso para outro orgao da rede e atualize o historico compartilhado."
+      subtitle="Direcione o caso para outro órgão da rede e atualize o histórico compartilhado."
       showBack
     >
       <form
@@ -94,9 +94,9 @@ export default function NovoEncaminhamento() {
         className="space-y-5"
       >
         <section className="rounded-[26px] border border-primary/15 bg-card/95 p-5 shadow-card">
-          <h2 className="text-lg font-semibold text-foreground">Caso de referencia</h2>
+          <h2 className="text-lg font-semibold text-foreground">Caso de referência</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            O encaminhamento preserva o caso e o protocolo de origem, acrescentando o orgao de destino e a justificativa da decisao.
+            O encaminhamento preserva o caso e o protocolo de origem, acrescentando o órgão de destino e a justificativa da decisão.
           </p>
           <div className="mt-4 space-y-3 rounded-[24px] border border-border/70 bg-background/70 p-4">
             <div className="relative">
@@ -129,7 +129,7 @@ export default function NovoEncaminhamento() {
               {selectedCase ? selectedCase.nomeSocial || selectedCase.nomeCompleto : "Nenhum caso selecionado"}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {selectedCase ? `Protocolo ${selectedCase.protocolo} • orgao atual ${getOrganizationName(selectedCase.orgaoEntrada)}` : "Selecione o caso para consultar o protocolo e o orgao de origem."}
+              {selectedCase ? `Protocolo ${selectedCase.protocolo} • órgão atual ${getOrganizationName(selectedCase.orgaoEntrada)}` : "Selecione o caso para consultar o protocolo e o órgão de origem."}
             </p>
             {selectedCase?.tiposViolencia?.length ? (
               <div className="mt-3 flex flex-wrap gap-2">
@@ -145,14 +145,14 @@ export default function NovoEncaminhamento() {
 
         <section className="grid gap-4 rounded-[26px] border border-border/70 bg-card/95 p-5 shadow-card">
           <div>
-            <label className="text-sm font-medium text-foreground">Orgao de destino</label>
+            <label className="text-sm font-medium text-foreground">Órgão de destino</label>
             <select
               value={form.orgaoDestinoId}
               onChange={(event) => setForm({ ...form, orgaoDestinoId: event.target.value })}
               className="mt-1 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
               required
             >
-              <option value="">Selecione o orgao de destino</option>
+              <option value="">Selecione o órgão de destino</option>
               {organizationsData?.organizations.map((organization) => (
                 <option key={organization.id} value={organization.id}>
                   {organization.nome}
@@ -167,7 +167,7 @@ export default function NovoEncaminhamento() {
               value={form.motivo}
               onChange={(event) => setForm({ ...form, motivo: event.target.value })}
               rows={4}
-              placeholder="Explique por que o caso deve seguir para outro orgao, o objetivo esperado e o contexto da articulacao."
+              placeholder="Explique por que o caso deve seguir para outro órgão, o objetivo esperado e o contexto da articulação."
               className="mt-1 w-full rounded-2xl border border-border bg-background p-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
               required
             />
@@ -178,7 +178,7 @@ export default function NovoEncaminhamento() {
             <div className="mt-2 flex flex-wrap gap-2">
               {([
                 { v: "baixa", l: "Baixa" },
-                { v: "media", l: "Media" },
+                { v: "media", l: "Média" },
                 { v: "alta", l: "Alta" },
                 { v: "urgente", l: "Urgente" },
               ] as Array<{ v: Priority; l: string }>).map((item) => (

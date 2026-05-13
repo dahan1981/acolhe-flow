@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect, Suspense, lazy } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -6,29 +6,32 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuthStore } from "@/stores/auth-store";
 import type { UserProfile } from "@/types/domain";
 
-import Login from "./pages/Login";
-import MulherDashboard from "./pages/mulher/MulherDashboard";
-import MulherCaseDetail from "./pages/mulher/MulherCaseDetail";
-import MulherAjuda from "./pages/mulher/MulherAjuda";
-import MulherHistorico from "./pages/mulher/MulherHistorico";
-import ProfissionalDashboard from "./pages/profissional/ProfissionalDashboard";
-import CaseList from "./pages/profissional/CaseList";
-import CaseDetail from "./pages/profissional/CaseDetail";
-import NovoAtendimento from "./pages/profissional/NovoAtendimento";
-import NovoEncaminhamento from "./pages/profissional/NovoEncaminhamento";
-import ProfissionalWorkspace from "./pages/profissional/ProfissionalWorkspace";
-import GestoraDashboard from "./pages/gestora/GestoraDashboard";
-import Relatorios from "./pages/gestora/Relatorios";
-import GestoraAdmin from "./pages/gestora/GestoraAdmin";
-import ProfessionalsPage from "./pages/gestora/ProfessionalsPage";
-import ProfilePage from "./pages/shared/ProfilePage";
-import ConfigPage from "./pages/shared/ConfigPage";
-import NotificationsPage from "./pages/shared/NotificationsPage";
-import InstitutionalPage from "./pages/shared/InstitutionalPage";
-import AccessOverviewPage from "./pages/shared/AccessOverviewPage";
-import NovoProtocolo from "./pages/shared/NovoProtocolo";
-import ChatPage from "./pages/shared/ChatPage";
-import NotFound from "./pages/NotFound";
+const Login = lazy(() => import("./pages/Login"));
+const MulherDashboard = lazy(() => import("./pages/mulher/MulherDashboard"));
+const MulherCaseDetail = lazy(() => import("./pages/mulher/MulherCaseDetail"));
+const MulherAjuda = lazy(() => import("./pages/mulher/MulherAjuda"));
+const MulherHistorico = lazy(() => import("./pages/mulher/MulherHistorico"));
+const ProfissionalDashboard = lazy(() => import("./pages/profissional/ProfissionalDashboard"));
+const CaseList = lazy(() => import("./pages/profissional/CaseList"));
+const CaseDetail = lazy(() => import("./pages/profissional/CaseDetail"));
+const NovoAtendimento = lazy(() => import("./pages/profissional/NovoAtendimento"));
+const NovoEncaminhamento = lazy(() => import("./pages/profissional/NovoEncaminhamento"));
+const ProfissionalWorkspace = lazy(() => import("./pages/profissional/ProfissionalWorkspace"));
+const GestoraDashboard = lazy(() => import("./pages/gestora/GestoraDashboard"));
+const Relatorios = lazy(() => import("./pages/gestora/Relatorios"));
+const GestoraAdmin = lazy(() => import("./pages/gestora/GestoraAdmin"));
+const ProfessionalsPage = lazy(() => import("./pages/gestora/ProfessionalsPage"));
+const ProfilePage = lazy(() => import("./pages/shared/ProfilePage"));
+const ConfigPage = lazy(() => import("./pages/shared/ConfigPage"));
+const NotificationsPage = lazy(() => import("./pages/shared/NotificationsPage"));
+const InstitutionalPage = lazy(() => import("./pages/shared/InstitutionalPage"));
+const AccessOverviewPage = lazy(() => import("./pages/shared/AccessOverviewPage"));
+const NovoProtocolo = lazy(() => import("./pages/shared/NovoProtocolo"));
+const ChatPage = lazy(() => import("./pages/shared/ChatPage"));
+const ArticlePage = lazy(() => import("./pages/shared/ArticlePage"));
+const ProfileEditPage = lazy(() => import("./pages/shared/ProfileEditPage"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
@@ -82,8 +85,10 @@ const App = () => (
       <Sonner position="top-center" />
       <BrowserRouter>
         <AppBootstrap>
+          <Suspense fallback={<div className="flex h-screen items-center justify-center text-muted-foreground">Carregando...</div>}>
           <Routes>
             <Route path="/" element={<Login />} />
+            <Route path="/redefinir-senha" element={<ResetPassword />} />
 
             <Route
               path="/mulher"
@@ -166,10 +171,26 @@ const App = () => (
               }
             />
             <Route
+              path="/mulher/artigo/:id"
+              element={
+                <ProtectedRoute allowedRoles={["mulher"]}>
+                  <ArticlePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/mulher/perfil"
               element={
                 <ProtectedRoute allowedRoles={["mulher"]}>
                   <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mulher/perfil/editar"
+              element={
+                <ProtectedRoute allowedRoles={["mulher"]}>
+                  <ProfileEditPage />
                 </ProtectedRoute>
               }
             />
@@ -181,7 +202,6 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-
             <Route
               path="/profissional"
               element={
@@ -287,6 +307,14 @@ const App = () => (
               }
             />
             <Route
+              path="/profissional/artigo/:id"
+              element={
+                <ProtectedRoute allowedRoles={["profissional"]}>
+                  <ArticlePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/profissional/perfil"
               element={
                 <ProtectedRoute allowedRoles={["profissional"]}>
@@ -294,6 +322,7 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route path="/profissional/perfil/editar" element={<ProtectedRoute allowedRoles={["profissional"]}><ProfileEditPage /></ProtectedRoute>} />
             <Route
               path="/profissional/configuracoes"
               element={
@@ -424,6 +453,14 @@ const App = () => (
               }
             />
             <Route
+              path="/gestora/artigo/:id"
+              element={
+                <ProtectedRoute allowedRoles={["gestora"]}>
+                  <ArticlePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/gestora/config"
               element={
                 <ProtectedRoute allowedRoles={["gestora"]}>
@@ -447,9 +484,11 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route path="/gestora/perfil/editar" element={<ProtectedRoute allowedRoles={["gestora"]}><ProfileEditPage /></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
+        </Suspense>
         </AppBootstrap>
       </BrowserRouter>
     </TooltipProvider>
@@ -457,3 +496,6 @@ const App = () => (
 );
 
 export default App;
+
+
+

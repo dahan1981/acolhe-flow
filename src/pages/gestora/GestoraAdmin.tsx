@@ -32,7 +32,7 @@ export default function GestoraAdmin() {
   const createUserMutation = useMutation({
     mutationFn: api.createInternalUser,
     onSuccess: ({ user }) => {
-      setCreatedUsers((current) => [{ nome: user.nome, perfil: user.perfil, orgao: user.orgao ?? "Nao informado" }, ...current].slice(0, 4));
+      setCreatedUsers((current) => [{ nome: user.nome, perfil: user.perfil, orgao: user.orgao ?? "Não informado" }, ...current].slice(0, 4));
       setForm({
         ...initialForm,
         organizationId: organizations[0]?.id ?? "",
@@ -40,7 +40,7 @@ export default function GestoraAdmin() {
       toast.success("Conta interna criada com sucesso.");
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : "Nao foi possivel criar a conta.");
+      toast.error(error instanceof Error ? error.message : "Não foi possível criar a conta.");
     },
   });
 
@@ -50,7 +50,7 @@ export default function GestoraAdmin() {
   );
 
   return (
-    <AppLayout title="Painel administrativo" subtitle="Criacao interna de contas e governanca visual da equipe em operacao assistida.">
+    <AppLayout title="Painel administrativo" subtitle="Criação interna de contas, organização da equipe e governança de acesso.">
       <div className="space-y-5">
         <section className="grid grid-cols-1 gap-3">
           {adminHighlights.map((item) => (
@@ -96,7 +96,7 @@ export default function GestoraAdmin() {
                 onChange={(event) => setForm((current) => ({ ...current, organizationId: event.target.value }))}
                 className="rounded-2xl border border-border/70 bg-background px-4 py-3 text-sm outline-none transition-all focus:border-primary"
               >
-                <option value="">Selecione o orgao</option>
+                <option value="">Selecione o órgão</option>
                 {organizations.map((organization) => (
                   <option key={organization.id} value={organization.id}>
                     {organizationOptionsLabel(organization)}
@@ -131,7 +131,7 @@ export default function GestoraAdmin() {
         <section className="rounded-[24px] border border-border/70 bg-card/90 p-5 shadow-card">
           <div className="mb-4 flex items-center gap-2">
             <Users2 className="h-4 w-4 text-accent" />
-            <h3 className="text-base font-semibold text-foreground">Ultimas contas criadas nesta sessao</h3>
+            <h3 className="text-base font-semibold text-foreground">Últimas contas criadas nesta sessão</h3>
           </div>
           <div className="space-y-3">
             {createdUsers.length ? (
@@ -147,7 +147,7 @@ export default function GestoraAdmin() {
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground">As contas criadas nesta sessao aparecem aqui para facilitar a validacao do fluxo administrativo.</p>
+              <p className="text-sm text-muted-foreground">As contas criadas nesta sessão aparecem aqui para facilitar a validação do fluxo administrativo.</p>
             )}
           </div>
         </section>
@@ -155,7 +155,7 @@ export default function GestoraAdmin() {
         <section className="rounded-[24px] border border-border/70 bg-card/90 p-5 shadow-card">
           <div className="mb-3 flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 text-primary" />
-            <h3 className="text-base font-semibold text-foreground">Checklist de liberacao</h3>
+            <h3 className="text-base font-semibold text-foreground">Checklist de liberação</h3>
           </div>
           <div className="space-y-3">
             {adminAccessChecklist.map((item) => (

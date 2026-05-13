@@ -6,13 +6,13 @@ const organizationNames: Record<string, string> = {
   cras: "CRAS",
   delegacia: "Delegacia da Mulher",
   ubs: "UBS",
-  defensoria: "Defensoria Publica",
+  defensoria: "Defensoria Pública",
   abrigo: "Casa Abrigo",
 };
 
 export function getOrganizationName(code: string | null | undefined) {
   if (!code) {
-    return "Nao informado";
+    return "Não informado";
   }
 
   return organizationNames[code] ?? code;

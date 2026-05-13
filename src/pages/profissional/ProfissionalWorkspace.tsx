@@ -27,14 +27,14 @@ export default function ProfissionalWorkspace() {
   }, [activeFilter, data?.casos]);
 
   return (
-    <AppLayout title="Fila operacional" subtitle="Distribuicao de casos, prioridades e leitura rapida do contexto assistencial.">
+    <AppLayout title="Fila operacional" subtitle="Distribuição de casos, prioridades e leitura rápida do contexto assistencial.">
       <div className="space-y-5">
         <section className="rounded-[28px] border border-white/60 bg-card/90 p-5 shadow-card">
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
                 <ClipboardList className="h-3.5 w-3.5" />
-                Operacao do dia
+                Operação do dia
               </div>
               <h2 className="text-xl font-semibold text-foreground">Casos em acompanhamento</h2>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -100,10 +100,10 @@ export default function ProfissionalWorkspace() {
           <div className="rounded-[24px] border border-border/70 bg-card/90 p-4 shadow-card">
             <div className="mb-2 flex items-center gap-2">
               <Shield className="h-4 w-4 text-accent" />
-              <h3 className="text-sm font-semibold text-foreground">Historico assistido</h3>
+              <h3 className="text-sm font-semibold text-foreground">Histórico assistido</h3>
             </div>
             <p className="text-sm text-muted-foreground">
-              A timeline do detalhe do caso resume solicitacoes, atendimentos e encaminhamentos para facilitar continuidade de atendimento.
+              A timeline do detalhe do caso resume solicitações, atendimentos e encaminhamentos para facilitar continuidade de atendimento.
             </p>
           </div>
           <div className="rounded-[24px] border border-border/70 bg-card/90 p-4 shadow-card">
@@ -112,7 +112,7 @@ export default function ProfissionalWorkspace() {
               <h3 className="text-sm font-semibold text-foreground">Ritmo operacional</h3>
             </div>
             <p className="text-sm text-muted-foreground">
-              O ambiente foi organizado para consultas rapidas, transicao entre telas e registro de acao com o menor atrito visual.
+              O ambiente foi organizado para consultas rápidas, transição entre telas e registro de ação com o menor atrito visual.
             </p>
           </div>
         </section>

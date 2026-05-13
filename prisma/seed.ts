@@ -17,6 +17,8 @@ function toDate(value: string) {
 
 async function main() {
   await prisma.auditLog.deleteMany();
+  await prisma.chatMessage.deleteMany();
+  await prisma.chatTicket.deleteMany();
   await prisma.supportRequest.deleteMany();
   await prisma.referral.deleteMany();
   await prisma.attendance.deleteMany();

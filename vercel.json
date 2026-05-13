@@ -1,0 +1,22 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build:client",
+  "outputDirectory": "dist/client",
+  "rewrites": [
+    {
+      "source": "/api/:match*",
+      "destination": "/api"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": ".*text/html.*"
+        }
+      ],
+      "destination": "/index.html"
+    }
+  ]
+}

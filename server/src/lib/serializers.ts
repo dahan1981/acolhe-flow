@@ -1,5 +1,6 @@
 import {
   CaseStatus,
+  ChatTicketStatus,
   Priority,
   ReferralStatus,
   RiskLevel,
@@ -7,7 +8,10 @@ import {
   type Attendance,
   type AuditLog,
   type CaseRecord,
+  type ChatMessage,
+  type ChatTicket,
   type Organization,
+  type UserNotification,
   type Referral,
   type SupportRequest,
   type User,
@@ -41,6 +45,10 @@ export function toReferralStatusLabel(status: ReferralStatus) {
   return status.toLowerCase();
 }
 
+export function toChatTicketStatusLabel(status: ChatTicketStatus) {
+  return status.toLowerCase();
+}
+
 export function serializeOrganization(organization: Organization) {
   return {
     id: organization.id,
@@ -60,6 +68,7 @@ export function serializeSessionUser(
     id: user.id,
     nome: user.fullName,
     email: user.email,
+    avatarUrl: user.avatarUrl,
     perfil: toRoleLabel(user.role),
     orgao: user.organization?.code ?? null,
     organizationId: user.organizationId ?? null,
@@ -153,5 +162,61 @@ export function serializeAuditLog(log: AuditLog) {
     entidade: log.entityType,
     entidadeId: log.entityId,
     data: log.createdAt.toISOString(),
+  };
+}
+
+export function serializeUserNotification(notification: UserNotification) {
+  return {
+    id: notification.id,
+    titulo: notification.title,
+    descricao: notification.description,
+    tipo: notification.kind.toLowerCase(),
+    acao: notification.action,
+    entidade: notification.entityType,
+    entidadeId: notification.entityId,
+    lida: Boolean(notification.readAt),
+    data: notification.createdAt.toISOString(),
+  };
+}
+
+export function serializeChatMessage(message: ChatMessage & { senderUser: User | null }) {
+  return {
+    id: message.id,
+    senderProfile: message.isSystem ? "sistema" : message.senderUser ? toRoleLabel(message.senderUser.role) : "sistema",
+    senderName: message.senderName,
+    body: message.body,
+    createdAt: message.createdAt.toISOString(),
+  };
+}
+
+export function serializeChatTicket(
+  ticket: ChatTicket & {
+    ownerUser: User;
+    assignedProfessionalUser: User | null;
+    caseRecord: (CaseRecord & {
+      womanProfile: WomanProfile & { user: User };
+    }) | null;
+    messages: Array<ChatMessage & { senderUser: User | null }>;
+  },
+) {
+  return {
+    id: ticket.id,
+    caseId: ticket.caseId,
+    ownerUserId: ticket.ownerUserId,
+    ownerEmail: ticket.ownerUser.email,
+    ownerName: ticket.caseRecord?.womanProfile.socialName || ticket.ownerUser.fullName,
+    protocolo: ticket.caseRecord?.protocol ?? null,
+    channel: ticket.channel,
+    status: toChatTicketStatusLabel(ticket.status),
+    queue: ticket.queue,
+    assunto: ticket.subject,
+    context: ticket.context,
+    assignedProfessionalName: ticket.assignedProfessionalUser?.fullName ?? null,
+    assignedProfessionalUserId: ticket.assignedProfessionalUserId,
+    createdAt: ticket.createdAt.toISOString(),
+    updatedAt: ticket.updatedAt.toISOString(),
+    unreadForWoman: ticket.unreadForWoman,
+    unreadForTeam: ticket.unreadForTeam,
+    messages: ticket.messages.map(serializeChatMessage),
   };
 }

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Heart, MapPin, MessageCircle, Phone, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Heart, MapPin, MessageCircle, Phone, ShieldCheck, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { api } from "@/lib/api";
@@ -9,10 +10,10 @@ import { ethnicityOptions, riskOptions, violenceTypeOptions } from "@/lib/form-o
 import type { Ethnicity, ViolenceType } from "@/types/domain";
 
 const services = [
-  { icon: Phone, label: "Solicitar apoio imediato", desc: "Registrar necessidade urgente de contato ou orientacao", value: "apoio_imediato" },
-  { icon: MapPin, label: "Protecao e abrigo", desc: "Informar necessidade de local seguro ou deslocamento assistido", value: "protecao_abrigo" },
-  { icon: MessageCircle, label: "Atendimento especializado", desc: "Abrir chat protegido com assistencia social", value: "atendimento_especializado" },
-  { icon: Heart, label: "Nova ocorrencia", desc: "Registrar uma nova situacao e iniciar o acompanhamento", value: "nova_ocorrencia" },
+  { icon: Phone, label: "Apoio Imediato", desc: "Contato urgente ou socorro", value: "apoio_imediato" },
+  { icon: MapPin, label: "Proteção / Abrigo", desc: "Local seguro ou translado", value: "protecao_abrigo" },
+  { icon: MessageCircle, label: "Canal Protegido", desc: "Chat com equipe técnica", value: "atendimento_especializado" },
+  { icon: Heart, label: "Novo Relato", desc: "Abertura de acompanhamento", value: "nova_ocorrencia" },
 ];
 
 export default function MulherAjuda() {
@@ -34,11 +35,11 @@ export default function MulherAjuda() {
         queryClient.invalidateQueries({ queryKey: ["professional-dashboard"] }),
         queryClient.invalidateQueries({ queryKey: ["manager-dashboard"] }),
       ]);
-      toast.success("Solicitacao registrada com sucesso.");
+      toast.success("Solicitação recebida em sigilo. A rede foi acionada.");
       navigate("/mulher/caso");
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : "Nao foi possivel enviar a solicitacao.");
+      toast.error(error instanceof Error ? error.message : "Falha na conexão segura.");
     },
   });
 
@@ -50,152 +51,204 @@ export default function MulherAjuda() {
     });
   }
 
+  // Animation layout
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  };
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", bounce: 0, duration: 0.5 } }
+  };
+
   return (
-    <AppLayout title="Registrar solicitacao" subtitle="Descreva a necessidade atual para abrir ou atualizar o acompanhamento do caso." showBack>
-      <div className="space-y-5">
-        <section className="rounded-[26px] border border-primary/15 bg-card/95 p-5 shadow-card">
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            Fluxo protegido
+    <AppLayout title="Solicitar Apoio" subtitle="A rede pública será notificada." showBack>
+      <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-6 pb-8">
+        
+        <motion.section variants={itemVariants} className="glass-panel p-5 relative overflow-hidden">
+          <div className="absolute right-0 top-0 h-32 w-32 translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-2xl"></div>
+          <div className="relative z-10">
+            <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Sessão Criptografada
+            </div>
+            <p className="text-sm font-medium leading-relaxed text-muted-foreground">
+              Seu pedido entra diretamente no fluxo priorizado da prefeitura. Os órgãos avaliarão o relato com rigor e sigilo.
+            </p>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Quando uma solicitacao e registrada, o caso passa a ficar disponivel para acompanhamento da equipe responsavel e da gestao autorizada.
-          </p>
-        </section>
+        </motion.section>
 
-        <section className="space-y-3">
-          {services.map((service) => (
-            <button
-              key={service.value}
-              onClick={() => {
-                setSelectedService(service.value);
-                if (service.value === "atendimento_especializado") {
-                  navigate("/mulher/chat?start=1");
-                }
-              }}
-              className={`flex w-full items-center gap-4 rounded-[24px] p-4 text-left transition-all ${
-                selectedService === service.value
-                  ? "bg-primary text-primary-foreground shadow-card"
-                  : "border border-border/70 bg-card/90 shadow-card hover:shadow-card-hover"
-              }`}
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 shrink-0">
-                <service.icon className={`h-6 w-6 ${selectedService === service.value ? "text-primary-foreground" : "text-primary"}`} />
-              </div>
-              <div className="flex-1">
-                <p className="font-semibold">{service.label}</p>
-                <p className={`text-sm ${selectedService === service.value ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{service.desc}</p>
-              </div>
-            </button>
-          ))}
-        </section>
+        <motion.section variants={itemVariants} className="space-y-3">
+          <label className="pl-1 font-display text-xs font-semibold uppercase tracking-wider text-muted-foreground">Selecione o Apoio</label>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {services.map((service) => {
+              const isSelected = selectedService === service.value;
+              return (
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  key={service.value}
+                  onClick={() => setSelectedService(service.value)}
+                  className={`group relative flex w-full items-center gap-4 rounded-3xl border p-4 text-left transition-all ${
+                    isSelected
+                      ? "border-primary bg-primary text-white shadow-lg"
+                      : "border-border/50 bg-card/60 text-foreground hover:bg-card"
+                  }`}
+                >
+                  <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-colors ${
+                    isSelected ? "bg-white/20 text-white" : "bg-primary/5 text-primary group-hover:bg-primary/10"
+                  }`}>
+                    <service.icon className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-display text-sm font-bold">{service.label}</p>
+                    <p className={`text-xs mt-0.5 leading-tight ${isSelected ? "text-white/80" : "text-muted-foreground"}`}>
+                      {service.desc}
+                    </p>
+                  </div>
+                  {isSelected && (
+                    <motion.div layoutId="selection-ring" className="absolute inset-0 rounded-3xl border-2 border-primary ring-4 ring-primary/20" />
+                  )}
+                </motion.button>
+              );
+            })}
+          </div>
+        </motion.section>
 
-        <section className="grid gap-4 rounded-[26px] border border-border/70 bg-card/95 p-5 shadow-card">
-          <div>
-            <label className="text-sm font-medium text-foreground">Relato da solicitacao</label>
+        <motion.section variants={itemVariants} className="glass-panel p-5 space-y-6">
+          <AnimatePresence mode="popLayout">
+            {selectedService === "atendimento_especializado" && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm text-primary">
+                  <p className="font-bold">Acesso ao Chat Preservado</p>
+                  <p className="mt-1 text-xs opacity-90 leading-relaxed">
+                    Você será conectada a uma agente técnica. Você pode pular a descrição abaixo e ir direto conversar.
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <div className="space-y-2">
+            <label className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground pl-1">Detalhes Opcionais</label>
             <textarea
               value={message}
               onChange={(event) => setMessage(event.target.value)}
               rows={4}
-              placeholder="Descreva o ocorrido, o tipo de apoio necessario e qualquer informacao importante para a triagem inicial."
-              className="mt-1 w-full rounded-2xl border border-border bg-background p-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+              placeholder="Descreva o que houve ou o que precisa (Não é obrigatório)."
+              className="glass-input w-full resize-none rounded-2xl p-4 text-sm focus:border-primary/50"
             />
-            <p className="mt-2 text-xs text-muted-foreground">Esse texto fica visivel no historico inicial do caso.</p>
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-foreground">Percepcao atual de risco</label>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {riskOptions.map((item) => (
-                <button
-                  key={item.value}
-                  type="button"
-                  onClick={() => setRiskLevel(item.value)}
-                  className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
-                    riskLevel === item.value
-                      ? "bg-primary text-primary-foreground"
-                      : "border border-border bg-background text-muted-foreground"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
+          <div className="space-y-3">
+            <label className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground pl-1">Escala de Risco</label>
+            <div className="flex flex-wrap gap-2">
+              {riskOptions.map((item) => {
+                const isActive = riskLevel === item.value;
+                return (
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    key={item.value}
+                    type="button"
+                    onClick={() => setRiskLevel(item.value)}
+                    className={`rounded-xl px-4 py-2.5 text-xs font-bold transition-colors ${
+                      isActive
+                        ? "bg-foreground text-background shadow-md"
+                        : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    {item.label}
+                  </motion.button>
+                );
+              })}
             </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-foreground">Tipos de violencia relacionados</label>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {violenceTypeOptions.map((item) => (
-                <button
-                  key={item.value}
-                  type="button"
-                  onClick={() => toggleViolenceType(item.value)}
-                  className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
-                    tiposViolencia.includes(item.value)
-                      ? "bg-warning text-warning-foreground"
-                      : "border border-border bg-background text-muted-foreground"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
+          <div className="space-y-3">
+            <label className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground pl-1">Fatores Relacionados</label>
+            <div className="flex flex-wrap gap-2">
+              {violenceTypeOptions.map((item) => {
+                const isActive = tiposViolencia.includes(item.value);
+                return (
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    key={item.value}
+                    type="button"
+                    onClick={() => toggleViolenceType(item.value)}
+                    className={`rounded-xl px-4 py-2 text-xs font-bold transition-colors ${
+                      isActive
+                        ? "bg-warning text-warning-foreground shadow-sm"
+                        : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    {item.label}
+                  </motion.button>
+                );
+              })}
             </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-foreground">Etnia/cor</label>
+          <div className="space-y-2">
+            <label className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground pl-1">Identificação (Opcional)</label>
             <select
               value={etniaCor}
               onChange={(event) => setEtniaCor(event.target.value as Ethnicity)}
-              className="mt-1 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="glass-input w-full rounded-2xl px-4 py-3.5 text-sm appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%24%2024%22%20fill%3D%22none%22%20stroke%3D%22%23666%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:16px_16px] bg-[right_16px_center] bg-no-repeat"
             >
               {ethnicityOptions.map((item) => (
-                <option key={item.value} value={item.value}>
+                <option key={item.value} value={item.value} className="text-foreground bg-background">
                   {item.label}
                 </option>
               ))}
             </select>
           </div>
+        </motion.section>
 
+        <motion.div variants={itemVariants} className="pt-2">
           {selectedService === "atendimento_especializado" ? (
-            <button
+            <motion.button
+              whileTap={{ scale: 0.98 }}
               type="button"
               onClick={() => navigate("/mulher/chat?start=1")}
-              className="w-full rounded-2xl bg-primary py-4 text-base font-semibold text-primary-foreground shadow-card transition-all hover:shadow-card-hover active:scale-[0.98]"
+              className="w-full rounded-[20px] bg-primary py-4.5 font-display text-base font-bold text-white shadow-xl shadow-primary/20 transition-all hover:bg-primary/90"
             >
-              Abrir chat com assistencia social
-            </button>
+              Conectar ao Canal Agora
+            </motion.button>
           ) : (
-            <button
-              onClick={() =>
-                mutation.mutate({
-                  tipo: selectedService,
-                  mensagem: message,
-                  situacaoRisco: riskLevel,
-                  tiposViolencia,
-                  etniaCor,
-                })
-              }
+            <motion.button
+              whileTap={!mutation.isPending ? { scale: 0.98 } : {}}
+              onClick={() => mutation.mutate({ tipo: selectedService, mensagem: message, situacaoRisco: riskLevel, tiposViolencia, etniaCor })}
               disabled={mutation.isPending}
-              className="w-full rounded-2xl bg-primary py-4 text-base font-semibold text-primary-foreground shadow-card transition-all hover:shadow-card-hover active:scale-[0.98] disabled:opacity-70"
+              className="flex w-full items-center justify-center gap-2 rounded-[20px] bg-foreground py-4.5 font-display text-base font-bold text-background shadow-xl transition-all hover:bg-foreground/90 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {mutation.isPending ? "Registrando solicitacao..." : "Registrar solicitacao"}
-            </button>
+              {mutation.isPending ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Processando...
+                </>
+              ) : (
+                "Enviar Relato Sigiloso"
+              )}
+            </motion.button>
           )}
-          <p className="text-xs text-muted-foreground">
-            Depois do envio, acompanhe o status em "Meu caso" e veja as atualizacoes realizadas pela equipe responsavel.
-          </p>
-        </section>
+        </motion.div>
 
-        <section className="rounded-[24px] bg-urgent/10 p-4">
-          <div className="mb-1 flex items-center gap-2 text-urgent">
-            <CheckCircle2 className="h-4 w-4" />
-            <p className="text-sm font-semibold">Em situacao de emergencia?</p>
+        <motion.section variants={itemVariants} className="flex items-start gap-3 rounded-[24px] bg-urgent/10 p-5 mt-4 border border-urgent/20">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-urgent/20 text-urgent">
+            <CheckCircle2 className="h-5 w-5" />
           </div>
-          <p className="text-sm text-muted-foreground">Em risco imediato, priorize os canais emergenciais e busque apoio presencial da rede de protecao.</p>
-        </section>
-      </div>
+          <div>
+            <p className="font-display text-sm font-bold text-urgent-foreground">Ameaça Imediata?</p>
+            <p className="mt-1 text-xs leading-relaxed text-urgent-foreground/80">
+              Se você está correndo risco de vida neste momento, evite usar este formulário e busque apoio da polícia local.
+            </p>
+          </div>
+        </motion.section>
+      </motion.div>
     </AppLayout>
   );
 }

@@ -20,17 +20,21 @@ export function asyncHandler(
 
 export function errorHandler(
   error: unknown,
-  _request: Request,
+  request: Request,
   response: Response,
   _next: NextFunction,
 ) {
   if (error instanceof AppError) {
-    return response.status(error.statusCode).json({ error: error.message });
+    return response.status(error.statusCode).json({
+      error: error.message,
+      requestId: request.requestId,
+    });
   }
 
   if (error instanceof ZodError) {
     return response.status(422).json({
       error: "Dados invalidos.",
+      requestId: request.requestId,
       issues: error.issues.map((issue) => ({
         path: issue.path.join("."),
         message: issue.message,
@@ -38,6 +42,15 @@ export function errorHandler(
     });
   }
 
-  console.error(error);
-  return response.status(500).json({ error: "Erro interno do servidor." });
+  console.error(
+    JSON.stringify({
+      level: "error",
+      requestId: request.requestId,
+      method: request.method,
+      path: request.originalUrl,
+      message: error instanceof Error ? error.message : "Unhandled error",
+      stack: error instanceof Error ? error.stack : undefined,
+    }),
+  );
+  return response.status(500).json({ error: "Erro interno do servidor.", requestId: request.requestId });
 }

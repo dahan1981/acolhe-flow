@@ -42,6 +42,23 @@ enum ReferralStatus {
   CONCLUIDO
 }
 
+enum ChatTicketStatus {
+  AGUARDANDO_ASSUNCAO
+  EM_ATENDIMENTO
+  ENCERRADO
+}
+
+enum ContactChangeType {
+  EMAIL
+  PHONE
+}
+
+enum NotificationKind {
+  INFO
+  SUCCESS
+  ALERT
+}
+
 model Organization {
   id                  String                @id @default(cuid())
   name                String
@@ -63,8 +80,10 @@ model Organization {
 model User {
   id                   String                @id @default(cuid())
   email                String                @unique
+  supabaseAuthUserId   String?               @unique
   passwordHash         String
   fullName             String
+  avatarUrl            String?
   role                 Role
   organizationId       String?
   isActive             Boolean               @default(true)
@@ -81,6 +100,14 @@ model User {
   createdReferrals     Referral[]            @relation("ReferralCreatedBy")
   supportRequests      SupportRequest[]
   auditLogs            AuditLog[]
+  ownedChatTickets     ChatTicket[]          @relation("ChatTicketOwner")
+  assignedChatTickets  ChatTicket[]          @relation("ChatTicketAssignee")
+  chatMessages         ChatMessage[]
+  contactChangeRequests ContactChangeRequest[]
+  notifications        UserNotification[]
+  deletedAt            DateTime?
+
+  @@index([organizationId])
 }
 
 model WomanProfile {
@@ -99,6 +126,7 @@ model WomanProfile {
   updatedAt             DateTime        @updatedAt
   user                  User            @relation(fields: [userId], references: [id])
   cases                 CaseRecord[]
+  enrollments           Enrollment[]
 }
 
 model ProfessionalProfile {
@@ -146,6 +174,8 @@ model CaseRecord {
   attendances           Attendance[]
   referrals             Referral[]
   supportRequests       SupportRequest[]
+  chatTickets           ChatTicket[]
+  deletedAt             DateTime?
 }
 
 model Attendance {
@@ -164,6 +194,8 @@ model Attendance {
   professionalUser     User         @relation(fields: [professionalUserId], references: [id])
   organization         Organization @relation(fields: [organizationId], references: [id])
   referrals            Referral[]
+
+  @@index([caseId])
 }
 
 model Referral {
@@ -209,4 +241,99 @@ model AuditLog {
   userAgent  String?
   createdAt  DateTime @default(now())
   actorUser  User?    @relation(fields: [actorUserId], references: [id])
+}
+
+model ChatTicket {
+  id                        String           @id @default(cuid())
+  caseId                    String?
+  ownerUserId               String
+  channel                   String
+  queue                     String
+  subject                   String
+  context                   String
+  status                    ChatTicketStatus @default(AGUARDANDO_ASSUNCAO)
+  assignedProfessionalUserId String?
+  unreadForWoman            Int              @default(1)
+  unreadForTeam             Int              @default(1)
+  createdAt                 DateTime         @default(now())
+  updatedAt                 DateTime         @updatedAt
+  caseRecord                CaseRecord?      @relation(fields: [caseId], references: [id])
+  ownerUser                 User             @relation("ChatTicketOwner", fields: [ownerUserId], references: [id])
+  assignedProfessionalUser  User?            @relation("ChatTicketAssignee", fields: [assignedProfessionalUserId], references: [id])
+  messages                  ChatMessage[]
+}
+
+model ChatMessage {
+  id           String     @id @default(cuid())
+  ticketId     String
+  senderUserId String?
+  senderName   String
+  body         String
+  isSystem     Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  ticket       ChatTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  senderUser   User?      @relation(fields: [senderUserId], references: [id])
+}
+
+model ContactChangeRequest {
+  id           String            @id @default(cuid())
+  userId       String
+  type         ContactChangeType
+  currentValue String
+  nextValue    String
+  codeHash     String
+  attempts     Int               @default(0)
+  maxAttempts  Int               @default(5)
+  expiresAt    DateTime
+  verifiedAt   DateTime?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+}
+
+model UserNotification {
+  id          String           @id @default(cuid())
+  userId      String
+  title       String
+  description String
+  kind        NotificationKind @default(INFO)
+  action      String
+  entityType  String?
+  entityId    String?
+  readAt      DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model Course {
+  id          String       @id @default(cuid())
+  title       String
+  description String
+  coverUrl    String?
+  duration    Int          @default(0)
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  enrollments Enrollment[]
+}
+
+model Enrollment {
+  id           String       @id @default(cuid())
+  courseId     String
+  womanProfileId String
+  status       String       @default("IN_PROGRESS")
+  progress     Int          @default(0)
+  startedAt    DateTime     @default(now())
+  completedAt  DateTime?
+  course       Course       @relation(fields: [courseId], references: [id])
+  womanProfile WomanProfile @relation(fields: [womanProfileId], references: [id])
+
+  @@index([courseId])
+  @@index([womanProfileId])
+  @@unique([courseId, womanProfileId])
 }

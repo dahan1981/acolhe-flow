@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Athena - Apresentação Institucional e Estimativa de Custos</title>
+  <style>
+    @page { size: A4; margin: 18mm 14mm 18mm 14mm; }
+    :root {
+      --bg: #fcfaff;
+      --ink: #221834;
+      --muted: #665d77;
+      --line: #ddd4f1;
+      --soft: #f2ecff;
+      --brand: #6f42d9;
+      --brand-2: #8f63f2;
+      --alert: #8a2332;
+      --ok: #1d6b4e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.45;
+      font-size: 11px;
+    }
+    .page-break { page-break-before: always; }
+    .cover {
+      min-height: 255mm;
+      padding: 18mm 10mm 0 10mm;
+      position: relative;
+    }
+    .cover::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top right, rgba(143,99,242,0.20), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(111,66,217,0.16), transparent 30%);
+      z-index: 0;
+    }
+    .cover-inner { position: relative; z-index: 1; }
+    .eyebrow {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--brand);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      border: 1px solid #d5c7ff;
+    }
+    h1, h2, h3 { margin: 0 0 8px 0; line-height: 1.15; }
+    h1 { font-size: 28px; margin-top: 20px; }
+    h2 {
+      font-size: 18px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--line);
+      margin-top: 18px;
+    }
+    h3 { font-size: 13px; margin-top: 14px; }
+    p { margin: 0 0 10px 0; }
+    .lead {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 88%;
+      margin-top: 10px;
+    }
+    .section { margin-top: 14px; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 10px 0;
+    }
+    .card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .card h3 { color: var(--brand); }
+    .callout {
+      background: #fff8ef;
+      border: 1px solid #f1d3a8;
+      color: #6f4b15;
+      border-radius: 14px;
+      padding: 12px;
+      margin: 12px 0;
+    }
+    .ok {
+      background: #effcf5;
+      border-color: #bfe4cf;
+      color: var(--ok);
+    }
+    .danger {
+      background: #fff3f5;
+      border-color: #f0c8d0;
+      color: var(--alert);
+    }
+    ul {
+      margin: 6px 0 10px 18px;
+      padding: 0;
+    }
+    li { margin-bottom: 5px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 14px 0;
+      background: white;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 7px;
+      vertical-align: top;
+    }
+    th {
+      background: var(--soft);
+      text-align: left;
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .small { font-size: 9.5px; color: var(--muted); }
+    .muted { color: var(--muted); }
+    .kpi {
+      display: inline-block;
+      min-width: 180px;
+      padding: 10px 12px;
+      margin: 0 8px 8px 0;
+      border-radius: 14px;
+      background: white;
+      border: 1px solid var(--line);
+    }
+    .kpi strong {
+      display: block;
+      font-size: 18px;
+      color: var(--brand);
+      margin-top: 4px;
+    }
+    .footer {
+      margin-top: 18px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 9px;
+    }
+    .source-list li {
+      word-break: break-word;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <section class="cover">
+    <div class="cover-inner">
+      <span class="eyebrow">Apresentação Institucional</span>
+      <h1>Athena</h1>
+      <p class="lead">
+        Plataforma institucional de acolhimento, proteção, acompanhamento e governança de casos envolvendo
+        mulheres em situação de vulnerabilidade e violência.
+      </p>
+
+      <div class="section">
+        <div class="kpi">Data-base do documento<strong>12/05/2026</strong></div>
+        <div class="kpi">Câmbio conservador adotado<strong>R$ 5,20 por US$ 1,00</strong></div>
+        <div class="kpi">Postura orçamentária<strong>Planejamento conservador</strong></div>
+      </div>
+
+      <div class="callout">
+        <strong>Premissa central deste material.</strong>
+        Esta versão foi construída para apresentação institucional e decisão gerencial. Os custos foram estruturados
+        com planejamento conservador, para evitar suborçamento, reduzir risco político-operacional e acomodar
+        crescimento, redundância, suporte e governança.
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>O que o Athena é</h3>
+          <p>
+            O Athena é uma plataforma institucional de acolhimento, proteção, articulação da rede e governança operacional.
+            Ele funciona como o ponto central de conexão entre a mulher atendida, a equipe técnica que executa o cuidado e a
+            gestão que supervisiona fluxos, prioridades e resultados. Mais do que um sistema, o Athena é uma camada de
+            coordenação institucional que organiza a jornada de atendimento, preserva contexto, protege informações sensíveis
+            e sustenta continuidade assistencial com rastreabilidade.
+          </p>
+        </div>
+        <div class="card">
+          <h3>O que o Athena resolve</h3>
+          <p>
+            O Athena reduz a fragmentação entre órgãos, diminui retrabalho, evita perda de contexto, acelera resposta,
+            organiza encaminhamentos e transforma registros dispersos em uma trilha institucional confiável. Na prática,
+            ele enfrenta problemas recorrentes da rede, como repetição traumática de relato, demora na circulação da
+            informação, falta de visibilidade sobre o estágio do caso, dificuldade de supervisão e baixa previsibilidade
+            para a mulher sobre o que está acontecendo com seu atendimento.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-break">
+    <h2>1. Contexto institucional do aplicativo</h2>
+    <p>
+      O Athena foi concebido como uma plataforma institucional de acolhimento e coordenação de rede. Ele não é apenas
+      um sistema de mensagens, um cadastro eletrônico ou um painel gerencial isolado. Seu propósito é estruturar a
+      jornada da mulher atendida e conectar essa jornada ao trabalho da equipe técnica e da gestão pública.
+    </p>
+    <p>
+      Em cenários municipais e institucionais, casos envolvendo violência e vulnerabilidade costumam transitar por
+      diferentes pontos de atendimento, como secretaria da mulher, assistência social, saúde, defensoria, delegacia,
+      abrigo e serviços especializados. Quando esses fluxos não estão integrados, surgem problemas severos de
+      descontinuidade, repetição de relato, lentidão, retrabalho e baixa governança. O Athena nasce para reduzir
+      precisamente esse tipo de fragmentação.
+    </p>
+
+    <h3>Perfis operacionais previstos</h3>
+    <ul>
+      <li><strong>Mulher:</strong> acesso seguro para solicitação de apoio, acompanhamento do caso, troca de mensagens e atualização de dados essenciais.</li>
+      <li><strong>Profissional:</strong> acesso institucional para atendimento, registro de ações, encaminhamentos, leitura de contexto e gestão operacional do caso.</li>
+      <li><strong>Gestora:</strong> acesso de governança para indicadores, monitoramento de equipe, fluxos, riscos, produtividade e trilha institucional.</li>
+    </ul>
+
+    <h3>Compromissos institucionais do sistema</h3>
+    <ul>
+      <li><strong>Acolhimento protegido:</strong> oferecer um ambiente de entrada mais seguro, compreensível e institucionalmente responsável para a mulher que busca ajuda.</li>
+      <li><strong>Continuidade do caso:</strong> garantir que o atendimento não dependa de memória informal, mensagens soltas ou repasses frágeis entre equipes.</li>
+      <li><strong>Coordenação da rede:</strong> organizar encaminhamentos, circulação de contexto e leitura comum entre diferentes órgãos e profissionais.</li>
+      <li><strong>Rastreabilidade e auditoria:</strong> registrar ações críticas, fortalecer evidências operacionais e sustentar prestação de contas institucional.</li>
+      <li><strong>Visibilidade gerencial:</strong> ampliar a capacidade da gestão de identificar gargalos, priorizar resposta, corrigir fluxos e acompanhar resultados.</li>
+      <li><strong>Proteção da informação:</strong> tratar dados sensíveis com autenticação, confirmação de alterações, segregação por perfil e trilha de eventos.</li>
+    </ul>
+  </section>
+
+  <section class="page-break">
+    <h2>2. Escopo funcional da plataforma</h2>
+    <div class="grid-2">
+        <div class="card">
+          <h3>Frente mulher</h3>
+          <p>
+            A frente mulher foi desenhada como porta de entrada protegida da plataforma. Ela existe para reduzir barreiras de
+            acesso, facilitar o pedido de ajuda e dar à usuária uma sensação concreta de continuidade, sigilo e acompanhamento.
+          </p>
+          <ul>
+            <li>Cadastro público da usuária.</li>
+            <li>Login seguro.</li>
+            <li>Pedido de ajuda e classificação inicial de risco.</li>
+            <li>Chat protegido com a equipe.</li>
+            <li>Acompanhamento do caso.</li>
+            <li>Notificações sobre andamentos relevantes.</li>
+            <li>Edição de perfil, senha, e-mail e foto.</li>
+            <li>Redução da repetição de relato e maior previsibilidade sobre os próximos passos.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Frente institucional</h3>
+          <p>
+            A frente institucional organiza o trabalho técnico e gerencial da rede. Ela estrutura atendimento, registro,
+            encaminhamento, supervisão e leitura do caso em um mesmo ambiente, permitindo que profissionais e gestoras atuem
+            com mais consistência, mais contexto e maior capacidade de coordenação.
+          </p>
+          <ul>
+            <li>Fila de casos e leitura operacional.</li>
+            <li>Registro de atendimentos.</li>
+            <li>Encaminhamentos entre órgãos.</li>
+            <li>Assunção e encerramento de chats.</li>
+            <li>Perfis segregados por função.</li>
+            <li>Trilhas de auditoria.</li>
+            <li>Camada de gestão e governança.</li>
+            <li>Base estruturada para supervisão, indicadores, prestação de contas e melhoria contínua do fluxo institucional.</li>
+          </ul>
+        </div>
+    </div>
+
+    <h3>Benefícios esperados para a mulher</h3>
+    <ul>
+      <li>Menos repetição traumática de relato.</li>
+      <li>Mais previsibilidade sobre o andamento do atendimento.</li>
+      <li>Canal seguro e contínuo com a rede.</li>
+      <li>Redução da sensação de abandono institucional.</li>
+      <li>Maior clareza sobre próximos passos.</li>
+    </ul>
+
+    <h3>Benefícios esperados para a rede</h3>
+    <ul>
+      <li>Redução de retrabalho e perda de informação.</li>
+      <li>Maior consistência nos registros.</li>
+      <li>Melhor gestão de prioridade, risco e fluxo.</li>
+      <li>Capacidade de auditoria, supervisão e resposta gerencial.</li>
+      <li>Base mais sólida para relatórios e evidências administrativas.</li>
+    </ul>
+  </section>
+
+  <section class="page-break">
+    <h2>3. Arquitetura tecnológica e ferramentas</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Camada</th>
+          <th>Ferramenta atual</th>
+          <th>Papel institucional</th>
+          <th>Observação gerencial</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Frontend + backend web</td>
+          <td>Vercel</td>
+          <td>Hospedagem, build, deploy e entrega do sistema web</td>
+          <td>Rápida de operar; custos sobem com equipe, tráfego, compute e recursos gerenciados.</td>
+        </tr>
+        <tr>
+          <td>Banco de dados + autenticação + storage</td>
+          <td>Supabase</td>
+          <td>Base transacional, autenticação, sessão, arquivos e API auxiliar</td>
+          <td>Consolida várias camadas, mas exige atenção a compute, backup, storage e governança.</td>
+        </tr>
+        <tr>
+          <td>E-mail transacional</td>
+          <td>Resend</td>
+          <td>Envio de OTP, redefinição e mensagens operacionais</td>
+          <td>Baixo custo inicial, mas tende a crescer com confirmações, alertas e comunicação do sistema.</td>
+        </tr>
+        <tr>
+          <td>OTP de celular</td>
+          <td>Twilio (referência de mercado)</td>
+          <td>Verificação por SMS ou mensageria</td>
+          <td>Ainda não integrado; custo unitário no Brasil é relevante e deve ser provisionado com folga.</td>
+        </tr>
+        <tr>
+          <td>Camada de borda e proteção</td>
+          <td>Cloudflare (opcional, recomendado)</td>
+          <td>DNS, cache, WAF, proteção adicional e estabilidade</td>
+          <td>Não é obrigatório no piloto, mas é recomendável em ambiente institucional.</td>
+        </tr>
+        <tr>
+          <td>Servidor online auxiliar</td>
+          <td>DigitalOcean (referência de contingência)</td>
+          <td>Jobs, integrações, homologação, espelho técnico ou contingência</td>
+          <td>Opcional no cenário atual, mas prudente em contexto público com integração futura.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout ok">
+      <strong>Leitura técnica objetiva.</strong>
+      O Athena já pode operar 100% em nuvem. Servidor físico não é uma necessidade técnica do piloto. No entanto,
+      em ambiente municipal, servidor local, contingência ou espelhamento podem ser exigidos por governança, política
+      interna, integração legada ou diretrizes de TI institucional.
+    </div>
+  </section>
+
+  <section class="page-break">
+    <h2>4. Premissas financeiras adotadas</h2>
+    <ul>
+      <li>Foi adotado <strong>câmbio conservador de R$ 5,20 por US$ 1,00</strong>, com foco em previsibilidade orçamentária.</li>
+      <li>Os cálculos consideram cenário institucional com margem de segurança e capacidade de expansão.</li>
+      <li>Quando havia opção entre plano enxuto e plano mais robusto, foi priorizada a opção de maior governança e folga operacional.</li>
+      <li>Custos de mão de obra e operação foram tratados como <strong>estimativas gerenciais</strong>, pois dependem de equipe, contratação e regime de suporte.</li>
+      <li>Itens físicos foram incluídos mesmo sendo dispensáveis no piloto, porque o pedido é orçar para cima e preparar cenário institucional mais exigente.</li>
+    </ul>
+
+    <div class="callout danger">
+      <strong>Importante.</strong>
+      Os valores abaixo representam uma
+      <strong>faixa prudente de planejamento</strong> para apresentação, previsão orçamentária e absorção de variação cambial,
+      aumento de consumo e exigências adicionais de governança.
+    </div>
+  </section>
+
+  <section class="page-break">
+    <h2>5. Custos recorrentes de software e infraestrutura em nuvem</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Premissa adotada</th>
+          <th>Referência base</th>
+          <th>Valor estimado em R$</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Vercel Pro</td>
+          <td>3 assentos de deploy</td>
+          <td>US$ 20/mês por assento</td>
+          <td>R$ 312,00/mês</td>
+        </tr>
+        <tr>
+          <td>Supabase Team</td>
+          <td>Plano institucional</td>
+          <td>US$ 599/mês</td>
+          <td>R$ 3.114,80/mês</td>
+        </tr>
+        <tr>
+          <td>Supabase compute adicional</td>
+          <td>Instância XL para folga operacional</td>
+          <td>US$ 210/mês</td>
+          <td>R$ 1.092,00/mês</td>
+        </tr>
+        <tr>
+          <td>Resend Scale</td>
+          <td>E-mail transacional com folga</td>
+          <td>US$ 90/mês</td>
+          <td>R$ 468,00/mês</td>
+        </tr>
+        <tr>
+          <td>Twilio SMS Brasil</td>
+          <td>3.000 OTPs/mês + 1 número</td>
+          <td>US$ 0,0599 por SMS + US$ 1,15/mês</td>
+          <td>R$ 940,42/mês</td>
+        </tr>
+        <tr>
+          <td>Cloudflare Business</td>
+          <td>Proteção e camada de borda</td>
+          <td>US$ 250/mês</td>
+          <td>R$ 1.300,00/mês</td>
+        </tr>
+        <tr>
+          <td>Servidor online auxiliar</td>
+          <td>DigitalOcean 16 GB / 4 vCPU</td>
+          <td>US$ 126/mês</td>
+          <td>R$ 655,20/mês</td>
+        </tr>
+        <tr>
+          <td>Servidor online de homologação</td>
+          <td>DigitalOcean 8 GB / 2 vCPU</td>
+          <td>US$ 63/mês</td>
+          <td>R$ 327,60/mês</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><strong>Total recorrente estimado de software + nuvem:</strong> <strong>R$ 8.210,02 por mês</strong></p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Item anual complementar</th>
+          <th>Premissa adotada</th>
+          <th>Valor estimado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Domínio .cloud</td>
+          <td>Renovação anual conservadora</td>
+          <td>R$ 172,00/ano</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="page-break">
+    <h2>6. Custos de hardware para desenvolvimento e operação</h2>
+    <h3>Notebooks novos para equipe técnica e operação</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Equipamento</th>
+          <th>Quantidade</th>
+          <th>Preço unitário</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Dell Precision 5770 - estação móvel premium para desenvolvimento pesado</td>
+          <td>2</td>
+          <td>R$ 28.067,00</td>
+          <td>R$ 56.134,00</td>
+        </tr>
+        <tr>
+          <td>Dell Latitude 5455 - notebook corporativo para operação, administração e gestão</td>
+          <td>2</td>
+          <td>R$ 9.999,00</td>
+          <td>R$ 19.998,00</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><strong>Total estimado em notebooks:</strong> <strong>R$ 76.132,00</strong></p>
+
+    <h3>Servidores físicos para cenário híbrido ou institucional mais rígido</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Equipamento</th>
+          <th>Quantidade</th>
+          <th>Preço unitário</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Dell PowerEdge R260 - entrada institucional</td>
+          <td>1</td>
+          <td>R$ 19.838,00</td>
+          <td>R$ 19.838,00</td>
+        </tr>
+        <tr>
+          <td>Dell PowerEdge R760xs - produção/contingência robusta</td>
+          <td>2</td>
+          <td>R$ 44.509,00</td>
+          <td>R$ 89.018,00</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><strong>Total estimado em servidores físicos:</strong> <strong>R$ 108.856,00</strong></p>
+
+    <div class="callout">
+      Esses valores de hardware físico não incluem nobreak, rack, firewall, licenças de sistema operacional, climatização,
+      instalação elétrica, cabeamento, storage adicional, contratos locais de manutenção e suporte de datacenter. Em ambiente
+      público, isso costuma elevar significativamente o investimento.
+    </div>
+  </section>
+
+  <section class="page-break">
+    <h2>7. Custos operacionais e de manutenção</h2>
+    <p>
+      A camada de software em nuvem raramente é o principal custo de um ambiente institucional. Em geral, o componente mais
+      relevante no médio prazo é a manutenção contínua: ajustes, suporte, correções, monitoramento, gestão de incidentes,
+      revisão de segurança, melhoria de UX, acompanhamento de integrações e sustentação do time.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Frente operacional</th>
+          <th>Premissa conservadora</th>
+          <th>Estimativa mensal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Manutenção evolutiva e corretiva</td>
+          <td>60 horas/mês a R$ 220/h</td>
+          <td>R$ 13.200,00</td>
+        </tr>
+        <tr>
+          <td>Suporte operacional e plantão institucional</td>
+          <td>Reserva gerencial mensal</td>
+          <td>R$ 6.000,00</td>
+        </tr>
+        <tr>
+          <td>Contingência administrativa e técnica</td>
+          <td>Margem para ajustes, testes e incidentes</td>
+          <td>R$ 3.000,00</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p><strong>Total estimado de operação e manutenção:</strong> <strong>R$ 22.200,00 por mês</strong></p>
+
+    <div class="callout danger">
+      Em projetos públicos, subestimar manutenção costuma gerar mais dano que superestimar nuvem. O custo de sustentação técnica,
+      suporte e gestão de mudança deve ser tratado como item estrutural, não periférico.
+    </div>
+  </section>
+
+  <section class="page-break">
+    <h2>8. Consolidação financeira para decisão</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Bloco de custo</th>
+          <th>Valor estimado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Infraestrutura e software recorrentes</td>
+          <td>R$ 8.210,02/mês</td>
+        </tr>
+        <tr>
+          <td>Operação e manutenção recorrentes</td>
+          <td>R$ 22.200,00/mês</td>
+        </tr>
+        <tr>
+          <td><strong>Total recorrente mensal consolidado</strong></td>
+          <td><strong>R$ 30.410,02/mês</strong></td>
+        </tr>
+        <tr>
+          <td>Domínio anual</td>
+          <td>R$ 172,00/ano</td>
+        </tr>
+        <tr>
+          <td>Notebooks para equipe</td>
+          <td>R$ 76.132,00</td>
+        </tr>
+        <tr>
+          <td>Servidores físicos para cenário híbrido</td>
+          <td>R$ 108.856,00</td>
+        </tr>
+        <tr>
+          <td><strong>Investimento inicial com notebooks + servidores físicos</strong></td>
+          <td><strong>R$ 184.988,00</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Leitura executiva</h3>
+    <ul>
+      <li><strong>Cenário nuvem puro e piloto assistido:</strong> tende a ser substancialmente mais barato que o cenário híbrido, porque elimina servidores físicos e parte da complexidade local.</li>
+      <li><strong>Cenário institucional conservador:</strong> o mais prudente para apresentação orçamentária é considerar o total mensal de R$ 30,4 mil e investimento inicial potencial de R$ 185 mil se houver exigência de hardware dedicado.</li>
+      <li><strong>Cenário municipal mais rígido:</strong> pode subir acima disso quando entrar monitoramento corporativo, licenças, compliance, integração legada e equipe interna mais ampla.</li>
+    </ul>
+
+    <h3>Leitura estratégica de expansão territorial</h3>
+    <p>
+      Com essa base financeira e tecnológica, o Athena já possui estrutura suficiente para sustentar uma entrada robusta
+      em múltiplas prefeituras do estado do Rio de Janeiro, especialmente em modelo progressivo de implantação. A combinação
+      entre nuvem, autenticação gerenciada, base de dados centralizada, trilhas de auditoria e manutenção recorrente permite
+      absorver uma expansão regional com segurança maior do que a de um piloto isolado.
+    </p>
+    <p>
+      Para o território fluminense, o conjunto estimado neste documento é adequado para abrir frentes simultâneas, validar
+      operação em municípios de portes diferentes e consolidar uma base institucional replicável. Em outras palavras, o orçamento
+      apresentado já comporta uma fase de cobertura estadual progressiva, desde que a implantação seja organizada por ondas e com
+      governança operacional.
+    </p>
+    <p>
+      No longo prazo, essa mesma estrutura serve como base de entrada para expansão nacional, mas a ampliação para uma cobertura
+      vasta do Brasil exigirá reforço adicional em suporte, implantação, treinamento, integrações locais, governança contratual,
+      monitoramento e equipe técnica. Isso significa que o orçamento atual é suficiente como plataforma de largada e consolidação
+      inicial, mas a escala nacional ampla deverá ser tratada como uma segunda etapa de maturidade operacional e financeira.
+    </p>
+    <div class="callout ok">
+      <strong>Síntese executiva.</strong>
+      O investimento aqui projetado é suficiente para posicionar o Athena de forma competitiva em uma ampla frente de prefeituras
+      no estado do Rio de Janeiro e criar uma base sólida para expansão futura. Para o Brasil inteiro, ele funciona como alicerce
+      estratégico de longo prazo, desde que acompanhado por uma evolução proporcional da operação, do suporte e da capacidade de implantação.
+    </div>
+  </section>
+
+  <section class="page-break">
+    <h2>9. Recomendação institucional</h2>
+    <h3>Para piloto com até algumas dezenas de usuárias acompanhadas</h3>
+    <p>
+      Recomenda-se operar em nuvem, com Vercel + Supabase + Resend, e incorporar OTP por celular, monitoramento e suporte assistido.
+      Para essa fase, servidor físico não é requisito técnico.
+    </p>
+
+    <h3>Para implantação municipal mais formal</h3>
+    <p>
+      Recomenda-se adotar orçamento conservador e já prever:
+    </p>
+    <ul>
+      <li>camada adicional de proteção e DNS corporativo;</li>
+      <li>reserva para sustentação mensal;</li>
+      <li>mecanismo de auditoria, logs e evidências operacionais;</li>
+      <li>capacidade para ampliação de usuários e volume de mensagens;</li>
+      <li>eventual contingência híbrida, caso a TI institucional exija servidor local.</li>
+    </ul>
+
+    <div class="callout ok">
+      <strong>Conclusão gerencial.</strong>
+      O Athena já está suficientemente estruturado para funcionar como base institucional de acolhimento, atendimento e governança.
+      O desafio principal daqui para frente não é “se a tecnologia existe”, mas sim como financiar, operar, sustentar e expandir essa
+      tecnologia com segurança administrativa e previsibilidade orçamentária.
+    </div>
+  </section>
+
+  <section class="page-break">
+    <h2>10. Fontes e referências utilizadas</h2>
+    <p class="small">
+      Todos os links abaixo foram usados como base de referência de mercado ou documentação oficial em 12/05/2026.
+      Sempre que necessário, o documento aplicou uma leitura conservadora acima da referência.
+    </p>
+    <ul class="source-list">
+      <li>Vercel Pro Plan - <span class="muted">https://vercel.com/docs/plans/pro</span></li>
+      <li>Vercel Pricing - <span class="muted">https://vercel.com/pricing/</span></li>
+      <li>Vercel pricing overview - <span class="muted">https://vercel.com/docs/pricing</span></li>
+      <li>Supabase Pricing - <span class="muted">https://supabase.com/pricing</span></li>
+      <li>Resend Pricing - <span class="muted">https://resend.com/pricing</span></li>
+      <li>Twilio SMS Pricing Brazil - <span class="muted">https://www.twilio.com/en-us/sms/pricing/br</span></li>
+      <li>DigitalOcean Droplet Pricing - <span class="muted">https://www.digitalocean.com/pricing/droplets</span></li>
+      <li>Cloudflare Plans - <span class="muted">https://workers.cloudflare.com/plans</span></li>
+      <li>Cloudflare Pricing / Registrar - <span class="muted">https://www.cloudflare.com/pricing</span></li>
+      <li>Namecheap .cloud Domain Pricing - <span class="muted">https://www.namecheap.com/domains/registration/gtld/cloud/</span></li>
+      <li>Dell Precision 5770 - <span class="muted">https://www.dell.com/pt-br/shop/notebooks/notebook-precision-5770/spd/precision-17-5770-laptop/xctop5770br</span></li>
+      <li>Dell Latitude 5455 - <span class="muted">https://www.dell.com/pt-br/shop/notebooks-dell/notebook-latitude-5455/spd/latitude-14-5455-laptop</span></li>
+      <li>Dell PowerEdge R260 - <span class="muted">https://www.dell.com/pt-br/shop/ipovw/poweredge-r260</span></li>
+      <li>Dell PowerEdge R760xs - <span class="muted">https://www.dell.com/pt-br/shop/ipovw/poweredge-r760xs</span></li>
+      <li>Referência cambial observada em 12/05/2026 - <span class="muted">https://br.dolarhistorico.com/</span> e <span class="muted">https://wise.com/us/currency-converter/usd-to-brl-rate</span></li>
+    </ul>
+
+    <div class="footer">
+      Documento gerado para apresentação institucional. Versão: maio de 2026.
+      Os custos de pessoal, sustentação e contingência são estimativas gerenciais, não propostas comerciais fechadas.
+    </div>
+  </section>
+</body>
+</html>

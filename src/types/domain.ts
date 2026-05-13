@@ -22,6 +22,7 @@ export interface SessionUser {
   id: string;
   nome: string;
   email: string;
+  avatarUrl?: string | null;
   perfil: UserProfile;
   orgao: string | null;
   organizationId: string | null;
@@ -58,6 +59,7 @@ export interface CaseSummary {
   municipio: string;
   situacaoRisco: RiskLevel;
   orgaoEntrada: string;
+  orgaoAtual?: string | null;
   dataPrimeiroAtendimento: string;
   observacoesIniciais: string;
   status: CaseStatus;
@@ -160,6 +162,40 @@ export interface RegisterWomanPayload {
   uf: string;
 }
 
+export interface ProfileResponse {
+  user: SessionUser;
+  womanProfile?: WomanProfile | null;
+  pendingContactChanges?: PendingContactChange[];
+}
+
+export interface UpdateProfilePayload {
+  email: string;
+  telefone?: string;
+  novaSenha?: string;
+}
+
+export interface PendingContactChange {
+  id: string;
+  tipo: "email" | "telefone";
+  destinoMascarado: string;
+  expiraEm: string;
+}
+
+export interface ContactChangeRequestPayload {
+  tipo: "email" | "telefone";
+  valor: string;
+}
+
+export interface ContactChangeRequestResponse {
+  pendingChange: PendingContactChange;
+  previewCode?: string;
+}
+
+export interface ConfirmContactChangePayload {
+  tipo: "email" | "telefone";
+  codigo: string;
+}
+
 export interface LoginPayload {
   email: string;
   password: string;
@@ -191,6 +227,19 @@ export interface CreateSupportRequestPayload {
   situacaoRisco: RiskLevel;
   tiposViolencia?: ViolenceType[];
   etniaCor?: Ethnicity;
+}
+
+export interface CreateCasePayload {
+  nomeCompleto: string;
+  nomeSocial?: string;
+  cpf: string;
+  dataNascimento: string;
+  telefone: string;
+  endereco: string;
+  municipio: string;
+  uf: string;
+  observacoesIniciais: string;
+  situacaoRisco: RiskLevel;
 }
 
 export interface CreateInternalUserPayload {
@@ -230,4 +279,24 @@ export interface ChatTicket {
   unreadForWoman: number;
   unreadForTeam: number;
   messages: ChatMessage[];
+}
+
+export interface AuditLogItem {
+  id: string;
+  acao: string;
+  entidade: string;
+  entidadeId?: string | null;
+  data: string;
+}
+
+export interface UserNotificationItem {
+  id: string;
+  titulo: string;
+  descricao: string;
+  tipo: "info" | "success" | "alert";
+  acao: string;
+  entidade?: string | null;
+  entidadeId?: string | null;
+  lida: boolean;
+  data: string;
 }

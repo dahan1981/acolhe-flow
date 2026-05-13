@@ -1,36 +1,33 @@
 import type {
+  AuditLogItem,
   CaseDetail,
   CaseStatus,
   CaseSummary,
+  ConfirmContactChangePayload,
+  ContactChangeRequestPayload,
+  ContactChangeRequestResponse,
   CreateAttendancePayload,
+  CreateCasePayload,
+  ChatTicket,
   CreateInternalUserPayload,
   CreateReferralPayload,
   CreateSupportRequestPayload,
   LoginPayload,
   ManagerStats,
   Organization,
+  ProfileResponse,
   ProfessionalDashboardResponse,
   RegisterWomanPayload,
   SessionUser,
+  UpdateProfilePayload,
+  UserNotificationItem,
+  UserProfile,
   WomanDashboardResponse,
 } from "@/types/domain";
-import {
-  createDemoAttendance,
-  createDemoReferral,
-  createDemoSupportCase,
-  filterCases,
-  findDemoCase,
-  getOwnDemoCaseRecords,
-  getOwnLatestDemoCase,
-  mergeCaseCollections,
-  mergeManagerStats,
-  mergeProfessionalDashboard,
-  updateDemoCaseStatus,
-} from "@/lib/demo-case-store";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 
-type RequestOptions = RequestInit & {
+type RequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
 };
 
@@ -63,31 +60,83 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
 export const api = {
   async login(payload: LoginPayload) {
-    return request<{ user: SessionUser }>("/api/auth/login", {
+    return request<{ user: SessionUser }>("/api/session/login", {
       method: "POST",
       body: payload,
     });
   },
 
   async registerWoman(payload: RegisterWomanPayload) {
-    return request<{ user: SessionUser }>("/api/auth/register", {
+    return request<{ user: SessionUser }>("/api/session/register", {
       method: "POST",
       body: payload,
     });
   },
 
+  async syncSupabaseWoman(accessToken: string, profile?: RegisterWomanPayload) {
+    return request<{ user: SessionUser }>("/api/session/women/supabase", {
+      method: "POST",
+      body: {
+        accessToken,
+        profile,
+      },
+    });
+  },
+
+  async syncSupabaseSession(accessToken: string, perfil?: UserProfile) {
+    return request<{ user: SessionUser }>("/api/session/supabase", {
+      method: "POST",
+      body: {
+        accessToken,
+        perfil,
+      },
+    });
+  },
+
   async logout() {
-    return request<void>("/api/auth/logout", {
+    return request<void>("/api/session/logout", {
       method: "POST",
     });
   },
 
   async me() {
-    return request<{ user: SessionUser }>("/api/auth/me");
+    return request<{ user: SessionUser }>("/api/session/me");
   },
 
   async getProfile() {
-    return request<{ user: SessionUser }>("/api/profile");
+    return request<ProfileResponse>("/api/profile");
+  },
+
+  async updateProfile(payload: UpdateProfilePayload) {
+    return request<ProfileResponse>("/api/profile", {
+      method: "PATCH",
+      body: payload,
+    });
+  },
+
+  async requestContactChange(payload: ContactChangeRequestPayload) {
+    return request<ContactChangeRequestResponse>("/api/profile/contact-changes/request", {
+      method: "POST",
+      body: payload,
+    });
+  },
+
+  async confirmContactChange(payload: ConfirmContactChangePayload) {
+    return request<ProfileResponse>("/api/profile/contact-changes/confirm", {
+      method: "POST",
+      body: payload,
+    });
+  },
+
+  async updateProfileAvatar(payload: {
+    imageBase64: string;
+    contentType: "image/jpeg" | "image/png" | "image/webp";
+    fileName: string;
+  }) {
+    return request<ProfileResponse>("/api/profile/avatar", {
+      method: "POST",
+      body: payload,
+    });
   },
 
   async getOrganizations() {
@@ -95,47 +144,18 @@ export const api = {
   },
 
   async getWomanDashboard() {
-    const remote = await request<WomanDashboardResponse>("/api/woman/dashboard");
-    const latestDemoCase = getOwnLatestDemoCase();
-    const ownDemoRecords = getOwnDemoCaseRecords();
-
-    if (!latestDemoCase) {
-      return remote;
-    }
-
-    const demoAttendances = ownDemoRecords.flatMap((item) => item.caseData.atendimentos);
-    const demoReferrals = ownDemoRecords.flatMap((item) => item.caseData.encaminhamentos);
-    const demoRequests = ownDemoRecords.flatMap((item) => item.caseData.solicitacoesApoio);
-
-    return {
-      caso: latestDemoCase,
-      atendimentosRecentes: [...demoAttendances, ...remote.atendimentosRecentes]
-        .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime())
-        .slice(0, 4),
-      encaminhamentosRecentes: [...demoReferrals, ...remote.encaminhamentosRecentes]
-        .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime())
-        .slice(0, 4),
-      solicitacoesApoio: [...demoRequests, ...remote.solicitacoesApoio]
-        .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime())
-        .slice(0, 6),
-    };
+    return request<WomanDashboardResponse>("/api/woman/dashboard");
   },
 
   async getWomanCase() {
-    const remote = await request<{ caso: CaseDetail | null }>("/api/woman/case");
-    const latestDemoCase = getOwnLatestDemoCase();
-    return { caso: latestDemoCase ?? remote.caso };
+    return request<{ caso: CaseDetail | null }>("/api/woman/case");
   },
 
   async createSupportRequest(payload: CreateSupportRequestPayload) {
-    const demoCase = createDemoSupportCase(payload);
-
-    request<{ caseId: string }>("/api/woman/help-requests", {
+    return request<{ caseId: string; solicitacao: unknown }>("/api/woman/help-requests", {
       method: "POST",
       body: payload,
-    }).catch(() => undefined);
-
-    return { caseId: demoCase.id };
+    });
   },
 
   async createInternalUser(payload: CreateInternalUserPayload) {
@@ -146,13 +166,11 @@ export const api = {
   },
 
   async getProfessionalDashboard() {
-    const remote = await request<ProfessionalDashboardResponse>("/api/professional/dashboard");
-    return mergeProfessionalDashboard(remote);
+    return request<ProfessionalDashboardResponse>("/api/professional/dashboard");
   },
 
   async getManagerDashboard() {
-    const remote = await request<{ stats: ManagerStats }>("/api/manager/dashboard");
-    return { stats: mergeManagerStats(remote.stats) };
+    return request<{ stats: ManagerStats }>("/api/manager/dashboard");
   },
 
   async getManagerReportSummary() {
@@ -163,39 +181,28 @@ export const api = {
     const params = new URLSearchParams();
     if (search) params.set("search", search);
     if (status) params.set("status", status);
-    const remote = await request<{ casos: CaseSummary[] }>(`/api/cases?${params.toString()}`);
-    return {
-      casos: filterCases(mergeCaseCollections(remote.casos), search, status),
-    };
+    return request<{ casos: CaseSummary[] }>(`/api/cases?${params.toString()}`);
   },
 
   async getCase(id: string) {
-    const demoCase = findDemoCase(id);
-    if (demoCase) {
-      return { caso: demoCase };
-    }
-
     return request<{ caso: CaseDetail }>(`/api/cases/${id}`);
   },
 
   async updateCaseStatus(id: string, status: CaseStatus) {
-    const demoCase = updateDemoCaseStatus(id, status);
-    if (demoCase) {
-      return { caso: demoCase };
-    }
-
     return request<{ caso: CaseSummary }>(`/api/cases/${id}/status`, {
       method: "PATCH",
       body: { status },
     });
   },
 
-  async createAttendance(payload: CreateAttendancePayload) {
-    const demoAttendance = createDemoAttendance(payload);
-    if (demoAttendance) {
-      return { atendimento: demoAttendance };
-    }
+  async createCase(payload: CreateCasePayload) {
+    return request<{ caso: CaseSummary }>("/api/cases", {
+      method: "POST",
+      body: payload,
+    });
+  },
 
+  async createAttendance(payload: CreateAttendancePayload) {
     return request("/api/attendances", {
       method: "POST",
       body: payload,
@@ -203,15 +210,6 @@ export const api = {
   },
 
   async createReferral(payload: CreateReferralPayload) {
-    const organizations = await this.getOrganizations().catch(() => ({ organizations: [] as Array<{ id: string; nome: string }> }));
-    const orgName =
-      organizations.organizations.find((item) => item.id === payload.orgaoDestinoId)?.nome ?? "Orgao de destino";
-    const demoReferral = createDemoReferral(payload, orgName);
-
-    if (demoReferral) {
-      return { encaminhamento: demoReferral };
-    }
-
     return request("/api/referrals", {
       method: "POST",
       body: payload,
@@ -229,5 +227,53 @@ export const api = {
     }
 
     return response.blob();
+  },
+
+  async getChats() {
+    return request<{ chats: ChatTicket[] }>("/api/chats");
+  },
+
+  async getChat(id: string) {
+    return request<{ chat: ChatTicket }>(`/api/chats/${id}`);
+  },
+
+  async createChat(context?: string) {
+    return request<{ chat: ChatTicket }>("/api/chats", {
+      method: "POST",
+      body: { context },
+    });
+  },
+
+  async sendChatMessage(id: string, body: string) {
+    return request<{ chat: ChatTicket }>(`/api/chats/${id}/messages`, {
+      method: "POST",
+      body: { body },
+    });
+  },
+
+  async assumeChat(id: string) {
+    return request<{ chat: ChatTicket }>(`/api/chats/${id}/assume`, {
+      method: "POST",
+    });
+  },
+
+  async markChatAsRead(id: string) {
+    return request<{ chat: ChatTicket }>(`/api/chats/${id}/read`, {
+      method: "POST",
+    });
+  },
+
+  async closeChat(id: string) {
+    return request<{ chat: ChatTicket }>(`/api/chats/${id}/close`, {
+      method: "POST",
+    });
+  },
+
+  async getMyAuditLogs() {
+    return request<{ logs: AuditLogItem[] }>("/api/audit-logs/me");
+  },
+
+  async getMyNotifications() {
+    return request<{ notifications: UserNotificationItem[] }>("/api/notifications/me");
   },
 };

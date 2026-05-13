@@ -6,19 +6,19 @@ import { useAuthStore } from "@/stores/auth-store";
 
 const accessCapabilities = {
   mulher: [
-    "Registrar solicitacoes e acompanhar o proprio caso",
-    "Visualizar historico simplificado e comunicacoes relevantes",
-    "Ajustar preferencias basicas da conta",
+    "Registrar solicitações e acompanhar o próprio caso",
+    "Visualizar histórico simplificado e comunicações relevantes",
+    "Ajustar preferências básicas da conta",
   ],
   profissional: [
     "Consultar casos autorizados para atendimento",
-    "Registrar atendimento, observacoes e encaminhamentos",
-    "Acessar orientacoes operacionais e resumo de permissoes",
+    "Registrar atendimento, observações e encaminhamentos",
+    "Acessar orientações operacionais e resumo de permissões",
   ],
   gestora: [
-    "Visualizar indicadores, relatorios e volume por orgao",
-    "Organizar acessos internos e revisar governanca",
-    "Administrar equipe e acompanhar comunicacoes gerenciais",
+    "Visualizar indicadores, relatórios e volume por órgão",
+    "Organizar acessos internos e revisar governança",
+    "Administrar equipe e acompanhar comunicações gerenciais",
   ],
 } as const;
 
@@ -28,7 +28,7 @@ export default function AccessOverviewPage() {
   if (!currentUser) return null;
 
   return (
-    <AppLayout title="Permissoes e acesso" subtitle="Leitura clara do escopo disponivel em cada ambiente.">
+    <AppLayout title="Permissões e acesso" subtitle="Leitura clara do escopo disponível em cada ambiente.">
       <div className="space-y-5">
         <section className="rounded-[28px] border border-white/60 bg-card/90 p-5 shadow-card">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
@@ -54,7 +54,7 @@ export default function AccessOverviewPage() {
         <section className="rounded-[24px] border border-border/70 bg-card/90 p-5 shadow-card">
           <div className="mb-3 flex items-center gap-2">
             <LockKeyhole className="h-4 w-4 text-primary" />
-            <h3 className="text-base font-semibold text-foreground">Boas praticas de governanca</h3>
+            <h3 className="text-base font-semibold text-foreground">Boas práticas de governança</h3>
           </div>
           <div className="space-y-3">
             {adminAccessChecklist.map((item) => (

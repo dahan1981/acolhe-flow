@@ -1,19 +1,19 @@
-# AcolheSistemas
+# Athena
 
-Aplicacao full-stack para acolhimento unificado a mulher, com frontend React/Vite e backend Express + Prisma.
+Aplicação full-stack para acolhimento unificado à mulher, com frontend React/Vite e backend Express + Prisma.
 
 ## Stack
 
 - Frontend: React, TypeScript, Vite, Tailwind
 - Backend: Node.js, Express, Prisma
 - Banco recomendado: Postgres
-- Autenticacao: JWT em cookie HttpOnly
+- Autenticação: JWT em cookie HttpOnly
 
 ## Perfis
 
-- `mulher`: cadastro publico permitido, acesso apenas aos proprios dados
-- `profissional`: criado internamente, acessa casos compativeis com sua organizacao/permissao
-- `gestora`: criada internamente, acessa painel gerencial e criacao protegida de contas internas
+- `mulher`: cadastro público permitido, acesso apenas aos próprios dados
+- `profissional`: criado internamente, acessa casos compatíveis com sua organização/permissão
+- `gestora`: criada internamente, acessa painel gerencial e criação protegida de contas internas
 
 ## Requisitos
 
@@ -42,7 +42,7 @@ npm run db:seed
 npm run dev:full
 ```
 
-Aplicacoes:
+Aplicações:
 
 - Frontend: `http://localhost:8080`
 - API: `http://localhost:4000`
@@ -52,6 +52,9 @@ Aplicacoes:
 - Mulher: `ana@exemplo.com` / `Acolhe@123`
 - Profissional: `carla@exemplo.com` / `Acolhe@123`
 - Gestora: `fernanda@exemplo.com` / `Acolhe@123`
+
+Em desenvolvimento, a conta seed da Mulher continua podendo entrar localmente para bootstrap e demonstração.
+Em produção, mantenha `ALLOW_LOCAL_WOMAN_SEED_LOGIN=false`.
 
 ## Scripts
 
@@ -68,11 +71,11 @@ Aplicacoes:
 
 O caminho recomendado para este projeto e:
 
-- Railway para hospedar a aplicacao Node
+- Railway para hospedar a aplicação Node
 - Postgres gerenciado no proprio Railway
 - frontend e backend no mesmo servico
 
-Isso evita os limites de hospedagem estatica e e compativel com autenticacao, API protegida e persistencia real.
+Isso evita os limites de hospedagem estática e é compatível com autenticação, API protegida e persistência real.
 
 ## Como subir no Railway
 
@@ -83,8 +86,8 @@ Isso evita os limites de hospedagem estatica e e compativel com autenticacao, AP
    - `DATABASE_URL`: use a do Postgres do Railway
    - `JWT_SECRET`: gere uma chave forte
    - `JWT_EXPIRES_IN=12h`
-   - `AUTH_COOKIE_NAME=acolhe_auth`
-   - `APP_WEB_ORIGIN=https://seu-dominio.com` ou URL publica do Railway
+   - `AUTH_COOKIE_NAME=athena_auth`
+   - `APP_WEB_ORIGIN=https://seu-dominio.com` ou URL pública do Railway
    - `VITE_API_BASE_URL=` deixe vazio para usar mesma origem
 5. Build command:
    - `npm install && npm run build`
@@ -97,7 +100,7 @@ Isso evita os limites de hospedagem estatica e e compativel com autenticacao, AP
 
 ## Seed em ambiente remoto
 
-Para bootstrap inicial no Railway, rode quando quiser dados de demonstracao:
+Para bootstrap inicial no Railway, rode quando quiser dados de demonstração:
 
 ```bash
 npm run db:seed
@@ -107,12 +110,12 @@ Depois disso, remova as contas de exemplo se for um ambiente de uso real.
 
 ## Dominio GoDaddy
 
-GoDaddy cuida do DNS, nao da execucao da aplicacao.
+GoDaddy cuida do DNS, não da execução da aplicação.
 
 Fluxo recomendado:
 
 1. publique no Railway
-2. valide com a URL publica do Railway
+2. valide com a URL pública do Railway
 3. adicione seu dominio customizado no Railway
 4. aponte o DNS na GoDaddy para o alvo informado pelo Railway
 5. atualize `APP_WEB_ORIGIN` para o dominio final
@@ -123,8 +126,8 @@ Foi implementada uma rota protegida `POST /api/internal/users`, acessivel apenas
 
 Motivo:
 
-- evita cadastro publico indevido
-- nao depende de seeds fixas para operar em ambiente real
+- evita cadastro público indevido
+- não depende de seeds fixas para operar em ambiente real
 - encaixa na base atual sem exigir painel administrativo novo neste primeiro ciclo
 
 As contas seed continuam existindo apenas para desenvolvimento inicial e bootstrap.
